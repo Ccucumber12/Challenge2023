@@ -1,0 +1,15 @@
+# python
+*.pyc
+.python-version
+__pycache__/
+
+# VScode
+.vscode/
+
+# MacOS
+.DS_Store
+.DS_Store?
+
+# caches
+.cache
+*.swp
