@@ -31,7 +31,7 @@ class GameEngine:
         '''
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
-        self.players = [Player(0), Player(1)]
+        self.players = [Player(0), Player(1), Player(2), Player(3)]
 
     def handle_every_tick(self, event):
         cur_state = self.state
