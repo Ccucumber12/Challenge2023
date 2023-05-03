@@ -36,7 +36,7 @@ class Controller:
             if event_pg.type == pg.KEYDOWN:
                 key_down_events.append(event_pg)
 
-        cur_state = self.model.state_machine.peek()
+        cur_state = self.model.state
         if cur_state == Const.STATE_MENU: self.ctrl_menu(key_down_events)
         if cur_state == Const.STATE_PLAY: self.ctrl_play(key_down_events)
         if cur_state == Const.STATE_STOP: self.ctrl_stop(key_down_events)

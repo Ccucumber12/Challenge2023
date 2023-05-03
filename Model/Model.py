@@ -6,54 +6,6 @@ from EventManager.EventManager import *
 import Const
 
 
-class StateMachine(object):
-    '''
-    Manages a stack based state machine.
-    peek(), pop() and push() perform as traditionally expected.
-    peeking and popping an empty stack returns None.
-
-    TL;DR. Just for game state recording.
-    '''
-    def __init__(self):
-        self.statestack = []
-
-    def peek(self):
-        '''
-        Returns the current state without altering the stack.
-        Returns None if the stack is empty.
-        '''
-        try:
-            return self.statestack[-1]
-        except IndexError:
-            # empty stack
-            return None
-
-    def pop(self):
-        '''
-        Returns the current state and remove it from the stack.
-        Returns None if the stack is empty.
-        '''
-        try:
-            return self.statestack.pop()
-        except IndexError:
-            # empty stack
-            return None
-
-    def push(self, state):
-        '''
-        Push a new state onto the stack.
-        Returns the pushed value.
-        '''
-        self.statestack.append(state)
-        return state
-
-    def clear(self):
-        '''
-        Clear the stack.
-        '''
-        self.statestack = []
-
-
 class GameEngine:
     '''
     The main game engine. The main loop of the game is in GameEngine.run()
@@ -67,18 +19,22 @@ class GameEngine:
         '''
         self.ev_manager = ev_manager
         self.register_listeners()
-        self.state_machine = StateMachine()
+        self._state = None
+
+    @property
+    def state(self):
+        return self._state
 
     def initialize(self, event):
         '''
         This method is called when a new game is instantiated.
         '''
         self.clock = pg.time.Clock()
-        self.state_machine.push(Const.STATE_MENU)
+        self._state = Const.STATE_MENU
         self.players = [Player(0), Player(1)]
 
     def handle_every_tick(self, event):
-        cur_state = self.state_machine.peek()
+        cur_state = self.state
         if cur_state == Const.STATE_MENU:
             self.update_menu()
         elif cur_state == Const.STATE_PLAY:
@@ -91,11 +47,7 @@ class GameEngine:
             self.update_endgame()
 
     def handle_state_change(self, event):
-        if event.state == Const.STATE_POP:
-            if self.state_machine.pop() is None:
-                self.ev_manager.post(EventQuit())
-        else:
-            self.state_machine.push(event.state)
+        self._state = event.state
 
     def handle_quit(self, event):
         self.running = False
@@ -104,7 +56,7 @@ class GameEngine:
         self.players[event.player_id].move_direction(event.direction)
 
     def handle_times_up(self, event):
-        self.state_machine.push(Const.STATE_ENDGAME)
+        self.ev_manager.post(EventStateChange(Const.STATE_ENDGAME))
 
     def register_listeners(self):
         self.ev_manager.register_listener(EventInitialize, self.initialize)

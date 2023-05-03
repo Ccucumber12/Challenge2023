@@ -35,7 +35,7 @@ class GraphicalView:
     def handle_every_tick(self, event):
         self.display_fps()
 
-        cur_state = self.model.state_machine.peek()
+        cur_state = self.model.state
         if cur_state == Const.STATE_MENU: self.render_menu()
         elif cur_state == Const.STATE_PLAY: self.render_play()
         elif cur_state == Const.STATE_STOP: self.render_stop()
