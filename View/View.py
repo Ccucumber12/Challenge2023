@@ -18,7 +18,7 @@ class GraphicalView:
             , they should be initialized in GraphicalView.initialize()
         '''
         self.ev_manager = ev_manager
-        ev_manager.register_listener(self)
+        self.register_listeners()
 
         self.model = model
 
@@ -26,27 +26,24 @@ class GraphicalView:
         pg.display.set_caption(Const.WINDOW_CAPTION)
         self.background.fill(Const.BACKGROUND_COLOR)
 
-    def initialize(self):
+    def initialize(self, event):
         '''
         This method is called when a new game is instantiated.
         '''
         pass
 
-    def notify(self, event):
-        '''
-        Called by EventManager when a event occurs.
-        '''
-        if isinstance(event, EventInitialize):
-            self.initialize()
+    def handle_every_tick(self, event):
+        self.display_fps()
 
-        elif isinstance(event, EventEveryTick):
-            self.display_fps()
+        cur_state = self.model.state_machine.peek()
+        if cur_state == Const.STATE_MENU: self.render_menu()
+        elif cur_state == Const.STATE_PLAY: self.render_play()
+        elif cur_state == Const.STATE_STOP: self.render_stop()
+        elif cur_state == Const.STATE_ENDGAME: self.render_endgame()
 
-            cur_state = self.model.state_machine.peek()
-            if cur_state == Const.STATE_MENU: self.render_menu()
-            elif cur_state == Const.STATE_PLAY: self.render_play()
-            elif cur_state == Const.STATE_STOP: self.render_stop()
-            elif cur_state == Const.STATE_ENDGAME: self.render_endgame()
+    def register_listeners(self):
+        self.ev_manager.register_listener(EventInitialize, self.initialize)
+        self.ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
 
     def display_fps(self):
         '''

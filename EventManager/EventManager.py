@@ -4,14 +4,16 @@ class EventManager:
     Model, View, and Controller are all listeners, the EventManager will broadcast an event to them by post()
     '''
     def __init__(self):
-        self.listeners = []
+        self.listeners = dict()
 
-    def register_listener(self, listener):
+    def register_listener(self, event, listener):
         '''
         Adds a listener to our spam list.
         It will receive Post()ed events through it's notify(event) call.
         '''
-        self.listeners.append(listener)
+        if event not in self.listeners:
+            self.listeners[event] = []
+        self.listeners[event].append(listener)
 
     def unregister_listener(self, listener):
         '''
@@ -29,8 +31,10 @@ class EventManager:
         # # this segment use to debug
         # if not (isinstance(event, Event_EveryTick) or isinstance(event, Event_EverySec)):
         #     print( str(event) )
-        for listener in self.listeners:
-            listener.notify(event)
+        if type(event) not in self.listeners:
+            return
+        for listener in self.listeners[type(event)]:
+            listener(event)
 
 
 class BaseEvent:

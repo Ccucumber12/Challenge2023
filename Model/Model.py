@@ -66,11 +66,10 @@ class GameEngine:
             , they should be initialized in GameEngine.initialize()
         '''
         self.ev_manager = ev_manager
-        ev_manager.register_listener(self)
-
+        self.register_listeners()
         self.state_machine = StateMachine()
 
-    def initialize(self):
+    def initialize(self, event):
         '''
         This method is called when a new game is instantiated.
         '''
@@ -78,42 +77,42 @@ class GameEngine:
         self.state_machine.push(Const.STATE_MENU)
         self.players = [Player(0), Player(1)]
 
-    def notify(self, event: BaseEvent):
-        '''
-        Called by EventManager when a event occurs.
-        '''
-        if isinstance(event, EventInitialize):
-            self.initialize()
+    def handle_every_tick(self, event):
+        cur_state = self.state_machine.peek()
+        if cur_state == Const.STATE_MENU:
+            self.update_menu()
+        elif cur_state == Const.STATE_PLAY:
+            self.update_objects()
 
-        elif isinstance(event, EventEveryTick):
-            # Peek the state of the game and do corresponding work
-            cur_state = self.state_machine.peek()
-            if cur_state == Const.STATE_MENU:
-                self.update_menu()
-            elif cur_state == Const.STATE_PLAY:
-                self.update_objects()
+            self.timer -= 1
+            if self.timer == 0:
+                self.ev_manager.post(EventTimesUp())
+        elif cur_state == Const.STATE_ENDGAME:
+            self.update_endgame()
 
-                self.timer -= 1
-                if self.timer == 0:
-                    self.ev_manager.post(EventTimesUp())
-            elif cur_state == Const.STATE_ENDGAME:
-                self.update_endgame()
+    def handle_state_change(self, event):
+        if event.state == Const.STATE_POP:
+            if self.state_machine.pop() is None:
+                self.ev_manager.post(EventQuit())
+        else:
+            self.state_machine.push(event.state)
 
-        elif isinstance(event, EventStateChange):
-            if event.state == Const.STATE_POP:
-                if self.state_machine.pop() is None:
-                    self.ev_manager.post(EventQuit())
-            else:
-                self.state_machine.push(event.state)
+    def handle_quit(self, event):
+        self.running = False
 
-        elif isinstance(event, EventQuit):
-            self.running = False
+    def handle_move(self, event):
+        self.players[event.player_id].move_direction(event.direction)
 
-        elif isinstance(event, EventPlayerMove):
-            self.players[event.player_id].move_direction(event.direction)
+    def handle_times_up(self, event):
+        self.state_machine.push(Const.STATE_ENDGAME)
 
-        elif isinstance(event, EventTimesUp):
-            self.state_machine.push(Const.STATE_ENDGAME)
+    def register_listeners(self):
+        self.ev_manager.register_listener(EventInitialize, self.initialize)
+        self.ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
+        self.ev_manager.register_listener(EventStateChange, self.handle_state_change)
+        self.ev_manager.register_listener(EventQuit, self.handle_quit)
+        self.ev_manager.register_listener(EventPlayerMove, self.handle_move)
+        self.ev_manager.register_listener(EventTimesUp, self.handle_times_up)
 
     def update_menu(self):
         '''
