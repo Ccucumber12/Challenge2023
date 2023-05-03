@@ -71,6 +71,9 @@ class GraphicalView:
         for player in self.model.players:
             center = list(map(int, player.position))
             pg.draw.circle(self.screen, Const.PLAYER_COLOR[player.player_id], center, Const.PLAYER_RADIUS)
+        for ghost in self.model.ghosts:
+            center = list(map(int, ghost.position))
+            pg.draw.circle(self.screen, Const.GHOST_COLOR[ghost.ghost_id], center, Const.GHOST_RADIUS)
 
         pg.display.flip()
 

@@ -1,6 +1,7 @@
 import random
 
 import pygame as pg
+from math import sqrt
 
 from EventManager.EventManager import *
 import Const
@@ -32,6 +33,7 @@ class GameEngine:
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
         self.players = [Player(0), Player(1), Player(2), Player(3)]
+        self.ghosts = [Ghost(0)]
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -45,6 +47,7 @@ class GameEngine:
                 self.ev_manager.post(EventTimesUp())
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
+        self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
 
     def handle_state_change(self, event):
         self._state = event.state
@@ -114,6 +117,25 @@ class Player:
         '''
         # Modify position of player
         self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
+
+        # clipping
+        self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
+        self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+
+class Ghost:
+    def __init__(self, ghost_id):
+        self.ghost_id = ghost_id
+        self.position = Const.GHOST_INIT_POSITION[ghost_id] # is a pg.Vector2
+        self.speed = Const.GHOST_INIT_SPEED
+
+    def move_direction(self, direction):
+        '''
+        Move the player along the direction by its speed.
+        Will automatically clip the position so no need to worry out-of-bound moving.
+        '''
+        # Modify position of player
+        self.position.x += self.speed / Const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+        self.position.y += self.speed / Const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
 
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))

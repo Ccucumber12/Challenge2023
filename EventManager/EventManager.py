@@ -86,3 +86,12 @@ class EventPlayerMove(BaseEvent):
 
     def __str__(self):
         return f'{self.name} => player_id {self.player_id} move {self.direction}'
+
+class EventGhostMove(BaseEvent):
+    name = 'GhostMove event'
+
+    def __init__(self, ghost_id, direction):
+        self.ghost_id = ghost_id
+        self.direction = direction
+    def __str__(self):
+        return f'{self.name} => ghost_id {self.ghost_id} move {self.direction}'
