@@ -103,12 +103,36 @@ class GameEngine:
             self.ev_manager.post(EventEveryTick())
             self.clock.tick(Const.FPS)
 
+class Character:
+    '''
+    Parent class of Player and Ghost
+    '''
+    def __init__(self, position, speed):
+        self.position = position # is a pg.Vector2
+        self.speed = speed
 
-class Player:
+    def move(self, x, y):
+        '''
+        +x: right, +y: down 
+        (x, y) will be automatically transfered to unit vector.
+        Move the player along the direction by its speed.
+        Will automatically clip the position so no need to worry out-of-bound moving.
+        '''
+        r = (x*x+y*y)**(1/2)
+
+        # Modify position of player
+        self.position += self.speed / Const.FPS * pg.Vector2((x/r), (y/r));
+
+        # clipping
+        self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
+        self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+
+class Player(Character):
     def __init__(self, player_id):
         self.player_id = player_id
-        self.position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
-        self.speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
+        speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        super().__init__(position, speed)
 
     def move_direction(self, direction: str):
         '''
@@ -116,11 +140,9 @@ class Player:
         Will automatically clip the position so no need to worry out-of-bound moving.
         '''
         # Modify position of player
-        self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
-
-        # clipping
-        self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+        x = 1 if direction == 'right' else -1 if direction == 'left' else 0
+        y = 1 if direction == 'down' else -1 if direction == 'up' else 0
+        super().move(x, y)
 
 class Ghost:
     def __init__(self, ghost_id):
