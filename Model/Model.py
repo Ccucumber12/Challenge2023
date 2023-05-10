@@ -94,10 +94,18 @@ class GameEngine:
                 self.update_objects()
 
                 self.timer -= 1
+
+                # checks if a new second has passed and calls each player to update score
+                self.second_change = True if (Const.GAME_LENGTH - self.timer) % Const.FPS == 0 else False
+                self.minutes_passed = ((Const.GAME_LENGTH - self.timer) // Const.FPS) // 60
+                if self.second_change:
+                    for player in self.players:
+                        player.add_score(self.minutes_passed); 
+
                 if self.timer == 0:
                     self.ev_manager.post(EventTimesUp())
             elif cur_state == Const.STATE_ENDGAME:
-                self.update_endgame()
+                    self.update_endgame()
 
         elif isinstance(event, EventStateChange):
             if event.state == Const.STATE_POP:
@@ -148,13 +156,13 @@ class GameEngine:
         while self.running:
             self.ev_manager.post(EventEveryTick())
             self.clock.tick(Const.FPS)
-
-
+            
 class Player:
     def __init__(self, player_id):
         self.player_id = player_id
         self.position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
         self.speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        self.score = 0
 
     def move_direction(self, direction: str):
         '''
@@ -167,3 +175,15 @@ class Player:
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+
+    def add_score(self, minutes: int):
+        #if self.dead:
+        #    return
+        if minutes == 0:
+            self.score += 2; 
+        elif minutes == 1:
+            self.score += 3; 
+        else:
+            self.score += 5; 
+        #print(self.score)
+
