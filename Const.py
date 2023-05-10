@@ -16,6 +16,7 @@ DIRECTION_TO_VEC2 = {
     'right': pg.Vector2(1, 0),
 }
 GHOST_INIT_SPEED = 120
+PLAYER_RESPAWN_TIME = 5
 
 
 # State machine constants

@@ -109,6 +109,20 @@ class Player:
         self.player_id = player_id
         self.position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
         self.speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        self.dead = False
+        self.invisible = False
+        self.invincible = False
+        self.respawn_timer = 0
+
+    def tick(self):
+        '''
+        Run when EventEveryTick() arises.
+        '''
+        if self.dead:
+            self.respawn_timer -= 1
+        
+        if self.respawn_timer <= 0:
+            self.dead = False
 
     def move_direction(self, direction: str):
         '''
@@ -121,6 +135,21 @@ class Player:
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+    
+    def caught(self):
+        '''
+        Caught by the ghost.
+        Kill player
+        '''
+        if self.respawn_timer <= 0:
+            self.dead = True
+            self.respawn_timer = Const.PLAYER_RESPAWN_TIME
+    
+    def isinvisible(self):
+        return self.dead or self.invisible or self.invincible
+
+
+
 
 class Ghost:
     def __init__(self, ghost_id):
