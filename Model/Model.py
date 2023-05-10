@@ -5,6 +5,7 @@ from math import sqrt
 
 from EventManager.EventManager import *
 import Const
+from Model.Map import load_map
 
 
 class GameEngine:
@@ -21,6 +22,7 @@ class GameEngine:
         self.ev_manager = ev_manager
         self.register_listeners()
         self._state = None
+        self.map = load_map('Maps/emptymap')
 
     @property
     def state(self):
@@ -32,7 +34,7 @@ class GameEngine:
         '''
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
-        self.players = [Player(0), Player(1), Player(2), Player(3)]
+        self.players = [Player(0, self), Player(1, self), Player(2, self), Player(3, self)]
         self.ghosts = [Ghost(0)]
 
     def handle_every_tick(self, event):
@@ -115,9 +117,10 @@ class Character:
     '''
     Parent class of Player and Ghost
     '''
-    def __init__(self, position, speed):
+    def __init__(self, position, speed, model):
         self.position = position # is a pg.Vector2
         self.speed = speed
+        self.model = model
 
     def move(self, x, y):
         '''
@@ -128,19 +131,32 @@ class Character:
         '''
         r = (x*x+y*y)**(1/2)
 
-        # Modify position of player
-        self.position += self.speed / Const.FPS * pg.Vector2((x/r), (y/r));
+        # Calculate new position
+        new_position = self.position + self.speed / Const.FPS * pg.Vector2((x/r), (y/r));
 
-        # clipping
-        self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+        # clamp
+        new_position.x = max(0, min(Const.ARENA_SIZE[0], new_position.x))
+        new_position.y = max(0, min(Const.ARENA_SIZE[1], new_position.y))
+
+        # Todo: Obstacle checking
+        if self.model.map.get_type(new_position) == Const.MAP_OBSTACLE:
+            return
+
+        # Todo: Portal
+        portal = self.model.map.get_portal(new_position)
+        if portal is not None:
+            print('Portal', portal)
+
+        # Update
+        self.position = new_position
+
 
 class Player(Character):
-    def __init__(self, player_id):
+    def __init__(self, player_id, model):
         self.player_id = player_id
         position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
         speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
-        super().__init__(position, speed)
+        super().__init__(position, speed, model)
         self.dead = False
         self.invisible = False
         self.invincible = False
