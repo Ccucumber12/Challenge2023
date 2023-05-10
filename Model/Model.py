@@ -5,6 +5,7 @@ from math import sqrt
 
 from EventManager.EventManager import *
 import Const
+from Model.Map import load_map
 
 
 class GameEngine:
@@ -21,6 +22,7 @@ class GameEngine:
         self.ev_manager = ev_manager
         self.register_listeners()
         self._state = None
+        self.map = load_map('Maps/emptymap')
 
     @property
     def state(self):
@@ -32,7 +34,7 @@ class GameEngine:
         '''
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
-        self.players = [Player(0), Player(1), Player(2), Player(3)]
+        self.players = [Player(0, self), Player(1, self), Player(2, self), Player(3, self)]
         self.ghosts = [Ghost(0)]
 
     def handle_every_tick(self, event):
@@ -105,22 +107,35 @@ class GameEngine:
 
 
 class Player:
-    def __init__(self, player_id):
+    def __init__(self, player_id, model):
         self.player_id = player_id
         self.position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
         self.speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        self.model = model
 
     def move_direction(self, direction: str):
         '''
         Move the player along the direction by its speed.
         Will automatically clip the position so no need to worry out-of-bound moving.
         '''
-        # Modify position of player
-        self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
+        # Calculate new position
+        new_position = self.position + self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
 
-        # clipping
-        self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+        # clamp
+        new_position.x = max(0, min(Const.ARENA_SIZE[0], new_position.x))
+        new_position.y = max(0, min(Const.ARENA_SIZE[1], new_position.y))
+
+        # Todo: Obstacle checking
+        if self.model.map.get_type(new_position) == Const.MAP_OBSTACLE:
+            return
+
+        # Todo: Portal
+        portal = self.model.map.get_portal(new_position)
+        if portal is not None:
+            print('Portal', portal)
+
+        # Update
+        self.position = new_position
 
 class Ghost:
     def __init__(self, ghost_id):

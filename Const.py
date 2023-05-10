@@ -17,6 +17,10 @@ DIRECTION_TO_VEC2 = {
 }
 GHOST_INIT_SPEED = 120
 
+# Map
+MAP_ROAD = 0
+MAP_PUDDLE = 1
+MAP_OBSTACLE = 2
 
 # State machine constants
 STATE_POP = 0 # for convenience, not really a state which we can be in
