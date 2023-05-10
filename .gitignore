@@ -13,3 +13,6 @@ __pycache__/
 # caches
 .cache
 *.swp
+
+# PyCharm
+.idea/

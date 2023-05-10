@@ -17,38 +17,34 @@ class Controller:
             , they should be initialized in Controller.initialize()
         '''
         self.ev_manager = ev_manager
-        ev_manager.register_listener(self)
-
+        self.register_listeners()
         self.model = model
 
-    def initialize(self):
+    def initialize(self, event):
         '''
         This method is called when a new game is instantiated.
         '''
         pass
 
-    def notify(self, event: BaseEvent):
-        '''
-        Called by EventManager when a event occurs.
-        '''
-        if isinstance(event, EventInitialize):
-            self.initialize()
+    def handle_every_tick(self, event):
+        key_down_events = []
+        # Called once per game tick. We check our keyboard presses here.
+        for event_pg in pg.event.get():
+            # handle window manager closing our window
+            if event_pg.type == pg.QUIT:
+                self.ev_manager.post(EventQuit())
+            if event_pg.type == pg.KEYDOWN:
+                key_down_events.append(event_pg)
 
-        elif isinstance(event, EventEveryTick):
-            key_down_events = []
-            # Called once per game tick. We check our keyboard presses here.
-            for event_pg in pg.event.get():
-                # handle window manager closing our window
-                if event_pg.type == pg.QUIT:
-                    self.ev_manager.post(EventQuit())
-                if event_pg.type == pg.KEYDOWN:
-                    key_down_events.append(event_pg)
+        cur_state = self.model.state
+        if cur_state == Const.STATE_MENU: self.ctrl_menu(key_down_events)
+        if cur_state == Const.STATE_PLAY: self.ctrl_play(key_down_events)
+        if cur_state == Const.STATE_STOP: self.ctrl_stop(key_down_events)
+        if cur_state == Const.STATE_ENDGAME: self.ctrl_endgame(key_down_events)
 
-            cur_state = self.model.state_machine.peek()
-            if cur_state == Const.STATE_MENU: self.ctrl_menu(key_down_events)
-            if cur_state == Const.STATE_PLAY: self.ctrl_play(key_down_events)
-            if cur_state == Const.STATE_STOP: self.ctrl_stop(key_down_events)
-            if cur_state == Const.STATE_ENDGAME: self.ctrl_endgame(key_down_events)
+    def register_listeners(self):
+        self.ev_manager.register_listener(EventInitialize, self.initialize)
+        self.ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
 
     def ctrl_menu(self, key_down_events):
         for event_pg in key_down_events:
