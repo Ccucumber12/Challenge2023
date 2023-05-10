@@ -213,3 +213,21 @@ class Ghost():
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+
+class Item:
+    def __init__(self, model, position, item_id, item_type, item_width, item_height):
+        self.model = model
+        self.id = item_id
+        self.type = item_type   # specify the type of item [0: 隱形斗篷, 1: 護法, 2: 金探子, 3: 石化]
+        self.position = position # is a pg.Vector2
+        self.width = item_width
+        self_height = item_height
+        
+    def tick(self):
+        for player in self.model.player:
+            if self.position.x - (item_width / 2) <= player.position.x and self.position.x + (item_width / 2) >= player.position.x and self.position.y - (item_height / 2) <= player.position.y and self.position.y - (item_height / 2) <= player.position.y:
+                '''
+                Apply the effect to the player according to the type of item (item_type).
+                '''
+            
+
