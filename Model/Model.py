@@ -44,16 +44,16 @@ class GameEngine:
         elif cur_state == Const.STATE_PLAY:
             self.update_objects()
 
-            self.timer -= 1
+            self.timer += 1
 
             # checks if a new second has passed and calls each player to update score
-            self.second_change = True if (Const.GAME_LENGTH - self.timer) % Const.FPS == 0 else False
-            self.minutes_passed = ((Const.GAME_LENGTH - self.timer) // Const.FPS) // 60
+            self.second_change = True if self.timer % Const.FPS == 0 else False
+            self.minutes_passed = (self.timer // Const.FPS) // 60
             if self.second_change:
                 for player in self.players:
                     player.add_score(self.minutes_passed); 
 
-            if self.timer == 0:
+            if self.timer == Const.GAME_LENGTH:
                 self.ev_manager.post(EventTimesUp())
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
@@ -108,7 +108,7 @@ class GameEngine:
         self.running = True
         # Tell every one to start
         self.ev_manager.post(EventInitialize())
-        self.timer = Const.GAME_LENGTH
+        self.timer = 0
         while self.running:
             self.ev_manager.post(EventEveryTick())
             self.clock.tick(Const.FPS)
