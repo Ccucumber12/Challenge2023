@@ -234,16 +234,27 @@ class Item:
     def __init__(self, model, position, item_id, item_type, item_width, item_height):
         self.model = model
         self.id = item_id
-        self.type = item_type   # specify the type of item [0: 隱形斗篷, 1: 護法, 2: 金探子, 3: 石化]
+        self.type = item_type   # specify the type of item ["cloak": 隱形斗篷, "patronus": 護法, "golden_snitch": 金探子, "petrification": 石化]
         self.position = position # is a pg.Vector2
         self.width = item_width
         self_height = item_height
         
-    def tick(self):
-        for player in self.model.player:
-            if self.position.x - (item_width / 2) <= player.position.x and self.position.x + (item_width / 2) >= player.position.x and self.position.y - (item_height / 2) <= player.position.y and self.position.y - (item_height / 2) <= player.position.y:
+    def tick(self, player_list): # In event manager, call tick(list_of_players) every tick
+        for player in player_list:
+            if self.position.x - (self.width / 2) <= player.position.x and self.position.x + (self.width / 2) >= player.position.x and self.position.y - (self.height / 2) <= player.position.y and self.position.y - (self.height / 2) <= player.position.y:
                 '''
                 Apply the effect to the player according to the type of item (item_type).
                 '''
+                if self.type == "cloak":
+                    pass
+                elif self.type == "patronus":
+                    pass
+                elif self.type == "golden_snitch":
+                    pass
+                elif self.tpye == "petrification":
+                    pass
+                else:
+                    # Raise an error
+                    pass
             
 
