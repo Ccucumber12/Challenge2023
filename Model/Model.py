@@ -36,6 +36,7 @@ class GameEngine:
         self._state = Const.STATE_MENU
         self.players = [Player(0, self), Player(1, self), Player(2, self), Player(3, self)]
         self.ghosts = [Ghost(0)]
+        self.patronuses = []
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -91,7 +92,8 @@ class GameEngine:
         Update the objects not controlled by user.
         For example: obstacles, items, special effects
         '''
-        pass
+        for player in self.players:
+            player.tick()
 
     def update_endgame(self):
         '''
@@ -172,7 +174,8 @@ class Player(Character):
         if self.effect_timer > 0:
             self.effect_timer -= 1
         else:
-            self.effect = "none"
+            self.remove_effect()
+
         if self.dead:
             self.respawn_timer -= 1
         
@@ -217,9 +220,20 @@ class Player(Character):
             self.score += 5; 
         #print(self.score)
 
+    def remove_effect(self):
+        self.effect_timer = 0
+        if self.effect == "cloak":
+            self.invisible = False
+        elif self.effect == "patronus":
+            pass
     def get_effect(self, effect: str, effect_status: str):
         self.effect = effect
         self.effect_timer = Const.ITEM_DURATION[effect][effect_status]
+        if self.effect == "cloak":
+            self.invisible = True
+        elif self.effect == "patronus":
+            self.model.patronuses.append(Patronous(self.model, 0, self.position, random.randint(0, 3))) # The parameters passed is not properly assigned yet
+            
 
 class Patronous(Character):
     def __init__(self, model, patronous_id, position, chase_player):
