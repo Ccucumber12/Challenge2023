@@ -39,6 +39,13 @@ BACKGROUND_COLOR = pg.Color('black')
 PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta'), pg.Color('blue'), pg.Color('gold')]
 GHOST_COLOR = [pg.Color('red')]
 
+# item
+ITEM_DURATION = {
+    "cloak": {"normal": 5*FPS, "reversed": 5*FPS,"enhanced": 8*FPS},
+    "patronus": {"normal": 15*FPS, "reversed": 15*FPS,"enhanced": 30*FPS},
+    "golden_stitch": {"normal": 1},
+    "petrification": {"normal": 3*FPS, "reversed": 3*FPS,"enhanced": 6*FPS}
+}
 
 # controller
 PLAYER_KEYS = {

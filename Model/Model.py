@@ -162,11 +162,17 @@ class Player(Character):
         self.invincible = False
         self.respawn_timer = 0
         self.score = 0
+        self.effect_timer = 0
+        self.effect = "none"
 
     def tick(self):
         '''
         Run when EventEveryTick() arises.
         '''
+        if self.effect_timer > 0:
+            self.effect_timer -= 1
+        else:
+            self.effect = "none"
         if self.dead:
             self.respawn_timer -= 1
         
@@ -211,6 +217,10 @@ class Player(Character):
             self.score += 5; 
         #print(self.score)
 
+    def get_effect(self, effect: str, effect_status: str):
+        self.effect = effect
+        self.effect_timer = Const.ITEM_DURATION[effect][effect_status]
+
 class Ghost():
     def __init__(self, ghost_id):
         self.ghost_id = ghost_id
@@ -231,30 +241,22 @@ class Ghost():
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
 
 class Item:
-    def __init__(self, model, position, item_id, item_type, item_width, item_height):
+    def __init__(self, model, position, item_id, item_type, item_width, item_height, item_status):
         self.model = model
         self.id = item_id
         self.type = item_type   # specify the type of item ["cloak": 隱形斗篷, "patronus": 護法, "golden_snitch": 金探子, "petrification": 石化]
         self.position = position # is a pg.Vector2
         self.width = item_width
-        self_height = item_height
+        self.height = item_height
+        self.status = item_status # ["normal", "reversed", "enhanced"]
         
-    def tick(self): # In event manager, call tick(list_of_players) every tick
+    def tick(self):
         for player in self.model.players:
             if self.position.x - (self.width / 2) <= player.position.x and self.position.x + (self.width / 2) >= player.position.x and self.position.y - (self.height / 2) <= player.position.y and self.position.y - (self.height / 2) <= player.position.y:
                 '''
                 Apply the effect to the player according to the type of item (item_type).
                 '''
-                if self.type == "cloak":
-                    pass
-                elif self.type == "patronus":
-                    pass
-                elif self.type == "golden_snitch":
-                    pass
-                elif self.tpye == "petrification":
-                    pass
-                else:
-                    # Raise an error
-                    pass
-            
+                if self.status == "normal":
+                    player.get_status(self.type, self.status)
+    
 
