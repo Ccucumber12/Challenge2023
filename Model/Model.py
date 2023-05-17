@@ -239,8 +239,8 @@ class Item:
         self.width = item_width
         self_height = item_height
         
-    def tick(self, player_list): # In event manager, call tick(list_of_players) every tick
-        for player in player_list:
+    def tick(self): # In event manager, call tick(list_of_players) every tick
+        for player in self.model.players:
             if self.position.x - (self.width / 2) <= player.position.x and self.position.x + (self.width / 2) >= player.position.x and self.position.y - (self.height / 2) <= player.position.y and self.position.y - (self.height / 2) <= player.position.y:
                 '''
                 Apply the effect to the player according to the type of item (item_type).
