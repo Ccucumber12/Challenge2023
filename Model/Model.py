@@ -221,6 +221,19 @@ class Player(Character):
         self.effect = effect
         self.effect_timer = Const.ITEM_DURATION[effect][effect_status]
 
+class Patronous(Character):
+    def __init__(self, model, patronous_id, position, chase_player):
+        self.patronous_id = patronous_id
+        speed = Const.SPEED_ATTACK
+        super().__init__(position, speed, model)
+        self.chase_player = chase_player # The player which the patronous choose to chase
+    
+    def tick(self):
+        # Look for the direction of the player it is chasing
+        x = 1 if self.position.x < self.chase_player.position.x else -1 if self.position.x > self.chase_player.position.x else 0
+        y = 1 if self.position.y < self.chase_player.position.y else -1 if self.position.y > self.chase_player.position.y else 0
+        super().move(x, y)
+
 class Ghost():
     def __init__(self, ghost_id):
         self.ghost_id = ghost_id
