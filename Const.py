@@ -16,6 +16,8 @@ DIRECTION_TO_VEC2 = {
     'right': pg.Vector2(1, 0),
 }
 GHOST_INIT_SPEED = 120
+GHOST_CHATING_TIME = 2 * FPS # chating time before it teleport
+GHOST_INIT_TP_CD = 10 * FPS
 PLAYER_RESPAWN_TIME = 5
 
 
