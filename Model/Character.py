@@ -62,9 +62,9 @@ class Player(Character):
         self.effect = "none"
 
     def tick(self):
-        '''
+        """
         Run when EventEveryTick() arises.
-        '''
+        """
         if self.effect_timer > 0:
             self.effect_timer -= 1
         else:
@@ -77,10 +77,10 @@ class Player(Character):
             self.dead = False
 
     def move_direction(self, direction: str):
-        '''
+        """
         Move the player along the direction by its speed.
         Will automatically clip the position so no need to worry out-of-bound moving.
-        '''
+        """
         # Modify position of player
         # self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
@@ -92,10 +92,10 @@ class Player(Character):
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
 
     def caught(self):
-        '''
+        """
         Caught by the ghost.
         Kill player
-        '''
+        """
         if self.respawn_timer <= 0:
             self.dead = True
             self.respawn_timer = Const.PLAYER_RESPAWN_TIME
