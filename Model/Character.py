@@ -70,11 +70,8 @@ class Player(Character):
         else:
             self.remove_effect()
 
-        if self.dead:
-            self.respawn_timer -= 1
-
-        if self.respawn_timer <= 0:
-            self.dead = False
+    def respawn_handler(self):
+        self.dead = False
 
     def move_direction(self, direction: str):
         """
@@ -96,9 +93,9 @@ class Player(Character):
         Caught by the ghost.
         Kill player
         """
-        if self.respawn_timer <= 0:
+        if not self.dead:
             self.dead = True
-            self.respawn_timer = Const.PLAYER_RESPAWN_TIME
+            get_game_engine().regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
 
     def isinvisible(self):
         return self.dead or self.invisible or self.invincible

@@ -39,6 +39,7 @@ class GameEngine:
         self.players = [Player(0), Player(1), Player(2), Player(3)]
         self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD)]
         self.patronuses = []
+        self.user_events = []
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -63,6 +64,38 @@ class GameEngine:
             self.update_endgame()
         self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
         self.ghosts[0].teleport(pg.Vector2(random.random() * 200 - 1, random.random() * 200 - 1))
+
+        # Handle user events
+        for i in range(len(self.user_events)):
+            if self.user_events[i] and self.user_events[i][0] == self.timer:
+                self.user_events[i][1]()
+                self.user_events[i] = None
+
+    def cancel_user_event(self, index):
+        if not type(index) is int:
+            raise TypeError("index should be an integer!")
+        if index < 0 or index >= len(self.user_events):
+            raise IndexError()
+        self.user_events[index] = None
+    def register_user_event(self, delay, handler):
+        """
+        handler will be executed after delay ticks
+        returns a number that can be used to cancel the event
+        """
+        if not type(delay) is int:
+            raise TypeError("delay should be an integer!")
+        if not callable(handler):
+            raise TypeError("handler is not callable!")
+        index = -1
+        for i in range(len(self.user_events)):
+            if not self.user_events[i]:
+                index = i
+                break
+        if index == -1:
+            index = len(self.user_events);
+            self.user_events.append(None)
+        self.user_events[index] = (delay + self.timer, handler)
+        return index
 
     def handle_state_change(self, event):
         self._state = event.state
