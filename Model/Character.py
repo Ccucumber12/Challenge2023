@@ -128,13 +128,13 @@ class Player(Character):
             self.invisible = True
         elif self.effect == "patronus":
             model = get_game_engine()
-            model.patronuses.append(Patronous(0, self.position, random.randint(0, 3)))
+            model.patronuses.append(Patronus(0, self.position, random.randint(0, 3)))
             # The parameters passed is not properly assigned yet
 
 
-class Patronous(Character):
-    def __init__(self, patronous_id, position, chase_player):
-        self.patronous_id = patronous_id
+class Patronus(Character):
+    def __init__(self, patronus_id, position, chase_player):
+        self.patronus_id = patronus_id
         speed = Const.SPEED_ATTACK
         super().__init__(position, speed)
         self.chase_player = chase_player  # The player which the patronous choose to chase
