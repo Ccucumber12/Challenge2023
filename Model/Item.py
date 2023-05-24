@@ -21,3 +21,46 @@ class Item:
                 '''
                 if self.status == "normal":
                     player.get_status(self.type, self.status)
+
+class Item_Generator:
+    def __init__(self):
+        self.generate_cd = Const.ITEM_GENERATE_COOLDOWN
+        self.golden_snitch_tag = 0
+        self.id_counter = 1
+
+    def generate(self):
+        generated_item = None
+
+        #determining type of item
+        type_id = 0
+        if self.golden_snitch == 1:
+            type_id = random.randint(0, 2)
+        else:
+            type_id = random.randint(0, 3)
+        generate_type = "clock" if type_id == 0 else "patronus" if type_id == 1 else "golden_snitch" if type_id == 3 else "petrification" if type_id == 2
+        if type_id == 3:
+            self.golden_snitch_tag = 1
+
+        #determining status of item (could modify probility by modifying the constants)
+        status_id = random.randint(1, 15)
+        generate_status = "normal" if 1 <= status_id <= 12 else "reversed" if status_id == 13 else "enhanced" if 14 <= status_id <=15
+   
+        #determining location of item
+        generate_x = 0
+        generate_y = 0
+        '''
+        Put a random method to determine location here
+        '''
+
+        generated_item = Item(Vector2(generate_x, generate_y), self.idcounter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
+        generate_model = get_game_engine()
+        generate_model.items.append(generate_item)
+        self.id_counter = self.id_counter + 1
+
+    def tick(self):
+        self.generate_cd -= 1
+        generate_model = get_game_engine()
+        if self.generate_cd <= 0:
+            if len(generate_model.items) < Const.MAX_ITEN_NUMBER:
+                self.generate()
+                self.generate_cd = Const.ITEM_GENERATE_COOLDOWN
