@@ -35,7 +35,7 @@ class GameEngine:
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
         self.players = [Player(0, self), Player(1, self), Player(2, self), Player(3, self)]
-        self.ghosts = [Ghost(0)]
+        self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD, self)]
         self.patronuses = []
 
     def handle_every_tick(self, event):
@@ -59,6 +59,7 @@ class GameEngine:
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
         self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
+        self.ghosts[0].teleport(pg.Vector2(random.random() * 200 - 1, random.random() * 200 - 1))
 
     def handle_state_change(self, event):
         self._state = event.state
@@ -94,6 +95,7 @@ class GameEngine:
         '''
         for player in self.players:
             player.tick()
+        self.ghosts[0].tick()
 
     def update_endgame(self):
         '''
@@ -117,7 +119,7 @@ class GameEngine:
 
 class Character:
     '''
-    Parent class of Player and Ghost
+    Parent class of Player, Ghost and all movable characters
     '''
     def __init__(self, position, speed, model):
         self.position = position # is a pg.Vector2
@@ -248,24 +250,56 @@ class Patronous(Character):
         y = 1 if self.position.y < self.chase_player.position.y else -1 if self.position.y > self.chase_player.position.y else 0
         super().move(x, y)
 
-class Ghost():
-    def __init__(self, ghost_id):
+class Ghost(Character):
+    def __init__(self, ghost_id, teleport_cd, model):
         self.ghost_id = ghost_id
-        self.position = Const.GHOST_INIT_POSITION[ghost_id] # is a pg.Vector2
-        self.speed = Const.GHOST_INIT_SPEED
+        position = Const.GHOST_INIT_POSITION[ghost_id] # is a pg.Vector2
+        speed = Const.GHOST_INIT_SPEED
+        super().__init__(position, speed, model)
+
+        #teleport
+        self.teleport_last_time = 0
+        self.teleport_cd = teleport_cd
+        self.teleport_chanting = False # if it is chantting
+        self.teleport_chanting_time = 0 # how long it has to continue chanting before teleport_chanting. NOT teleport cd.
+        self.teleport_distination = pg.Vector2(0, 0)
+
+    def tick(self):
+        '''
+        Run when EventEveryTick() arises.
+        '''
+        if self.teleport_chanting:
+            self.teleport_chanting_time -= 1
+            if self.teleport_chanting_time <= 0:
+                self.position = self.teleport_distination
+                self.teleport_chanting = False
 
     def move_direction(self, direction):
         '''
-        Move the player along the direction by its speed.
-        Will automatically clip the position so no need to worry out-of-bound moving.
         '''
-        # Modify position of player
-        self.position.x += self.speed / Const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-        self.position.y += self.speed / Const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+        if self.teleport_chanting:
+            return
+
+        x = self.speed / Const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+        y = self.speed / Const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+        super().move(x, y)
 
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
+
+    def teleport(self, destination: pg.Vector2):
+        '''
+        ghost will transport to the destination after a little delay.
+        This won't automatically clip the position so you need to worry out-of-bound moving.
+        '''
+        if self.teleport_chanting:
+            return
+        # if (time now) - self.teleport_last_time < self.teleport_cd:
+        #     return
+        self.teleport_chanting = True
+        self.teleport_distination = destination
+        self.teleport_chanting_time = Const.GHOST_CHATING_TIME
 
 class Item:
     def __init__(self, model, position, item_id, item_type, item_width, item_height, item_status):
@@ -285,5 +319,5 @@ class Item:
                 '''
                 if self.status == "normal":
                     player.get_status(self.type, self.status)
-    
+
 
