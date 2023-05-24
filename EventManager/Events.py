@@ -13,6 +13,7 @@ class EventStateChange(BaseEvent):
     name = 'StateChange event'
 
     def __init__(self, state):
+        super().__init__()
         self.state = state
 
     def __str__(self):
@@ -31,6 +32,7 @@ class EventPlayerMove(BaseEvent):
     name = 'PlayerMove event'
 
     def __init__(self, player_id, direction):
+        super().__init__()
         self.player_id = player_id
         self.direction = direction
 
@@ -42,7 +44,9 @@ class EventGhostMove(BaseEvent):
     name = 'GhostMove event'
 
     def __init__(self, ghost_id, direction):
+        super().__init__()
         self.ghost_id = ghost_id
         self.direction = direction
+
     def __str__(self):
         return f'{self.name} => ghost_id {self.ghost_id} move {self.direction}'

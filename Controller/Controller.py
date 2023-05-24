@@ -2,29 +2,27 @@ import pygame as pg
 
 from InstancesManager import get_event_manager
 from InstancesManager import get_game_engine
-from EventManager.EventManager import *
 from EventManager.Events import EventInitialize, EventQuit, EventStateChange, EventEveryTick, EventPlayerMove
-from Model.Model import GameEngine
 import Const
 
 
 class Controller:
-    '''
+    """
     Handles the control input. Either from keyboard or from AI.
-    '''
+    """
 
     def __init__(self):
-        '''
+        """
         This function is called when the Controller is created.
         For more specific objects related to a game instance
             , they should be initialized in Controller.initialize()
-        '''
+        """
         self.register_listeners()
 
     def initialize(self, event):
-        '''
+        """
         This method is called when a new game is instantiated.
-        '''
+        """
         pass
 
     def handle_every_tick(self, event):

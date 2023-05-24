@@ -16,7 +16,7 @@ DIRECTION_TO_VEC2 = {
     'right': pg.Vector2(1, 0),
 }
 GHOST_INIT_SPEED = 120
-GHOST_CHATING_TIME = 2 * FPS # chating time before it teleport
+GHOST_CHATING_TIME = 2 * FPS  # chating time before it teleport
 GHOST_INIT_TP_CD = 10 * FPS
 PLAYER_RESPAWN_TIME = 5
 
@@ -26,10 +26,10 @@ MAP_PUDDLE = 1
 MAP_OBSTACLE = 2
 
 # State machine constants
-STATE_POP = 0 # for convenience, not really a state which we can be in
+STATE_POP = 0  # for convenience, not really a state which we can be in
 STATE_MENU = 1
 STATE_PLAY = 2
-STATE_STOP = 3 # not implemented yet
+STATE_STOP = 3  # not implemented yet
 STATE_ENDGAME = 4
 
 

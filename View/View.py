@@ -2,24 +2,22 @@ import pygame as pg
 
 from InstancesManager import get_game_engine
 from InstancesManager import get_event_manager
-from EventManager.EventManager import *
 from EventManager.Events import EventInitialize, EventEveryTick
-from Model.Model import GameEngine
 import Const
 
 
 class GraphicalView:
-    '''
+    """
     Draws the state of GameEngine onto the screen.
-    '''
+    """
     background = pg.Surface(Const.ARENA_SIZE)
 
     def __init__(self):
-        '''
+        """
         This function is called when the GraphicalView is created.
         For more specific objects related to a game instance
             , they should be initialized in GraphicalView.initialize()
-        '''
+        """
         self.register_listeners()
 
         self.screen = pg.display.set_mode(Const.WINDOW_SIZE)
@@ -27,9 +25,9 @@ class GraphicalView:
         self.background.fill(Const.BACKGROUND_COLOR)
 
     def initialize(self, event):
-        '''
+        """
         This method is called when a new game is instantiated.
-        '''
+        """
         pass
 
     def handle_every_tick(self, event):
@@ -48,9 +46,9 @@ class GraphicalView:
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
 
     def display_fps(self):
-        '''
+        """
         Display the current fps on the window caption.
-        '''
+        """
         model = get_game_engine()
         pg.display.set_caption(f'{Const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
 

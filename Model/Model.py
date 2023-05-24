@@ -10,17 +10,18 @@ from Model.Character import Player, Ghost
 from Model.Map import load_map
 from InstancesManager import get_event_manager
 
+
 class GameEngine:
-    '''
+    """
     The main game engine. The main loop of the game is in GameEngine.run()
-    '''
+    """
 
     def __init__(self):
-        '''
+        """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance
             , they should be initialized in GameEngine.initialize()
-        '''
+        """
         self.register_listeners()
         self._state = None
         self.map = load_map('Maps/emptymap')
@@ -30,9 +31,9 @@ class GameEngine:
         return self._state
 
     def initialize(self, event):
-        '''
+        """
         This method is called when a new game is instantiated.
-        '''
+        """
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
         self.players = [Player(0), Player(1), Player(2), Player(3)]
@@ -41,6 +42,7 @@ class GameEngine:
 
     def handle_every_tick(self, event):
         cur_state = self.state
+        ev_manager = get_event_manager()
         if cur_state == Const.STATE_MENU:
             self.update_menu()
         elif cur_state == Const.STATE_PLAY:
@@ -56,7 +58,7 @@ class GameEngine:
                     player.add_score(self.minutes_passed); 
 
             if self.timer == 0:
-                self.ev_manager.post(EventTimesUp())
+                ev_manager.post(EventTimesUp())
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
         self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
@@ -84,33 +86,33 @@ class GameEngine:
         ev_manager.register_listener(EventTimesUp, self.handle_times_up)
 
     def update_menu(self):
-        '''
+        """
         Update the objects in welcome scene.
         For example: game title, hint text
-        '''
+        """
         pass
 
     def update_objects(self):
-        '''
+        """
         Update the objects not controlled by user.
         For example: obstacles, items, special effects
-        '''
+        """
         for player in self.players:
             player.tick()
         self.ghosts[0].tick()
 
     def update_endgame(self):
-        '''
+        """
         Update the objects in endgame scene.
         For example: scoreboard
-        '''
+        """
         pass
 
     def run(self):
-        '''
+        """
         The main loop of the game is in this function.
         This function activates the GameEngine.
-        '''
+        """
         self.running = True
         # Tell every one to start
         ev_manager = get_event_manager()

@@ -7,25 +7,27 @@ import Const
 
 from InstancesManager import get_game_engine
 
+
 class Character:
-    '''
+    """
     Parent class of Player, Ghost and all movable characters
-    '''
+    """
+
     def __init__(self, position, speed):
-        self.position = position # is a pg.Vector2
+        self.position = position  # is a pg.Vector2
         self.speed = speed
 
     def move(self, x, y):
-        '''
+        """
         +x: right, +y: down
         (x, y) will be automatically transfered to unit vector.
         Move the player along the direction by its speed.
         Will automatically clip the position so no need to worry out-of-bound moving.
-        '''
-        r = (x*x+y*y)**(1/2)
+        """
+        r = (x * x + y * y) ** (1 / 2)
 
         # Calculate new position
-        new_position = self.position + self.speed / Const.FPS * pg.Vector2((x/r), (y/r));
+        new_position = self.position + self.speed / Const.FPS * pg.Vector2((x / r), (y / r))
 
         # clamp
         new_position.x = max(0, min(Const.ARENA_SIZE[0], new_position.x))
@@ -48,7 +50,7 @@ class Character:
 class Player(Character):
     def __init__(self, player_id):
         self.player_id = player_id
-        position = Const.PLAYER_INIT_POSITION[player_id] # is a pg.Vector2
+        position = Const.PLAYER_INIT_POSITION[player_id]  # is a pg.Vector2
         speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
         super().__init__(position, speed)
         self.dead = False
@@ -102,15 +104,15 @@ class Player(Character):
         return self.dead or self.invisible or self.invincible
 
     def add_score(self, minutes: int):
-        #if self.dead:
+        # if self.dead:
         #    return
         if minutes == 0:
-            self.score += 2;
+            self.score += 2
         elif minutes == 1:
-            self.score += 3;
+            self.score += 3
         else:
-            self.score += 5;
-        #print(self.score)
+            self.score += 5
+        # print(self.score)
 
     def remove_effect(self):
         self.effect_timer = 0
@@ -118,6 +120,7 @@ class Player(Character):
             self.invisible = False
         elif self.effect == "patronus":
             pass
+
     def get_effect(self, effect: str, effect_status: str):
         self.effect = effect
         self.effect_timer = Const.ITEM_DURATION[effect][effect_status]
@@ -125,7 +128,8 @@ class Player(Character):
             self.invisible = True
         elif self.effect == "patronus":
             model = get_game_engine()
-            model.patronuses.append(Patronous(model, 0, self.position, random.randint(0, 3))) # The parameters passed is not properly assigned yet
+            model.patronuses.append(Patronous(0, self.position, random.randint(0, 3)))
+            # The parameters passed is not properly assigned yet
 
 
 class Patronous(Character):
@@ -133,7 +137,7 @@ class Patronous(Character):
         self.patronous_id = patronous_id
         speed = Const.SPEED_ATTACK
         super().__init__(position, speed)
-        self.chase_player = chase_player # The player which the patronous choose to chase
+        self.chase_player = chase_player  # The player which the patronous choose to chase
 
     def tick(self):
         # Look for the direction of the player it is chasing
@@ -145,21 +149,22 @@ class Patronous(Character):
 class Ghost(Character):
     def __init__(self, ghost_id, teleport_cd):
         self.ghost_id = ghost_id
-        position = Const.GHOST_INIT_POSITION[ghost_id] # is a pg.Vector2
+        position = Const.GHOST_INIT_POSITION[ghost_id]  # is a pg.Vector2
         speed = Const.GHOST_INIT_SPEED
         super().__init__(position, speed)
 
-        #teleport
+        # teleport
         self.teleport_last_time = 0
         self.teleport_cd = teleport_cd
-        self.teleport_chanting = False # if it is chantting
-        self.teleport_chanting_time = 0 # how long it has to continue chanting before teleport_chanting. NOT teleport cd.
+        self.teleport_chanting = False  # if it is chantting
+        self.teleport_chanting_time = 0
+        # how long it has to continue chanting before teleport_chanting. NOT teleport cd.
         self.teleport_distination = pg.Vector2(0, 0)
 
     def tick(self):
-        '''
+        """
         Run when EventEveryTick() arises.
-        '''
+        """
         if self.teleport_chanting:
             self.teleport_chanting_time -= 1
             if self.teleport_chanting_time <= 0:
@@ -167,8 +172,6 @@ class Ghost(Character):
                 self.teleport_chanting = False
 
     def move_direction(self, direction):
-        '''
-        '''
         if self.teleport_chanting:
             return
 
@@ -181,10 +184,10 @@ class Ghost(Character):
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
 
     def teleport(self, destination: pg.Vector2):
-        '''
+        """
         ghost will transport to the destination after a little delay.
         This won't automatically clip the position so you need to worry out-of-bound moving.
-        '''
+        """
         if self.teleport_chanting:
             return
         # if (time now) - self.teleport_last_time < self.teleport_cd:

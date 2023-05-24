@@ -6,6 +6,7 @@ from Model.Model import GameEngine
 from Controller.Controller import Controller
 from View.View import GraphicalView
 
+
 def main():
     # Initialization
     pg.init()
@@ -15,8 +16,8 @@ def main():
     InstancesManager.register_event_manager(ev_manager)
     model = GameEngine()
     InstancesManager.register_game_engine(model)
-    controller = Controller()
-    view       = GraphicalView()
+    Controller()
+    GraphicalView()
 
     # Main loop
     model.run()
