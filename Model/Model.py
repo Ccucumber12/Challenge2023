@@ -24,7 +24,7 @@ class GameEngine:
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map('Maps/emptymap')
+        self.map = load_map('Maps/testmap')
 
     @property
     def state(self):

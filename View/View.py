@@ -70,12 +70,27 @@ class GraphicalView:
 
         # draw players
         model = get_game_engine()
+        game_map = model.map
+        items = []
         for player in model.players:
             center = list(map(int, player.position))
-            pg.draw.circle(self.screen, Const.PLAYER_COLOR[player.player_id], center, Const.PLAYER_RADIUS)
+            coord = game_map.convert_coordinate(player.position)
+            items.append((coord[1], 3, player.player_id, center))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
-            pg.draw.circle(self.screen, Const.GHOST_COLOR[ghost.ghost_id], center, Const.GHOST_RADIUS)
+            coord = game_map.convert_coordinate(ghost.position)
+            items.append((coord[1], 2, ghost.ghost_id, center))
+        for row, image in game_map.images:
+            items.append((row, 1, image))
+
+        items.sort(key=lambda x: (x[0], x[1]))
+        for i in items:
+            if i[1] == 3:
+                pg.draw.circle(self.screen, Const.PLAYER_COLOR[i[2]], i[3], Const.PLAYER_RADIUS)
+            elif i[1] == 2:
+                pg.draw.circle(self.screen, Const.GHOST_COLOR[i[2]], i[3], Const.GHOST_RADIUS)
+            elif i[1] == 1:
+                self.screen.blit(i[2], (0, 0))
 
         pg.display.flip()
 

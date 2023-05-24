@@ -1,14 +1,15 @@
 import Const
 import os
 import re
+import pygame
 
 
 class Map:
 
-    def __init__(self, size, map_list, portals, image_files):
+    def __init__(self, size, map_list, portals, images):
         self.size = size
         self.map = map_list
-        self.image_files = image_files
+        self.images = images
         self.portals = portals
 
     def convert_coordinate(self, position):
@@ -48,9 +49,11 @@ def load_map(map_dir):
         for i in range(0, num_portals):
             portals.append([int(i) for i in f.readline().split(' ')])
 
-    image_files = []
+    images = []
     for i in os.listdir(map_dir):
         if re.match("^-?[0-9]+.png$", i):
-            image_files.append(os.path.join(map_dir, i))
+            loaded_image = pygame.image.load(os.path.join(map_dir, i))
+            loaded_image = pygame.transform.scale(loaded_image, Const.ARENA_SIZE)
+            images.append((int(i[:-4]), loaded_image))
 
-    return Map(size, map_list, portals, image_files)
+    return Map(size, map_list, portals, images)
