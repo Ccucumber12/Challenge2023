@@ -1,6 +1,9 @@
 import pygame as pg
 
+from InstancesManager import get_game_engine
+from InstancesManager import get_event_manager
 from EventManager.EventManager import *
+from EventManager.Events import EventInitialize, EventEveryTick
 from Model.Model import GameEngine
 import Const
 
@@ -11,16 +14,13 @@ class GraphicalView:
     '''
     background = pg.Surface(Const.ARENA_SIZE)
 
-    def __init__(self, ev_manager: EventManager, model: GameEngine):
+    def __init__(self):
         '''
         This function is called when the GraphicalView is created.
         For more specific objects related to a game instance
             , they should be initialized in GraphicalView.initialize()
         '''
-        self.ev_manager = ev_manager
         self.register_listeners()
-
-        self.model = model
 
         self.screen = pg.display.set_mode(Const.WINDOW_SIZE)
         pg.display.set_caption(Const.WINDOW_CAPTION)
@@ -35,21 +35,24 @@ class GraphicalView:
     def handle_every_tick(self, event):
         self.display_fps()
 
-        cur_state = self.model.state
+        model = get_game_engine()
+        cur_state = model.state
         if cur_state == Const.STATE_MENU: self.render_menu()
         elif cur_state == Const.STATE_PLAY: self.render_play()
         elif cur_state == Const.STATE_STOP: self.render_stop()
         elif cur_state == Const.STATE_ENDGAME: self.render_endgame()
 
     def register_listeners(self):
-        self.ev_manager.register_listener(EventInitialize, self.initialize)
-        self.ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
+        ev_manager = get_event_manager()
+        ev_manager.register_listener(EventInitialize, self.initialize)
+        ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
 
     def display_fps(self):
         '''
         Display the current fps on the window caption.
         '''
-        pg.display.set_caption(f'{Const.WINDOW_CAPTION} - FPS: {self.model.clock.get_fps():.2f}')
+        model = get_game_engine()
+        pg.display.set_caption(f'{Const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
 
     def render_menu(self):
         # draw background
@@ -68,10 +71,11 @@ class GraphicalView:
         self.screen.fill(Const.BACKGROUND_COLOR)
 
         # draw players
-        for player in self.model.players:
+        model = get_game_engine()
+        for player in model.players:
             center = list(map(int, player.position))
             pg.draw.circle(self.screen, Const.PLAYER_COLOR[player.player_id], center, Const.PLAYER_RADIUS)
-        for ghost in self.model.ghosts:
+        for ghost in model.ghosts:
             center = list(map(int, ghost.position))
             pg.draw.circle(self.screen, Const.GHOST_COLOR[ghost.ghost_id], center, Const.GHOST_RADIUS)
 
