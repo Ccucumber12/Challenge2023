@@ -184,14 +184,16 @@ class Ghost(Character):
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
 
     def teleport(self, destination: pg.Vector2):
+        model = get_game_engine()
         """
         ghost will transport to the destination after a little delay.
         This won't automatically clip the position so you need to worry out-of-bound moving.
         """
         if self.teleport_chanting:
             return
-        # if (time now) - self.teleport_last_time < self.teleport_cd:
-        #     return
+        if (model.timer) - self.teleport_last_time < self.teleport_cd:
+            return
         self.teleport_chanting = True
         self.teleport_distination = destination
         self.teleport_chanting_time = Const.GHOST_CHATING_TIME
+        self.teleport_last_time = model.timer
