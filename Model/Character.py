@@ -83,6 +83,8 @@ class Player(Character):
         """
         # Modify position of player
         # self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
+        if self.effect == "petrification":
+            return
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
         y = 1 if direction == 'down' else -1 if direction == 'up' else 0
         super().move(x, y)
@@ -130,6 +132,10 @@ class Player(Character):
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, random.randint(0, 3)))
             # The parameters passed is not properly assigned yet
+        elif self.effect == "petrification":
+            # One can't move when it's effect is pertification.
+            # It will be implemented in function move_direction.
+            pass
 
 
 class Patronus(Character):
@@ -158,7 +164,7 @@ class Ghost(Character):
         self.teleport_cd = teleport_cd
         self.teleport_chanting = False  # if it is chantting
         self.teleport_chanting_time = 0
-        # how long it has to continue chanting before teleport_chanting. NOT teleport cd.
+        # self.teleport_chanting_time is how long it has to continue chanting. NOT teleport cd.
         self.teleport_distination = pg.Vector2(0, 0)
 
     def tick(self):

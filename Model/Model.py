@@ -121,3 +121,9 @@ class GameEngine:
         while self.running:
             ev_manager.post(EventEveryTick())
             self.clock.tick(Const.FPS)
+
+    # def test(self):
+    #     """
+    #     For test.
+    #     """
+    #     self.players[0].get_effect("petrification", "normal")

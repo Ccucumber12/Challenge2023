@@ -60,6 +60,10 @@ class Controller:
         for k, v in Const.PLAYER_KEYS.items():
             if keys[k]:
                 ev_manager.post(EventPlayerMove(*v))
+        # FOR TEST:
+        # if keys[pg.K_b]:
+        #     model = get_game_engine()
+        #     model.test()
 
     def ctrl_stop(self, key_down_events):
         pass
