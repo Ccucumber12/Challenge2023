@@ -59,10 +59,11 @@ class GameEngine:
 
             if self.timer == Const.GAME_LENGTH:
                 ev_manager.post(EventTimesUp())
+            # self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
+            # self.ghosts[0].teleport(pg.Vector2(random.random() * 200 - 1, random.random() * 200 - 1))
+            self.ghosts[0].hunt()
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
-        self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
-        self.ghosts[0].teleport(pg.Vector2(random.random() * 200 - 1, random.random() * 200 - 1))
 
     def handle_state_change(self, event):
         self._state = event.state

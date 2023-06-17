@@ -167,6 +167,7 @@ class Ghost(Character):
         self.teleport_chanting_time = 0
         # self.teleport_chanting_time is how long it has to continue chanting. NOT teleport cd.
         self.teleport_distination = pg.Vector2(0, 0)
+        self.prey = None
 
     def tick(self):
         """
@@ -191,11 +192,11 @@ class Ghost(Character):
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
 
     def teleport(self, destination: pg.Vector2):
-        model = get_game_engine()
         """
         ghost will transport to the destination after a little delay.
         This won't automatically clip the position so you need to worry out-of-bound moving.
         """
+        model = get_game_engine()
         if self.teleport_chanting:
             return
         if (model.timer) - self.teleport_last_time < self.teleport_cd:
@@ -204,3 +205,22 @@ class Ghost(Character):
         self.teleport_distination = destination
         self.teleport_chanting_time = Const.GHOST_CHATING_TIME
         self.teleport_last_time = model.timer
+    
+    def chase(self):
+        """
+        Ghost will move toward its prey.
+        """
+        if (self.prey is None):
+            return
+        self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
+
+    def hunt(self):
+        """
+        AI of ghost.
+        Determine what ghost should do next.
+        """
+        model = get_game_engine()
+        if (self.prey is None):
+            # TEST
+            self.prey = model.players[0]
+        self.chase()
