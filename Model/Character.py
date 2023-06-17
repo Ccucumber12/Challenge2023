@@ -122,6 +122,7 @@ class Player(Character):
             self.invisible = False
         elif self.effect == "patronus":
             pass
+        self.effect = "none"
 
     def get_effect(self, effect: str, effect_status: str):
         self.effect = effect
