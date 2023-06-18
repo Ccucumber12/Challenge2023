@@ -72,6 +72,10 @@ class GraphicalView:
         model = get_game_engine()
         game_map = model.map
         items = []
+        for item in model.items:
+            center = list(map(int, item.position))
+            coord = game_map.convert_coordinate(item.position)
+            items.append((coord[1], 4, item.item_id, center))
         for player in model.players:
             center = list(map(int, player.position))
             coord = game_map.convert_coordinate(player.position)
@@ -91,6 +95,9 @@ class GraphicalView:
                 pg.draw.circle(self.screen, Const.GHOST_COLOR[i[2]], i[3], Const.GHOST_RADIUS)
             elif i[1] == 1:
                 self.screen.blit(i[2], (0, 0))
+            elif i[1] == 4:
+                # It's acually is a rectangle, but here I just draw a circle for test.
+                pg.draw.circle(self.screen, Const.ITEM_TEST_COLOR, i[3], Const.ITEM_WIDTH)
 
         pg.display.flip()
 

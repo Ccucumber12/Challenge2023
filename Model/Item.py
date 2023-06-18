@@ -6,7 +6,7 @@ import Const
 
 class Item:
     def __init__(self, position, item_id, item_type, item_width, item_height, item_status):
-        self.id = item_id
+        self.item_id = item_id
         self.type = item_type
         # specify the type of item ["cloak": 隱形斗篷, "patronus": 護法, "golden_snitch": 金探子, "petrification": 石化]
         self.position = position  # is a pg.Vector2
@@ -24,6 +24,9 @@ class Item:
                 '''
                 if self.status == "normal":
                     player.get_status(self.type, self.status)
+    
+    def __str__(self):
+        return f"item_id: {self.item_id}, position: {self.position}"
 
 class Item_Generator:
     def __init__(self):
@@ -69,7 +72,8 @@ class Item_Generator:
         Put a random method to determine location here
         '''
 
-        generated_item = Item(pg.Vector2(generate_x, generate_y), self.idcounter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
+        generated_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
+        print(generated_item)
         generate_model = get_game_engine()
         generate_model.items.append(generated_item)
         self.id_counter = self.id_counter + 1

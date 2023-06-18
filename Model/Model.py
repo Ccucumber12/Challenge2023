@@ -9,6 +9,7 @@ from EventManager.Events import EventInitialize, EventQuit, EventStateChange, Ev
 from Model.Character import Player, Ghost
 from Model.Map import load_map
 from InstancesManager import get_event_manager
+from Model.Item import Item_Generator
 
 
 class GameEngine:
@@ -39,6 +40,8 @@ class GameEngine:
         self.players = [Player(0), Player(1), Player(2), Player(3)]
         self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD)]
         self.patronuses = []
+        self.items = []
+        self.item_generator = Item_Generator()
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -56,12 +59,14 @@ class GameEngine:
             if self.second_change:
                 for player in self.players:
                     player.add_score(self.minutes_passed); 
+                # print(self.items)
 
             if self.timer == Const.GAME_LENGTH:
                 ev_manager.post(EventTimesUp())
             # self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
             # self.ghosts[0].teleport(pg.Vector2(random.random() * 200 - 1, random.random() * 200 - 1))
             self.ghosts[0].hunt()
+            self.item_generator.tick()
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
 
