@@ -48,6 +48,10 @@ ITEM_DURATION = {
     "golden_stitch": {"normal": 1},
     "petrification": {"normal": 3*FPS, "reversed": 3*FPS,"enhanced": 6*FPS}
 }
+ITEM_GENERATE_COOLDOWN = 5*FPS
+MAX_ITEN_NUMBER = 5
+ITEM_WIDTH = 15
+ITEM_HEIGHT = 15
 
 # controller
 PLAYER_KEYS = {
