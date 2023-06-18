@@ -1,5 +1,8 @@
 from InstancesManager import get_game_engine
 
+import pygame as pg
+import random
+import Const
 
 class Item:
     def __init__(self, position, item_id, item_type, item_width, item_height, item_status):
@@ -33,17 +36,31 @@ class Item_Generator:
 
         #determining type of item
         type_id = 0
-        if self.golden_snitch == 1:
+        if self.golden_snitch_tag == 1:
             type_id = random.randint(0, 2)
         else:
             type_id = random.randint(0, 3)
-        generate_type = "clock" if type_id == 0 else "patronus" if type_id == 1 else "golden_snitch" if type_id == 3 else "petrification" if type_id == 2
+        if type_id == 0:
+            generate_type = "clock" 
+        elif type_id == 1:
+            generate_type = "patronus" 
+        elif type_id == 2:
+            generate_type = "petrification"
+        elif type_id == 3:
+            generate_type = "golden_snitch"
+        # generate_type = "clock" if type_id == 0 else "patronus" if type_id == 1 else "golden_snitch" if type_id == 3 else "petrification" if type_id == 2
         if type_id == 3:
             self.golden_snitch_tag = 1
 
         #determining status of item (could modify probility by modifying the constants)
         status_id = random.randint(1, 15)
-        generate_status = "normal" if 1 <= status_id <= 12 else "reversed" if status_id == 13 else "enhanced" if 14 <= status_id <=15
+        if 1 <= status_id <= 12:
+            generate_status = "normal"
+        elif status_id == 13:
+            generate_status = "reversed"
+        elif 14 <= status_id <= 15:
+            generate_status = "enhanced"
+        # generate_status = "normal" if 1 <= status_id <= 12 else "reversed" if status_id == 13 else "enhanced" if 14 <= status_id <=15
    
         #determining location of item
         generate_x = 0
@@ -52,9 +69,9 @@ class Item_Generator:
         Put a random method to determine location here
         '''
 
-        generated_item = Item(Vector2(generate_x, generate_y), self.idcounter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
+        generated_item = Item(pg.Vector2(generate_x, generate_y), self.idcounter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
         generate_model = get_game_engine()
-        generate_model.items.append(generate_item)
+        generate_model.items.append(generated_item)
         self.id_counter = self.id_counter + 1
 
     def tick(self):
