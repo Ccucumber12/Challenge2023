@@ -183,9 +183,11 @@ class Ghost(Character):
         if self.teleport_chanting:
             return
 
-        x = self.speed / Const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-        y = self.speed / Const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-        super().move(x, y)
+        if direction[0] != 0 or direction[1] != 0:
+            # Avoid division by zero
+            x = self.speed / Const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+            y = self.speed / Const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+            super().move(x, y)
 
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
