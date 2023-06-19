@@ -35,53 +35,39 @@ class Item_Generator:
         self.id_counter = 1
 
     def generate(self):
-        generated_item = None
+        # determining the type of generated item
+        generate_type = random.choices(Const.ITEM_SET, weights=Const.ITEM_GENERATE_PROBABILITY)[0]
+        generate_status = random.choices(Const.ITEM_STATUS, weights=Const.ITEM_STATUS_PROBABILITY)[0]
 
-        #determining type of item
-        type_id = 0
-        if self.golden_snitch_tag == 1:
-            type_id = random.randint(0, 2)
-        else:
-            type_id = random.randint(0, 3)
-        if type_id == 0:
-            generate_type = "clock" 
-        elif type_id == 1:
-            generate_type = "patronus" 
-        elif type_id == 2:
-            generate_type = "petrification"
-        elif type_id == 3:
-            generate_type = "golden_snitch"
-        # generate_type = "clock" if type_id == 0 else "patronus" if type_id == 1 else "golden_snitch" if type_id == 3 else "petrification" if type_id == 2
-        if type_id == 3:
-            self.golden_snitch_tag = 1
-
-        #determining status of item (could modify probility by modifying the constants)
-        status_id = random.randint(1, 15)
-        if 1 <= status_id <= 12:
-            generate_status = "normal"
-        elif status_id == 13:
-            generate_status = "reversed"
-        elif 14 <= status_id <= 15:
-            generate_status = "enhanced"
-        # generate_status = "normal" if 1 <= status_id <= 12 else "reversed" if status_id == 13 else "enhanced" if 14 <= status_id <=15
-   
         #determining location of item
         generate_x = 0
         generate_y = 0
         '''
         Put a random method to determine location here
         '''
-
-        generated_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
-        print(generated_item)
-        generate_model = get_game_engine()
-        generate_model.items.append(generated_item)
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
+        # print(generate_item)
+        model = get_game_engine()
+        model.items.append(generate_item)
         self.id_counter = self.id_counter + 1
 
     def tick(self):
         self.generate_cd -= 1
-        generate_model = get_game_engine()
+        model = get_game_engine()
+        if model.timer == Const.GOLDEN_SNITCH_APPEAR_TIME:
+            self.generate_golden_snitch()
         if self.generate_cd <= 0:
-            if len(generate_model.items) < Const.MAX_ITEN_NUMBER:
+            if len(model.items) < Const.MAX_ITEM_NUMBER:
                 self.generate()
                 self.generate_cd = Const.ITEM_GENERATE_COOLDOWN
+    
+    def generate_golden_snitch(self):
+        # find a position that is far from all the players
+        generate_x = 0
+        generate_y = 0
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, "golden_snitch", Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
+        model = get_game_engine()
+        model.items.append(generate_item)
+        self.id_counter = self.id_counter + 1
+        print("golden snitch generated!")
+        print(generate_item)
