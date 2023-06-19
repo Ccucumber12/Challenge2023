@@ -25,7 +25,7 @@ class Item:
                 '''
                 if self.status == "normal":
                     player.get_status(self.type, self.status)
-    
+
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
 
@@ -39,8 +39,8 @@ class Item_Generator:
 
     def generate(self):
         # determining the type of generated item
-        generate_type = random.choices(Const.ITEM_SET, weights=Const.ITEM_GENERATE_PROBABILITY)[0]
-        generate_status = random.choices(Const.ITEM_STATUS, weights=Const.ITEM_STATUS_PROBABILITY)[0]
+        generate_type = random.choices(list(Const.ITEM_SET), weights=Const.ITEM_GENERATE_PROBABILITY)[0]
+        generate_status = random.choices(list(Const.ITEM_STATUS), weights=Const.ITEM_STATUS_PROBABILITY)[0]
 
         # determining location of item
         generate_x = 0

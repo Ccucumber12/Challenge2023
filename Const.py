@@ -1,4 +1,5 @@
 import pygame as pg
+from enum import Enum, auto
 
 # model
 FPS = 60 # frame per second
@@ -53,9 +54,15 @@ MAX_ITEM_NUMBER = 5
 ITEM_WIDTH = 15
 ITEM_HEIGHT = 15
 ITEM_TEST_COLOR = pg.Color('violet')
-ITEM_SET = ["cloak", "patronus", "petrification"]
+class ITEM_SET(Enum):
+    CLOAK = 0
+    PATRONUS = 1
+    PETRIFICATION = 2
+class ITEM_STATUS(Enum):
+    NORMAL = 0
+    REVERSED = 1
+    ENHANCED = 2
 ITEM_GENERATE_PROBABILITY = [1/3, 1/3, 1/3] #should correspond to ITEM_SET
-ITEM_STATUS = ["normal", "reversed", "enhanced"]
 ITEM_STATUS_PROBABILITY = [12/15, 1/15, 2/15] #should correspond to ITEM_STATES
 GOLDEN_SNITCH_APPEAR_TIME = 5*FPS
 

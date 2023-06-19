@@ -26,6 +26,8 @@ class GameEngine:
         self.register_listeners()
         self._state = None
         self.map = load_map('Maps/testmap')
+        self.user_events = []
+        self.timer = 0
 
     @property
     def state(self):
@@ -42,7 +44,6 @@ class GameEngine:
         self.patronuses = []
         self.items = []
         self.item_generator = Item_Generator()
-        self.user_events = []
 
     def handle_every_tick(self, event):
         cur_state = self.state
