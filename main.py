@@ -10,7 +10,7 @@ from View.View import GraphicalView
 def main():
     # Initialization
     pg.init()
-    
+
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     InstancesManager.register_event_manager(ev_manager)

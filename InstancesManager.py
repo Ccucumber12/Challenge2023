@@ -18,5 +18,3 @@ def register_game_engine(game_engine):
 
 def get_game_engine():
     return __game_engine
-
-

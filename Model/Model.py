@@ -59,7 +59,7 @@ class GameEngine:
             self.minutes_passed = (self.timer // Const.FPS) // 60
             if self.second_change:
                 for player in self.players:
-                    player.add_score(self.minutes_passed); 
+                    player.add_score(self.minutes_passed)
                 # print(self.items)
 
             if self.timer == Const.GAME_LENGTH:
@@ -83,6 +83,7 @@ class GameEngine:
         if index < 0 or index >= len(self.user_events):
             raise IndexError()
         self.user_events[index] = None
+
     def register_user_event(self, delay, handler):
         """
         handler will be executed after delay ticks

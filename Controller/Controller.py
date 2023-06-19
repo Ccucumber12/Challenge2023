@@ -13,8 +13,7 @@ class Controller:
 
     def __init__(self):
         """
-        This function is called when the Controller is created.
-        For more specific objects related to a game instance
+        This function is called when the Controller is created. For more specific objects related to a game instance
             , they should be initialized in Controller.initialize()
         """
         self.register_listeners()

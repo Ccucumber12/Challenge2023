@@ -13,6 +13,9 @@ class Map:
         self.portals = portals
 
     def convert_coordinate(self, position):
+        """
+        For detection of obstacles
+        """
         x = max(0, min(self.size[0] - 1, int(position[0] * self.size[0] / Const.ARENA_SIZE[0])))
         y = max(0, min(self.size[1] - 1, int(position[1] * self.size[1] / Const.ARENA_SIZE[1])))
         return x, y
