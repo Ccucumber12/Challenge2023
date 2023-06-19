@@ -1,5 +1,5 @@
 import random
-from math import sqrt
+from math import sqrt, ceil
 
 import pygame as pg
 
@@ -55,7 +55,7 @@ class Player(Character):
         super().__init__(position, speed)
         self.dead = False
         self.invisible = False
-        self.invincible = False
+        self.invincible = 0 # will be invicible until timer > invincible.
         self.respawn_timer = 0
         self.score = 0
         self.effect_timer = 0
@@ -95,9 +95,22 @@ class Player(Character):
         Caught by the ghost.
         Kill player
         """
-        if not self.dead:
+        model = get_game_engine()
+        if model.timer <= self.invincible:
+            return
+        elif self.effect == "sortinghat":
+            others = [x for x in range(4) if x != self.player_id]
+            victim = random.choice(others)
+            second = ceil(model.timer / Const.FPS)
+            for _ in range(5):
+                minute = second // 60
+                model.players[victim].score -= Const.PLAYER_ADD_SCORE[minute]
+            self.effect = "none"
+            self.invincible = model.timer + Const.SORTINGHAT_INVINCIBLE_TIME
+            return
+        elif not self.dead:
             self.dead = True
-            get_game_engine().regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
+            model.regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
 
     def isinvisible(self):
         return self.dead or self.invisible or self.invincible
@@ -105,12 +118,7 @@ class Player(Character):
     def add_score(self, minutes: int):
         # if self.dead:
         #    return
-        if minutes == 0:
-            self.score += 2
-        elif minutes == 1:
-            self.score += 3
-        else:
-            self.score += 5
+        self.score += Const.PLAYER_ADD_SCORE[minutes]
         # print(self.score)
 
     def remove_effect(self):

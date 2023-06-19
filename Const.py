@@ -5,9 +5,9 @@ from enum import Enum, auto
 FPS = 60 # frame per second
 GAME_LENGTH = 30 * FPS
 PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400), pg.Vector2(200, 200), pg.Vector2(600, 200)]
-GHOST_INIT_POSITION = [pg.Vector2(400, 400)]
 PLAYER_RADIUS = 30
-GHOST_RADIUS = 30
+PLAYER_RESPAWN_TIME = 5
+PLAYER_ADD_SCORE = [2, 3, 5]
 SPEED_ATTACK = 100
 SPEED_DEFENSE = 70
 DIRECTION_TO_VEC2 = {
@@ -16,10 +16,11 @@ DIRECTION_TO_VEC2 = {
     'down': pg.Vector2(0, 1),
     'right': pg.Vector2(1, 0),
 }
+GHOST_INIT_POSITION = [pg.Vector2(400, 400)]
+GHOST_RADIUS = 30
 GHOST_INIT_SPEED = 120
 GHOST_CHATING_TIME = 2 * FPS  # chating time before it teleport
 GHOST_INIT_TP_CD = 10 * FPS
-PLAYER_RESPAWN_TIME = 5
 
 # Map
 MAP_ROAD = 0
@@ -54,6 +55,7 @@ MAX_ITEM_NUMBER = 5
 ITEM_WIDTH = 15
 ITEM_HEIGHT = 15
 ITEM_TEST_COLOR = pg.Color('violet')
+SORTINGHAT_INVINCIBLE_TIME = 5*FPS
 class ITEM_SET(Enum):
     CLOAK = 0
     PATRONUS = 1
