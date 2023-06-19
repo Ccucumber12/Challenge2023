@@ -35,41 +35,12 @@ class Item_Generator:
         model = get_game_engine()
         model.register_user_event(Const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
         model.register_user_event(Const.GOLDEN_SNITCH_APPEAR_TIME, self.generate_golden_snitch)
-        self.golden_snitch_tag = 0
         self.id_counter = 1
 
     def generate(self):
         # determining the type of generated item
         generate_type = random.choices(Const.ITEM_SET, weights=Const.ITEM_GENERATE_PROBABILITY)[0]
         generate_status = random.choices(Const.ITEM_STATUS, weights=Const.ITEM_STATUS_PROBABILITY)[0]
-
-        # determining type of item
-        type_id = 0
-        if self.golden_snitch_tag == 1:
-            type_id = random.randint(0, 2)
-        else:
-            type_id = random.randint(0, 3)
-        if type_id == 0:
-            generate_type = "clock"
-        elif type_id == 1:
-            generate_type = "patronus"
-        elif type_id == 2:
-            generate_type = "petrification"
-        elif type_id == 3:
-            generate_type = "golden_snitch"
-        # generate_type = "clock" if type_id == 0 else "patronus" if type_id == 1 else "golden_snitch" if type_id == 3 else "petrification" if type_id == 2
-        if type_id == 3:
-            self.golden_snitch_tag = 1
-
-        # determining status of item (could modify probility by modifying the constants)
-        status_id = random.randint(1, 15)
-        if 1 <= status_id <= 12:
-            generate_status = "normal"
-        elif status_id == 13:
-            generate_status = "reversed"
-        elif 14 <= status_id <= 15:
-            generate_status = "enhanced"
-        # generate_status = "normal" if 1 <= status_id <= 12 else "reversed" if status_id == 13 else "enhanced" if 14 <= status_id <=15
 
         # determining location of item
         generate_x = 0
@@ -84,12 +55,12 @@ class Item_Generator:
         self.id_counter = self.id_counter + 1
 
     def generate_handler(self):
-        generate_model = get_game_engine()
-        if len(generate_model.items) < Const.MAX_ITEM_NUMBER:
+        model = get_game_engine()
+        if len(model.items) < Const.MAX_ITEM_NUMBER:
             self.generate()
-            generate_model.register_user_event(Const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
+            model.register_user_event(Const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
         else:
-            generate_model.register_user_event(1, self.generate_handler)
+            model.register_user_event(1, self.generate_handler)
 
     def tick(self):
         pass
