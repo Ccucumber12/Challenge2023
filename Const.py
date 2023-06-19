@@ -20,7 +20,7 @@ GHOST_INIT_POSITION = [pg.Vector2(400, 400)]
 GHOST_RADIUS = 30
 GHOST_INIT_SPEED = 120
 GHOST_CHATING_TIME = 2 * FPS  # chating time before it teleport
-GHOST_INIT_TP_CD = 10 * FPS
+GHOST_INIT_TP_CD = 5 * FPS
 
 # Map
 MAP_ROAD = 0
