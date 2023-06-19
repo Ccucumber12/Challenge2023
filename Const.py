@@ -49,10 +49,15 @@ ITEM_DURATION = {
     "petrification": {"normal": 3*FPS, "reversed": 3*FPS,"enhanced": 6*FPS}
 }
 ITEM_GENERATE_COOLDOWN = 3*FPS
-MAX_ITEN_NUMBER = 5
+MAX_ITEM_NUMBER = 5
 ITEM_WIDTH = 15
 ITEM_HEIGHT = 15
 ITEM_TEST_COLOR = pg.Color('violet')
+ITEM_SET = ["cloak", "patronus", "petrification"]
+ITEM_GENERATE_PROBABILITY = [1/3, 1/3, 1/3] #should correspond to ITEM_SET
+ITEM_STATUS = ["normal", "reversed", "enhanced"]
+ITEM_STATUS_PROBABILITY = [12/15, 1/15, 2/15] #should correspond to ITEM_STATES
+GOLDEN_SNITCH_APPEAR_TIME = 5*FPS
 
 # controller
 PLAYER_KEYS = {

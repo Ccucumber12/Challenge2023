@@ -32,12 +32,16 @@ class Item:
 
 class Item_Generator:
     def __init__(self):
-        get_game_engine().register_user_event(Const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
+        model = get_game_engine()
+        model.register_user_event(Const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
+        model.register_user_event(Const.GOLDEN_SNITCH_APPEAR_TIME, self.generate_golden_snitch)
         self.golden_snitch_tag = 0
         self.id_counter = 1
 
     def generate(self):
-        generated_item = None
+        # determining the type of generated item
+        generate_type = random.choices(Const.ITEM_SET, weights=Const.ITEM_GENERATE_PROBABILITY)[0]
+        generate_status = random.choices(Const.ITEM_STATUS, weights=Const.ITEM_STATUS_PROBABILITY)[0]
 
         # determining type of item
         type_id = 0
@@ -73,11 +77,10 @@ class Item_Generator:
         '''
         Put a random method to determine location here
         '''
-
-        generated_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
-        print(generated_item)
-        generate_model = get_game_engine()
-        generate_model.items.append(generated_item)
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
+        # print(generate_item)
+        model = get_game_engine()
+        model.items.append(generate_item)
         self.id_counter = self.id_counter + 1
 
     def generate_handler(self):
@@ -90,3 +93,14 @@ class Item_Generator:
 
     def tick(self):
         pass
+
+    def generate_golden_snitch(self):
+        # find a position that is far from all the players
+        generate_x = 0
+        generate_y = 0
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, "golden_snitch", Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
+        model = get_game_engine()
+        model.items.append(generate_item)
+        self.id_counter = self.id_counter + 1
+        print("golden snitch generated!")
+        print(generate_item)
