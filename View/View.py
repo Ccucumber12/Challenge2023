@@ -99,6 +99,9 @@ class GraphicalView:
                 # It's acually is a rectangle, but here I just draw a circle for test.
                 pg.draw.circle(self.screen, Const.ITEM_TEST_COLOR, i[3], Const.ITEM_WIDTH)
 
+        for particle in model.particles:
+            particle.emit()
+
         pg.display.flip()
 
     def render_stop(self):

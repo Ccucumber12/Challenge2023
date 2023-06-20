@@ -17,7 +17,8 @@ def main():
     model = GameEngine()
     InstancesManager.register_game_engine(model)
     Controller()
-    GraphicalView()
+    view = GraphicalView()
+    InstancesManager.register_graphical_view(view)
 
     # Main loop
     model.run()

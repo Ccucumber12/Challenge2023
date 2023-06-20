@@ -11,6 +11,9 @@ from Model.Map import load_map
 from InstancesManager import get_event_manager
 from Model.Item import Item_Generator
 
+from View.Effect import Particle
+from InstancesManager import get_game_engine
+
 
 class GameEngine:
     """
@@ -44,6 +47,7 @@ class GameEngine:
         self.patronuses = []
         self.items = []
         self.item_generator = Item_Generator()
+        self.particles = []
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -100,7 +104,7 @@ class GameEngine:
                 index = i
                 break
         if index == -1:
-            index = len(self.user_events);
+            index = len(self.user_events)
             self.user_events.append(None)
         self.user_events[index] = (delay + self.timer, handler)
         return index
@@ -141,6 +145,8 @@ class GameEngine:
         for player in self.players:
             player.tick()
         self.ghosts[0].tick()
+        for i in self.particles:
+            i.tick()
 
     def update_endgame(self):
         """
@@ -159,6 +165,12 @@ class GameEngine:
         ev_manager = get_event_manager()
         ev_manager.post(EventInitialize())
         self.timer = 0
+        self.clock.tick(Const.FPS)
+        p = Particle("RED", 100, 100)
+        self.particles.append(p)
+        p2 = Particle("BLUE", 500, 500)
+        self.particles.append(p2)
+        #m = get_game_engine()
         while self.running:
             ev_manager.post(EventEveryTick())
             self.clock.tick(Const.FPS)
