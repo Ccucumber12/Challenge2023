@@ -35,9 +35,8 @@ def gen_map_file_from_image(img_path, width, height, threshold=0.8, distance=10)
             else:
                 map_list[x][y] = 0
 
-    print(width, height)
     for i in map_list:
-        print(''.join([str(j) for j in i]))
+        print(','.join([str(j) for j in i]))
 
 
 def print_help():

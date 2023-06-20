@@ -1,3 +1,6 @@
+import csv
+import json
+
 import Const
 import os
 import re
@@ -6,11 +9,12 @@ import pygame
 
 class Map:
 
-    def __init__(self, size, map_list, portals, images):
+    def __init__(self, size, map_list, portals, images, spawn):
         self.size = size
         self.map = map_list
         self.images = images
         self.portals = portals
+        self.spawn = spawn
 
     def convert_coordinate(self, position):
         """
@@ -37,32 +41,37 @@ class Map:
                 return i[2], i[3]
         return None
 
+    def get_spawn_point(self, num):
+        x, y = self.spawn[num]
+        x = (x + 0.5) * Const.ARENA_SIZE[0] / self.size[0]
+        y = (y + 0.5) * Const.ARENA_SIZE[1] / self.size[1]
+        return x, y
+
 
 def load_map(map_dir):
-    map_file = os.path.join(map_dir, 'map.txt')
-    portal_file = os.path.join(map_dir, 'portal.txt')
+    json_file = os.path.join(map_dir, 'map.json')
+    map_file = os.path.join(map_dir, 'map.csv')
+
+    with open(json_file) as f:
+        data = json.load(f)
+
+    size = list(map(int, [data['width'], data['height']]))
+    spawn = [list(map(int, i.split(','))) for i in data['spawn']]
+    portals = [list(map(int, re.split('[, ]', i))) for i in data['portals']]
+    images = []
+    for i in data['images']:
+        loaded_image = pygame.image.load(os.path.join(map_dir, i))
+        loaded_image = pygame.transform.scale(loaded_image, Const.ARENA_SIZE)
+        images.append((int(data['images'][i]), loaded_image))
+
     with open(map_file) as f:
-        size = [int(i) for i in f.readline().split(' ')]
+        rows = csv.reader(f)
+
         map_list = [[0] * size[0] for _ in range(0, size[1])]
         y = 0
-        for line in f.readlines():
-            if len(line) == 0:
-                continue
+        for row in rows:
             for x in range(0, size[0]):
-                map_list[x][y] = int(line[x])
+                map_list[x][y] = int(row[x])
             y += 1
 
-    with open(portal_file) as f:
-        num_portals = int(f.readline())
-        portals = []
-        for i in range(0, num_portals):
-            portals.append([int(i) for i in f.readline().split(' ')])
-
-    images = []
-    for i in os.listdir(map_dir):
-        if re.match("^-?[0-9]+.png$", i):
-            loaded_image = pygame.image.load(os.path.join(map_dir, i))
-            loaded_image = pygame.transform.scale(loaded_image, Const.ARENA_SIZE)
-            images.append((int(i[:-4]), loaded_image))
-
-    return Map(size, map_list, portals, images)
+    return Map(size, map_list, portals, images, spawn)

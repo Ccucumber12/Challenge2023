@@ -1,0 +1,14 @@
+{
+    "width": 10,
+    "height": 10,
+    "spawn": [
+        "2,2", "2,7", "7,2", "7,7"
+    ],
+    "images": {
+        "background.png": -1,
+        "8.png": 8
+    },
+    "portals": [
+        "4,4 0,0"
+    ]
+}
