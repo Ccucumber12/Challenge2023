@@ -67,7 +67,7 @@ class GameEngine:
                 ev_manager.post(EventTimesUp())
             # self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
             # self.ghosts[0].teleport(pg.Vector2(random.random() * 800 - 1, random.random() * 800 - 1))
-            self.ghosts[0].hunt()
+            self.ghosts[0].step()
             self.item_generator.tick()
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()

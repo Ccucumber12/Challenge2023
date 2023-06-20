@@ -25,27 +25,30 @@ class Character:
         Move the player along the direction by its speed.
         Will automatically clip the position so no need to worry out-of-bound moving.
         """
+
+        #If it hits an obstacle, try a smaller distance
         r = (x * x + y * y) ** (1 / 2)
+        for attempt in range(3):
 
-        # Calculate new position
-        new_position = self.position + self.speed / Const.FPS * pg.Vector2((x / r), (y / r))
+            # Calculate new position
+            new_position = self.position + self.speed / Const.FPS * pg.Vector2((x / r), (y / r))
 
-        # clamp
-        new_position.x = max(0, min(Const.ARENA_SIZE[0], new_position.x))
-        new_position.y = max(0, min(Const.ARENA_SIZE[1], new_position.y))
+            # clamp
+            new_position.x = max(0, min(Const.ARENA_SIZE[0], new_position.x))
+            new_position.y = max(0, min(Const.ARENA_SIZE[1], new_position.y))
 
-        # Todo: Obstacle checking
-        model = get_game_engine()
-        if model.map.get_type(new_position) == Const.MAP_OBSTACLE:
+            # Todo: Obstacle checking
+            model = get_game_engine()
+            if model.map.get_type(new_position) == Const.MAP_OBSTACLE:
+                x, y = x/2, y/2
+                continue
+            # Todo: Portal
+            portal = model.map.get_portal(new_position)
+            if portal is not None:
+                print('Portal', portal)
+            # Update
+            self.position = new_position
             return
-
-        # Todo: Portal
-        portal = model.map.get_portal(new_position)
-        if portal is not None:
-            print('Portal', portal)
-
-        # Update
-        self.position = new_position
 
     ## Pathfinding algorithm implementation
     def reconstruct_path(self, parent, current):
@@ -63,7 +66,7 @@ class Character:
 
         def get_neighbors(cell):
             neighbors = []
-            directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Right, Left, Down, Up
+            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Right, Left, Down, Up
             for dx, dy in directions:
                 new_row = cell[0] + dx
                 new_col = cell[1] + dy
@@ -73,26 +76,28 @@ class Character:
 
         parent = [[None] * cols for _ in range(rows)]
         closed = [[False] * cols for _ in range(rows)]
+        dis = [[10000] * cols for _ in range(rows)]
+        dis[start[0]][start[1]] = 0
 
         start_h = heuristic(start, target)
         open_list = [(start_h, 0, start)]  # (f, g, cell)
 
         while open_list:
             _, g, current = heapq.heappop(open_list)
-
+            #print(current, g)
+            if g != dis[current[0]][current[1]]:
+                continue
             if current == target:
                 return self.reconstruct_path(parent, current)
-
             closed[current[0]][current[1]] = True
 
             for neighbor in get_neighbors(current):
                 if closed[neighbor[0]][neighbor[1]]:
                     continue
-
                 tentative_g = g + 1
-
-                if parent[neighbor[0]][neighbor[1]] is None or tentative_g < parent[neighbor[0]][neighbor[1]][1]:
+                if parent[neighbor[0]][neighbor[1]] is None or tentative_g < dis[neighbor[0]][neighbor[1]]:
                     parent[neighbor[0]][neighbor[1]] = (current[0], current[1], tentative_g)
+                    dis[neighbor[0]][neighbor[1]] = tentative_g
                     neighbor_h = heuristic(neighbor, target)
                     heapq.heappush(open_list, (tentative_g + neighbor_h, tentative_g, neighbor))
         return [] 
@@ -102,22 +107,36 @@ class Character:
         grid = Map.map
         start = Map.convert_coordinate(self.position)
         end = Map.convert_coordinate([x, y])
-        path = self.a_star(grid, (start[1], start[0]), (end[1], end[0]))
+        path = self.a_star(grid, start, end)
         
+        r = (x-self.position[0])**2 + (y-self.position[1])**2;
+        dx = (x - self.position[0])/r
+        dy = (y - self.position[1])/r
         #print("Start: ", start, "End: ", end, "Path:", path)
+        
         if len(path) > 1:
-            return Map.convert_cell((path[1][1], path[1][0]));
+            return Map.convert_cell((path[1][0], path[1][1]), dx, dy);
         else:
             return x, y
 
-### Begin tmp
-### end tmp
-        
+    def get_random_position(self, obj):
+        #finds a random position that does not collide with obstacles
+        Map = get_game_engine().map
+        while obj == None or Map.get_type(obj) == Const.MAP_OBSTACLE:
+            obj = pg.Vector2(random.randint(0, Const.ARENA_SIZE[0]), random.randint(0, Const.ARENA_SIZE[1])) 
+        return obj
+
 
 class Player(Character):
     def __init__(self, player_id):
         self.player_id = player_id
+
         position = Const.PLAYER_INIT_POSITION[player_id]  # is a pg.Vector2
+
+        """temporarily random a starting position until there is no collsion
+        """
+        position = super().get_random_position(position)
+
         speed = Const.PLAYER_SPEED
         super().__init__(position, speed)
         self.dead = False
@@ -240,6 +259,12 @@ class Ghost(Character):
     def __init__(self, ghost_id, teleport_cd):
         self.ghost_id = ghost_id
         position = Const.GHOST_INIT_POSITION[ghost_id]  # is a pg.Vector2
+
+        """temp
+        """
+
+        position = super().get_random_position(position)
+
         speed = Const.GHOST_INIT_SPEED
         super().__init__(position, speed)
 
@@ -251,6 +276,11 @@ class Ghost(Character):
         # self.teleport_chanting_time is how long it has to continue chanting. NOT teleport cd.
         self.teleport_distination = pg.Vector2(0, 0)
         self.prey = None
+
+        # New mode 
+        self.wander_time = 0
+        self.wander_pos = None
+        self.chase_time = Const.GHOST_CHASE_TIME
 
     def tick(self):
         """
@@ -287,7 +317,7 @@ class Ghost(Character):
             return
         self.teleport_chanting = True
         self.teleport_distination = destination
-        self.teleport_time = model.timer + Const.GHOST_CHATING_TIME
+        self.teleport_time = model.timer + Const.GHOST_CHANTING_TIME
         self.teleport_available_time = model.timer + self.teleport_cd
     
     def chase(self):
@@ -297,15 +327,37 @@ class Ghost(Character):
         if (self.prey is None):
             return
 
+        ## Uses Pathfind
         self.move_direction(pg.Vector2(super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
-        #self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
 
-    def hunt(self):
+        ## Goes straight to the position
+        #self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
+    def wander(self):
+        if self.wander_pos == None:
+            self.wander_pos = super().get_random_position(self.wander_pos)
+        self.move_direction(pg.Vector2(super().pathfind(self.wander_pos.x, self.wander_pos.y))-self.position)
+
+    def step(self):
         """
         AI of ghost.
         Determine what ghost should do next.
         """
         model = get_game_engine()
+
+        # Wander mode
+        if self.wander_time > 0:
+            self.wander_time -= 1
+            if self.wander_time == 0:
+                self.chase_time = Const.GHOST_CHASE_TIME
+                self.prey = model.players[random.randint(0, Const.NUM_OF_PLAYERS-1)]
+            self.wander()
+            return
+
+        # Chase mode
+        self.chase_time -= 1
+        if self.chase_time == 0:
+            self.wander_time = Const.GHOST_WANDER_TIME
+            self.wander_pos = None
         if (self.prey is None) or (self.prey.dead == True): #Changes target when it is killed
             # TODO: Choose prey 
             self.prey = model.players[random.randint(0, Const.NUM_OF_PLAYERS-1)]

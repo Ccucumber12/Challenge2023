@@ -3,7 +3,7 @@ from enum import Enum, auto
 
 # model
 FPS = 60 # frame per second
-GAME_LENGTH = 30 * FPS
+GAME_LENGTH = 60 * FPS
 PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400), pg.Vector2(200, 200), pg.Vector2(600, 200)]
 PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
@@ -19,7 +19,9 @@ DIRECTION_TO_VEC2 = {
 GHOST_INIT_POSITION = [pg.Vector2(400, 400)]
 GHOST_RADIUS = 30
 GHOST_INIT_SPEED = 120
-GHOST_CHATING_TIME = 2 * FPS  # chating time before it teleport
+GHOST_CHANTING_TIME = 2 * FPS  # chating time before it teleport
+GHOST_WANDER_TIME = 5 * FPS
+GHOST_CHASE_TIME = 15 * FPS
 GHOST_INIT_TP_CD = 5 * FPS
 
 # Map
