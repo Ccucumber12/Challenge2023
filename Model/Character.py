@@ -97,7 +97,7 @@ class Player(Character):
         """
         if not self.dead:
             self.dead = True
-            get_game_engine().regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
+            get_game_engine().regsiter_user_event(Const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def isinvisible(self):
         return self.dead or self.invisible or self.invincible
