@@ -51,7 +51,7 @@ class Player(Character):
     def __init__(self, player_id):
         self.player_id = player_id
         position = Const.PLAYER_INIT_POSITION[player_id]  # is a pg.Vector2
-        speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        speed = Const.PLAYER_SPEED
         super().__init__(position, speed)
         self.dead = False
         self.invisible = False

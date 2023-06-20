@@ -6,10 +6,9 @@ FPS = 60 # frame per second
 GAME_LENGTH = 30 * FPS
 PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400), pg.Vector2(200, 200), pg.Vector2(600, 200)]
 PLAYER_RADIUS = 30
-PLAYER_RESPAWN_TIME = 5
+PLAYER_RESPAWN_TIME = 5 * FPS
 PLAYER_ADD_SCORE = [2, 3, 5]
-SPEED_ATTACK = 100
-SPEED_DEFENSE = 70
+PLAYER_SPEED = 100
 DIRECTION_TO_VEC2 = {
     'up': pg.Vector2(0, -1),
     'left': pg.Vector2(-1, 0),
