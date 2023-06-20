@@ -51,7 +51,7 @@ class Player(Character):
     def __init__(self, player_id):
         self.player_id = player_id
         position = Const.PLAYER_INIT_POSITION[player_id]  # is a pg.Vector2
-        speed = Const.SPEED_ATTACK if player_id == 1 else Const.SPEED_DEFENSE
+        speed = Const.PLAYER_SPEED
         super().__init__(position, speed)
         self.dead = False
         self.invisible = False
@@ -69,9 +69,45 @@ class Player(Character):
             self.effect_timer -= 1
         else:
             self.remove_effect()
+        if self.iscaught():
+            self.caught()
 
     def respawn_handler(self):
         self.dead = False
+
+    def iscaught(self):
+        if self.dead or self.invincible:
+            # If the player has sortinghat and is invincible, the effect of sortinghat won't triggered.
+            # Even if the player is invisible, the ghost can still catch him.
+            return False
+        model = get_game_engine()
+        for ghost in model.ghosts:
+            xx = (self.position.x - ghost.position.x) ** 2
+            yy = (self.position.y - ghost.position.y) ** 2
+            if xx + yy < ((Const.PLAYER_RADIUS + Const.GHOST_RADIUS) ** 2):
+                return True
+        return False
+
+    def caught(self):
+        """
+        Caught by the ghost.
+        Kill player
+        """
+        print(f"Player {self.player_id} is caught!")
+        model = get_game_engine()
+        if self.effect == "sortinghat":
+            others = [x for x in range(4) if x != self.player_id]
+            victim = random.choice(others)
+            second = ceil(model.timer / Const.FPS)
+            for _ in range(5):
+                minute = second // 60
+                model.players[victim].score -= Const.PLAYER_ADD_SCORE[minute]
+            self.effect = "none"
+            self.invincible = model.timer + Const.SORTINGHAT_INVINCIBLE_TIME
+            return
+        elif not self.dead:
+            self.dead = True
+            model.regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
 
     def move_direction(self, direction: str):
         """
@@ -89,31 +125,6 @@ class Player(Character):
         # clipping
         self.position.x = max(0, min(Const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(Const.ARENA_SIZE[1], self.position.y))
-
-    def caught(self):
-        """
-        Caught by the ghost.
-        Kill player
-        """
-        model = get_game_engine()
-        if model.timer <= self.invincible:
-            return
-        elif self.effect == "sortinghat":
-            others = [x for x in range(4) if x != self.player_id]
-            victim = random.choice(others)
-            second = ceil(model.timer / Const.FPS)
-            for _ in range(5):
-                minute = second // 60
-                model.players[victim].score -= Const.PLAYER_ADD_SCORE[minute]
-            self.effect = "none"
-            self.invincible = model.timer + Const.SORTINGHAT_INVINCIBLE_TIME
-            return
-        elif not self.dead:
-            self.dead = True
-            model.regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
-
-    def isinvisible(self):
-        return self.dead or self.invisible or self.invincible
 
     def add_score(self, minutes: int):
         # if self.dead:
