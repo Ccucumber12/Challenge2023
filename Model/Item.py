@@ -1,9 +1,11 @@
 from InstancesManager import get_game_engine
 
+import math
 import pygame as pg
 import random
 import Const
 
+import numpy as np
 
 class Item:
     def __init__(self, position, item_id, item_type, item_width, item_height, item_status):
@@ -67,11 +69,29 @@ class Item_Generator:
 
     def generate_golden_snitch(self):
         # find a position that is far from all the players
+        max_distance = 0
         generate_x = 0
         generate_y = 0
-        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, "golden_snitch", Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
+        # randomly draw five points in the arena according to a standard distribution
+        rand_times = 10
+        candidates_x = np.random.normal(Const.WINDOW_SIZE[0] / 2, Const.WINDOW_SIZE[0] / 4, rand_times)
+        candidates_y = np.random.normal(Const.WINDOW_SIZE[1] / 2, Const.WINDOW_SIZE[1] / 4, rand_times)
         model = get_game_engine()
+        # choose the point that has a max distance to players
+        for rand_x, rand_y in zip(candidates_x, candidates_y):
+            # discard points out of range
+            if not(1 <= rand_x <= Const.WINDOW_SIZE[0] and 1 <= rand_y <= Const.WINDOW_SIZE[1]):
+                continue
+            min_distance_to_players = Const.WINDOW_SIZE[0] + Const.WINDOW_SIZE[1]
+            for player in model.players:
+                distance_to_player = math.hypot(player.position.x - rand_x, player.position.y - rand_y)
+                min_distance_to_players = min(min_distance_to_players, distance_to_player)
+            if min_distance_to_players > max_distance:
+                generate_x = rand_x
+                generate_y = rand_y
+                max_distance = min_distance_to_players
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, "golden_snitch", Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
         model.items.append(generate_item)
         self.id_counter = self.id_counter + 1
-        print("golden snitch generated!")
+        print(f"golden snitch generated at {generate_x, generate_y}!")
         print(generate_item)
