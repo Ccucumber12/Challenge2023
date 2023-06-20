@@ -72,9 +72,6 @@ class Player(Character):
         if self.iscaught():
             self.caught()
 
-    def respawn_handler(self):
-        self.dead = False
-
     def iscaught(self):
         if self.dead or self.invincible:
             # If the player has sortinghat and is invincible, the effect of sortinghat won't triggered.
@@ -107,7 +104,10 @@ class Player(Character):
             return
         elif not self.dead:
             self.dead = True
-            model.regsiter_user_event(Const.PLAYER_RESPAWN_TIME, respawn_handler)
+            model.register_user_event(Const.PLAYER_RESPAWN_TIME, self.respawn_handler)
+
+    def respawn_handler(self):
+        self.dead = False
 
     def move_direction(self, direction: str):
         """
