@@ -1,4 +1,5 @@
 import random
+import heapq
 from math import sqrt, ceil
 
 import pygame as pg
@@ -46,6 +47,72 @@ class Character:
         # Update
         self.position = new_position
 
+    ## Pathfinding algorithm implementation
+    def reconstruct_path(self, parent, current):
+        path = []
+        while current is not None:
+            path.append(current)
+            current = parent[current[0]][current[1]]
+        return path[::-1]
+    def a_star(self, grid, start, target):
+        rows = len(grid)
+        cols = len(grid[0])
+
+        def heuristic(cell, target):
+            return abs(cell[0] - target[0]) + abs(cell[1] - target[1])
+
+        def get_neighbors(cell):
+            neighbors = []
+            directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Right, Left, Down, Up
+            for dx, dy in directions:
+                new_row = cell[0] + dx
+                new_col = cell[1] + dy
+                if 0 <= new_row < rows and 0 <= new_col < cols and grid[new_row][new_col] != Const.MAP_OBSTACLE:
+                    neighbors.append((new_row, new_col))
+            return neighbors
+
+        parent = [[None] * cols for _ in range(rows)]
+        closed = [[False] * cols for _ in range(rows)]
+
+        start_h = heuristic(start, target)
+        open_list = [(start_h, 0, start)]  # (f, g, cell)
+
+        while open_list:
+            _, g, current = heapq.heappop(open_list)
+
+            if current == target:
+                return self.reconstruct_path(parent, current)
+
+            closed[current[0]][current[1]] = True
+
+            for neighbor in get_neighbors(current):
+                if closed[neighbor[0]][neighbor[1]]:
+                    continue
+
+                tentative_g = g + 1
+
+                if parent[neighbor[0]][neighbor[1]] is None or tentative_g < parent[neighbor[0]][neighbor[1]][1]:
+                    parent[neighbor[0]][neighbor[1]] = (current[0], current[1], tentative_g)
+                    neighbor_h = heuristic(neighbor, target)
+                    heapq.heappush(open_list, (tentative_g + neighbor_h, tentative_g, neighbor))
+        return [] 
+
+    def pathfind(self, x, y):
+        Map = get_game_engine().map
+        grid = Map.map
+        start = Map.convert_coordinate(self.position)
+        end = Map.convert_coordinate([x, y])
+        path = self.a_star(grid, (start[1], start[0]), (end[1], end[0]))
+        
+        #print("Start: ", start, "End: ", end, "Path:", path)
+        if len(path) > 1:
+            return Map.convert_cell((path[1][1], path[1][0]));
+        else:
+            return x, y
+
+### Begin tmp
+### end tmp
+        
 
 class Player(Character):
     def __init__(self, player_id):
@@ -229,7 +296,9 @@ class Ghost(Character):
         """
         if (self.prey is None):
             return
-        self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
+
+        self.move_direction(pg.Vector2(super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
+        #self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
 
     def hunt(self):
         """
@@ -237,7 +306,7 @@ class Ghost(Character):
         Determine what ghost should do next.
         """
         model = get_game_engine()
-        if (self.prey is None):
-            # TEST
-            self.prey = model.players[0]
+        if (self.prey is None) or (self.prey.dead == True): #Changes target when it is killed
+            # TODO: Choose prey 
+            self.prey = model.players[random.randint(0, Const.NUM_OF_PLAYERS-1)]
         self.chase()

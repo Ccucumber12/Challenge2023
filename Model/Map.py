@@ -20,6 +20,11 @@ class Map:
         y = max(0, min(self.size[1] - 1, int(position[1] * self.size[1] / Const.ARENA_SIZE[1])))
         return x, y
 
+    def convert_cell(self, cell):
+        x = max(0, min(Const.ARENA_SIZE[0], (cell[0] + 0.5) * Const.ARENA_SIZE[0] / self.size[0]))
+        y = max(0, min(Const.ARENA_SIZE[1], (cell[1] + 0.5) * Const.ARENA_SIZE[1] / self.size[1]))
+        return x, y
+
     def get_type(self, position):
         x, y = self.convert_coordinate(position)
         return self.map[x][y]

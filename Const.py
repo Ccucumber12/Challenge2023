@@ -9,6 +9,7 @@ PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
 PLAYER_ADD_SCORE = [2, 3, 5]
 PLAYER_SPEED = 100
+NUM_OF_PLAYERS = 4
 DIRECTION_TO_VEC2 = {
     'up': pg.Vector2(0, -1),
     'left': pg.Vector2(-1, 0),
