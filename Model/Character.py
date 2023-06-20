@@ -130,12 +130,9 @@ class Character:
 class Player(Character):
     def __init__(self, player_id):
         self.player_id = player_id
+        model = get_game_engine()
 
-        position = Const.PLAYER_INIT_POSITION[player_id]  # is a pg.Vector2
-
-        """temporarily random a starting position until there is no collsion
-        """
-        position = super().get_random_position(position)
+        position = pg.Vector2(model.map.get_spawn_point(player_id))
 
         speed = Const.PLAYER_SPEED
         super().__init__(position, speed)
