@@ -25,7 +25,7 @@ class GameEngine:
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map('Maps/testmap')
+        self.map = load_map('Maps/movetest')
         self.user_events = []
         self.timer = 0
 

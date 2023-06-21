@@ -68,10 +68,23 @@ def load_map(map_dir):
         rows = csv.reader(f)
 
         map_list = [[0] * size[0] for _ in range(0, size[1])]
+
         y = 0
         for row in rows:
             for x in range(0, size[0]):
                 map_list[x][y] = int(row[x])
             y += 1
-
+     
+    """ Feature: Add "thickness" to the walls so it doesn't look like the character is in the walls"
+    new_map_list = [[0] * size[0] for _ in range(0, size[1])]
+    for y in range(size[1]):
+        for x in range(size[0]):
+            if map_list[x][y] == Const.MAP_OBSTACLE:
+                for dx in range(-1, 2): 
+                    for dy in range(-1, 2):
+                        if 0 <= x + dx < size[0] and 0 <= y + dy < size[1]:
+                            new_map_list[x+dx][y+dy] = Const.MAP_OBSTACLE
+    print(new_map_list)
+    map_list = new_map_list
+    """
     return Map(size, map_list, portals, images, spawn)

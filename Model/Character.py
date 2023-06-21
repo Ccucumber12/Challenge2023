@@ -66,11 +66,11 @@ class Character:
 
         def get_neighbors(cell):
             neighbors = []
-            directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]  # Right, Left, Down, Up
+            directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Right, Left, Down, Up
             for dx, dy in directions:
                 new_row = cell[0] + dx
                 new_col = cell[1] + dy
-                if 0 <= new_row < rows and 0 <= new_col < cols and grid[new_row][new_col] != Const.MAP_OBSTACLE:
+                if 0 <= new_row < rows and 0 <= new_col < cols and grid[new_row][new_col] != Const.MAP_OBSTACLE and grid[cell[0]][new_col] != Const.MAP_OBSTACLE and grid[new_row][cell[1]] != Const.MAP_OBSTACLE:
                     neighbors.append((new_row, new_col))
             return neighbors
 
@@ -133,6 +133,9 @@ class Player(Character):
         model = get_game_engine()
 
         position = pg.Vector2(model.map.get_spawn_point(player_id))
+
+        #temporary: gets random positioin for spawn point
+        position = super().get_random_position(position)
 
         speed = Const.PLAYER_SPEED
         super().__init__(position, speed)
