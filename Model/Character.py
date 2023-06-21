@@ -270,11 +270,9 @@ class Ghost(Character):
         super().__init__(position, speed)
 
         # teleport
-        self.teleport_available_time = 0 # Ghost can teleport if timer >= teleport_available_time
+        self.teleport_available = True
         self.teleport_cd = teleport_cd
         self.teleport_chanting = False  # if it is chantting
-        self.teleport_time = -1 # Ghost will teleport if timer == teleport_time
-        # self.teleport_chanting_time is how long it has to continue chanting. NOT teleport cd.
         self.teleport_distination = pg.Vector2(0, 0)
         self.prey = None
 
@@ -287,10 +285,7 @@ class Ghost(Character):
         """
         Run when EventEveryTick() arises.
         """
-        model = get_game_engine()
-        if model.timer == self.teleport_time:
-            self.position = self.teleport_distination
-            self.teleport_chanting = False
+        pass
 
     def move_direction(self, direction):
         if self.teleport_chanting:
@@ -314,12 +309,20 @@ class Ghost(Character):
         model = get_game_engine()
         if self.teleport_chanting:
             return
-        if model.timer < self.teleport_available_time:
+        if not self.teleport_available:
             return
         self.teleport_chanting = True
+        self.teleport_available = False
         self.teleport_distination = destination
-        self.teleport_time = model.timer + Const.GHOST_CHANTING_TIME
-        self.teleport_available_time = model.timer + self.teleport_cd
+        model.register_user_event(Const.GHOST_CHANTING_TIME, self.teleport_handler)
+        model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
+    
+    def teleport_handler(self):
+        self.teleport_chanting = False
+        self.position = self.teleport_distination
+
+    def teleport_cd_handler(self):
+        self.teleport_available = True
     
     def chase(self):
         """
