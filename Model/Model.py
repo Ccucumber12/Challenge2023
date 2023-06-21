@@ -26,8 +26,8 @@ class GameEngine:
         self.register_listeners()
         self._state = None
         self.map = load_map('Maps/movetest')
-        self.user_events = []
         self.timer = 0
+        self.user_events = {}
 
     @property
     def state(self):
@@ -44,6 +44,8 @@ class GameEngine:
         self.patronuses = []
         self.items = []
         self.item_generator = Item_Generator()
+        self.timer = 0
+        self.user_events = {}
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -69,21 +71,15 @@ class GameEngine:
             # self.ghosts[0].teleport(pg.Vector2(random.random() * 800 - 1, random.random() * 800 - 1))
             self.ghosts[0].step()
             self.item_generator.tick()
+
+            # Handle user events
+            if self.timer in self.user_events:
+                events = self.user_events[self.timer]
+                for event in events:
+                    event()
+
         elif cur_state == Const.STATE_ENDGAME:
             self.update_endgame()
-
-        # Handle user events
-        for i in range(len(self.user_events)):
-            if self.user_events[i] and self.user_events[i][0] == self.timer:
-                self.user_events[i][1]()
-                self.user_events[i] = None
-
-    def cancel_user_event(self, index):
-        if not type(index) is int:
-            raise TypeError("index should be an integer!")
-        if index < 0 or index >= len(self.user_events):
-            raise IndexError()
-        self.user_events[index] = None
 
     def register_user_event(self, delay, handler):
         """
@@ -94,16 +90,11 @@ class GameEngine:
             raise TypeError("delay should be an integer!")
         if not callable(handler):
             raise TypeError("handler is not callable!")
-        index = -1
-        for i in range(len(self.user_events)):
-            if not self.user_events[i]:
-                index = i
-                break
-        if index == -1:
-            index = len(self.user_events);
-            self.user_events.append(None)
-        self.user_events[index] = (delay + self.timer, handler)
-        return index
+        time = delay + self.timer
+        if time in self.user_events:
+            self.user_events[time].append(handler)
+        else:
+            self.user_events[time] = [handler]
 
     def handle_state_change(self, event):
         self._state = event.state

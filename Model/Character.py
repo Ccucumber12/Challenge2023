@@ -193,6 +193,7 @@ class Player(Character):
             model.register_user_event(Const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def respawn_handler(self):
+        print(f"Player {self.player_id} respawned!")
         self.dead = False
 
     def move_direction(self, direction: str):
