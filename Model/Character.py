@@ -18,6 +18,9 @@ class Character:
         self.position = position  # is a pg.Vector2
         self.speed = speed
 
+    def get_distance(self, character): #gets euclidean distance between self and character
+        return (self.position - character.position).length()
+    
     def move(self, x, y):
         """
         +x: right, +y: down
@@ -165,9 +168,7 @@ class Player(Character):
             return False
         model = get_game_engine()
         for ghost in model.ghosts:
-            xx = (self.position.x - ghost.position.x) ** 2
-            yy = (self.position.y - ghost.position.y) ** 2
-            if xx + yy < ((Const.PLAYER_RADIUS + Const.GHOST_RADIUS) ** 2):
+            if super().get_distance(ghost) < (Const.PLAYER_RADIUS + Const.GHOST_RADIUS):
                 return True
         return False
 
@@ -258,16 +259,18 @@ class Patronus(Character):
 
 class Ghost(Character):
     def __init__(self, ghost_id, teleport_cd):
+
         self.ghost_id = ghost_id
         position = Const.GHOST_INIT_POSITION[ghost_id]  # is a pg.Vector2
 
-        """temp
-        """
-
+        #temp
         position = super().get_random_position(position)
 
         speed = Const.GHOST_INIT_SPEED
         super().__init__(position, speed)
+
+        # State as defined by Const.GHOST_STATE
+        self.state = Const.GHOST_STATE.CHASE
 
         # teleport
         self.teleport_available = True
@@ -276,16 +279,10 @@ class Ghost(Character):
         self.teleport_distination = pg.Vector2(0, 0)
         self.prey = None
 
-        # New mode 
-        self.wander_time = 0
+        # Wander and chase config 
+        self.wander_time = Const.GHOST_WANDER_TIME
         self.wander_pos = None
         self.chase_time = Const.GHOST_CHASE_TIME
-
-    def tick(self):
-        """
-        Run when EventEveryTick() arises.
-        """
-        pass
 
     def move_direction(self, direction):
         if self.teleport_chanting:
@@ -306,7 +303,6 @@ class Ghost(Character):
         ghost will transport to the destination after a little delay.
         This won't automatically clip the position so you need to worry out-of-bound moving.
         """
-        model = get_game_engine()
         if self.teleport_chanting:
             return
         if not self.teleport_available:
@@ -314,6 +310,7 @@ class Ghost(Character):
         self.teleport_chanting = True
         self.teleport_available = False
         self.teleport_distination = destination
+        model = get_game_engine()
         model.register_user_event(Const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
     
@@ -323,6 +320,13 @@ class Ghost(Character):
 
     def teleport_cd_handler(self):
         self.teleport_available = True
+
+    def chase_handler(self):
+        model = get_game_engine()
+        self.state = Const.GHOST_STATE.CHASE
+        self.chase_time = Const.GHOST_CHASE_TIME
+        model.register_user_event(Const.GHOST_CHASE_TIME, self.wander_handler)
+        self.chase_time += 3 * Const.FPS
     
     def chase(self):
         """
@@ -336,33 +340,44 @@ class Ghost(Character):
 
         ## Goes straight to the position
         #self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
+
+    def wander_handler(self):
+        model = get_game_engine()
+        self.state = Const.GHOST_STATE.WANDER
+        self.wander_pos = None
+        model.register_user_event(self.wander_time, self.chase_handler)
+
     def wander(self):
         if self.wander_pos == None:
             self.wander_pos = super().get_random_position(self.wander_pos)
         self.move_direction(pg.Vector2(super().pathfind(self.wander_pos.x, self.wander_pos.y))-self.position)
 
-    def step(self):
+    def tick(self):
         """
         AI of ghost.
         Determine what ghost should do next.
+        Runs every tick.
         """
         model = get_game_engine()
+        if model.timer == 1:
+            self.chase_handler()
 
-        # Wander mode
-        if self.wander_time > 0:
-            self.wander_time -= 1
-            if self.wander_time == 0:
-                self.chase_time = Const.GHOST_CHASE_TIME
-                self.prey = model.players[random.randint(0, Const.NUM_OF_PLAYERS-1)]
+        if self.state == Const.GHOST_STATE.WANDER:
             self.wander()
-            return
-
-        # Chase mode
-        self.chase_time -= 1
-        if self.chase_time == 0:
-            self.wander_time = Const.GHOST_WANDER_TIME
-            self.wander_pos = None
-        if (self.prey is None) or (self.prey.dead == True): #Changes target when it is killed
-            # TODO: Choose prey 
-            self.prey = model.players[random.randint(0, Const.NUM_OF_PLAYERS-1)]
-        self.chase()
+        elif self.state == Const.GHOST_STATE.CHASE: 
+            if self.teleport_chanting:
+                return
+            while (self.prey is None) or (self.prey.dead == True) or (self.prey.invisible):
+                # Choose prey by closest person alive
+                self.prey = min(
+                    (player for player in model.players if not player.dead and not player.invisible),
+                    key=lambda player: self.get_distance(player) - player.score, default=None
+                )
+                if self.prey is None:
+                    break
+            if self.teleport_available and self.prey is not None \
+                    and self.get_distance(self.prey) > self.speed * Const.GHOST_CHANTING_TIME / Const.FPS:
+                print(f"Teleporting to {self.prey.position}")
+                self.teleport(self.prey.position) 
+                return
+            self.chase()
