@@ -95,5 +95,5 @@ class Item_Generator:
         generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, "golden_snitch", Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
         model.items.append(generate_item)
         self.id_counter = self.id_counter + 1
-        print(f"golden snitch generated at {generate_x, generate_y}!")
+        print(f"Golden snitch generated at {generate_x, generate_y}!")
         print(generate_item)

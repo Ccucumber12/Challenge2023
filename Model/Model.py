@@ -44,9 +44,9 @@ class GameEngine:
         self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD)]
         self.patronuses = []
         self.items = []
-        self.item_generator = Item_Generator()
         self.timer = 0
         self.user_events = {}
+        self.item_generator = Item_Generator()
 
     def handle_every_tick(self, event):
         cur_state = self.state
