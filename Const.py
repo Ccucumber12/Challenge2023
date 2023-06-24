@@ -48,6 +48,12 @@ ARENA_SIZE = (800, 800)
 BACKGROUND_COLOR = pg.Color('black')
 PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta'), pg.Color('blue'), pg.Color('gold')]
 GHOST_COLOR = [pg.Color('red')]
+class OBJECT_TYPE(IntEnum):
+    # The number represents the order of rendering the type.
+    MAP = 1
+    ITEM = 2
+    GHOST = 3
+    PLAYER = 4
 
 # item
 ITEM_DURATION = {

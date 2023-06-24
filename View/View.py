@@ -71,31 +71,31 @@ class GraphicalView:
         # draw players
         model = get_game_engine()
         game_map = model.map
-        items = []
+        objects = []
         for item in model.items:
             center = list(map(int, item.position))
             coord = game_map.convert_coordinate(item.position)
-            items.append((coord[1], 4, item.item_id, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.item_id, center))
         for player in model.players:
             center = list(map(int, player.position))
             coord = game_map.convert_coordinate(player.position)
-            items.append((coord[1], 3, player.player_id, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.PLAYER, player.player_id, center))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
             coord = game_map.convert_coordinate(ghost.position)
-            items.append((coord[1], 2, ghost.ghost_id, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.GHOST, ghost.ghost_id, center))
         for row, image in game_map.images:
-            items.append((row, 1, image))
+            objects.append((row, Const.OBJECT_TYPE.MAP, image))
 
-        items.sort(key=lambda x: (x[0], x[1]))
-        for i in items:
-            if i[1] == 3:
+        objects.sort(key=lambda x: (x[0], x[1]))
+        for i in objects:
+            if i[1] == Const.OBJECT_TYPE.PLAYER:
                 pg.draw.circle(self.screen, Const.PLAYER_COLOR[i[2]], i[3], Const.PLAYER_RADIUS)
-            elif i[1] == 2:
+            elif i[1] == Const.OBJECT_TYPE.GHOST:
                 pg.draw.circle(self.screen, Const.GHOST_COLOR[i[2]], i[3], Const.GHOST_RADIUS)
-            elif i[1] == 1:
+            elif i[1] == Const.OBJECT_TYPE.MAP:
                 self.screen.blit(i[2], (0, 0))
-            elif i[1] == 4:
+            elif i[1] == Const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle, but here I just draw a circle for test.
                 pg.draw.circle(self.screen, Const.ITEM_TEST_COLOR, i[3], Const.ITEM_WIDTH)
 
