@@ -1,11 +1,10 @@
-import random
 import heapq
-from math import sqrt, ceil
+import random
+from math import ceil, sqrt
 
 import pygame as pg
 
 import Const
-
 from InstancesManager import get_game_engine
 
 

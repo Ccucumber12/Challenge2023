@@ -1,9 +1,9 @@
 import pygame as pg
 
-from InstancesManager import get_event_manager
-from InstancesManager import get_game_engine
-from EventManager.Events import EventInitialize, EventQuit, EventStateChange, EventEveryTick, EventPlayerMove
 import Const
+from EventManager.Events import (EventEveryTick, EventInitialize,
+                                 EventPlayerMove, EventQuit, EventStateChange)
+from InstancesManager import get_event_manager, get_game_engine
 
 
 class Controller:

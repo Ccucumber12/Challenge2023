@@ -3,9 +3,10 @@
 # road: other (prefer white)
 # be careful that the alpha channel is ignored
 
-import numpy as np
-import cv2
 import sys
+
+import cv2
+import numpy as np
 
 
 def gen_map_file_from_image(img_path, width, height, threshold=0.8, distance=10):

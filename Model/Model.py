@@ -2,14 +2,15 @@ import random
 
 import pygame as pg
 
-from EventManager.EventManager import *
 import Const
-from EventManager.Events import EventInitialize, EventQuit, EventStateChange, EventEveryTick, EventTimesUp, \
-    EventPlayerMove
-from Model.Character import Player, Ghost
-from Model.Map import load_map
+from EventManager.EventManager import *
+from EventManager.Events import (EventEveryTick, EventInitialize,
+                                 EventPlayerMove, EventQuit, EventStateChange,
+                                 EventTimesUp)
 from InstancesManager import get_event_manager
+from Model.Character import Ghost, Player
 from Model.Item import Item_Generator
+from Model.Map import load_map
 
 
 class GameEngine:

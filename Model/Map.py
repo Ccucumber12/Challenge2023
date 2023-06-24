@@ -1,10 +1,11 @@
 import csv
 import json
-
-import Const
 import os
 import re
+
 import pygame
+
+import Const
 
 
 class Map:

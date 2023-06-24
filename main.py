@@ -1,9 +1,9 @@
 import pygame as pg
 
 import InstancesManager
+from Controller.Controller import Controller
 from EventManager.EventManager import EventManager
 from Model.Model import GameEngine
-from Controller.Controller import Controller
 from View.View import GraphicalView
 
 

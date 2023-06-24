@@ -1,11 +1,12 @@
-from InstancesManager import get_game_engine
-
 import math
-import pygame as pg
 import random
-import Const
 
 import numpy as np
+import pygame as pg
+
+import Const
+from InstancesManager import get_game_engine
+
 
 class Item:
     def __init__(self, position, item_id, item_type, item_width, item_height, item_status):
@@ -26,7 +27,7 @@ class Item:
                 Apply the effect to the player according to the type of item (item_type).
                 '''
                 if self.status == "normal":
-                    player.get_status(self.type, self.status)
+                    player.get_effect(self.type, self.status)
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
@@ -55,6 +56,7 @@ class Item_Generator:
         model = get_game_engine()
         model.items.append(generate_item)
         self.id_counter = self.id_counter + 1
+        print(f"Item {generate_type} generated at {generate_x, generate_y}!")
 
     def generate_handler(self):
         model = get_game_engine()
@@ -72,7 +74,7 @@ class Item_Generator:
         max_distance = 0
         generate_x = 0
         generate_y = 0
-        # randomly draw five points in the arena according to a standard distribution
+        # randomly draw points in the arena according to a standard distribution
         rand_times = 10
         candidates_x = np.random.normal(Const.WINDOW_SIZE[0] / 2, Const.WINDOW_SIZE[0] / 4, rand_times)
         candidates_y = np.random.normal(Const.WINDOW_SIZE[1] / 2, Const.WINDOW_SIZE[1] / 4, rand_times)
