@@ -4,11 +4,9 @@ from enum import Enum, auto, IntEnum
 # model
 FPS = 60 # frame per second
 GAME_LENGTH = 60 * FPS
-PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400), pg.Vector2(200, 200), pg.Vector2(600, 200)]
-PLAYER_RADIUS = 30
-PLAYER_RESPAWN_TIME = 5 * FPS
-PLAYER_ADD_SCORE = [2, 3, 5]
-PLAYER_SPEED = 100
+
+# Characters
+# Player
 class PLAYER_IDS(Enum):
     PLAYER0 = 0
     PLAYER1 = 1
@@ -16,14 +14,26 @@ class PLAYER_IDS(Enum):
     PLAYER3 = 3
     def __str__(self):
         return f"{self.name}"
+PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400), pg.Vector2(200, 200), pg.Vector2(600, 200)]
+PLAYER_RADIUS = 30
+PLAYER_RESPAWN_TIME = 5 * FPS
+PLAYER_ADD_SCORE = [2, 3, 5]
+PLAYER_SPEED = 100
 NUM_OF_PLAYERS = 4
+# Ghost
+class GHOST_IDS(Enum):
+    DEMENTOR = 0
+    def __str__(self):
+        return f"{self.name}"
 DIRECTION_TO_VEC2 = {
     'up': pg.Vector2(0, -1),
     'left': pg.Vector2(-1, 0),
     'down': pg.Vector2(0, 1),
     'right': pg.Vector2(1, 0),
 }
-GHOST_INIT_POSITION = [pg.Vector2(400, 400)]
+GHOST_INIT_POSITION = {
+    GHOST_IDS.DEMENTOR: pg.Vector2(400, 400)
+}
 GHOST_RADIUS = 30
 GHOST_INIT_SPEED = 120
 GHOST_CHANTING_TIME = 2 * FPS  # chanting time before it teleport
@@ -98,7 +108,7 @@ PICTURES_PATH = {
     PLAYER_IDS.PLAYER1: "Pictures/Characters/Players/Player1.png",
     PLAYER_IDS.PLAYER2: "Pictures/Characters/Players/Player2.png",
     PLAYER_IDS.PLAYER3: "Pictures/Characters/Players/Player3.png",
-    OBJECT_TYPE.GHOST: "Pictures/Characters/Ghosts"
+    GHOST_IDS.DEMENTOR: "Pictures/Characters/Ghosts/Dementor.png",
 }
 
 # controller

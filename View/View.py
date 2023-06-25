@@ -47,6 +47,9 @@ class GraphicalView:
         for player in Const.PLAYER_IDS:
             picture = pg.image.load(Const.PICTURES_PATH[player])
             self.pictures[player] = crop(picture, Const.PLAYER_RADIUS*2, Const.PLAYER_RADIUS*2)
+        for ghost in Const.GHOST_IDS:
+            picture = pg.image.load(Const.PICTURES_PATH[ghost])
+            self.pictures[ghost] = crop(picture, Const.GHOST_RADIUS*2, Const.GHOST_RADIUS*2)
 
     def initialize(self, event):
         """
@@ -98,32 +101,32 @@ class GraphicalView:
         objects = []
         for item in model.items:
             center = list(map(int, item.position))
-            lr = [x - y for x, y in zip(center, [Const.ITEM_WIDTH/2, Const.ITEM_HEIGHT/2])]
+            lt = [x - y for x, y in zip(center, [Const.ITEM_WIDTH/2, Const.ITEM_HEIGHT/2])]
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.type, lr))
+            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.type, lt))
         for player in model.players:
             center = list(map(int, player.position))
+            lt = [x - y for x, y in zip(center, [Const.PLAYER_RADIUS, Const.PLAYER_RADIUS])]
             coord = game_map.convert_coordinate(player.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.PLAYER, player.player_id, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.PLAYER, player.player_id, lt))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
+            lt = [x - y for x, y in zip(center, [Const.GHOST_RADIUS, Const.GHOST_RADIUS])]
             coord = game_map.convert_coordinate(ghost.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.GHOST, ghost.ghost_id, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.GHOST, ghost.ghost_id, lt))
         for row, image in game_map.images:
             objects.append((row, Const.OBJECT_TYPE.MAP, image))
 
         objects.sort(key=lambda x: (x[0], x[1]))
         for i in objects:
             if i[1] == Const.OBJECT_TYPE.PLAYER:
-                # pg.draw.circle(self.screen, Const.PLAYER_COLOR[i[2].value], i[3], Const.PLAYER_RADIUS)
                 self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == Const.OBJECT_TYPE.GHOST:
-                pg.draw.circle(self.screen, Const.GHOST_COLOR[i[2]], i[3], Const.GHOST_RADIUS)
+                self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == Const.OBJECT_TYPE.MAP:
                 self.screen.blit(i[2], (0, 0))
             elif i[1] == Const.OBJECT_TYPE.ITEM:
-                # It's acually is a rectangle, but here I just draw a circle for test.
-                # pg.draw.circle(self.screen, Const.ITEM_TEST_COLOR, i[3], Const.ITEM_WIDTH)
+                # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
 
         pg.display.flip()
