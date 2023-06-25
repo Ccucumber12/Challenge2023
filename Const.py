@@ -40,6 +40,33 @@ STATE_PLAY = 2
 STATE_STOP = 3  # not implemented yet
 STATE_ENDGAME = 4
 
+# item
+ITEM_DURATION = {
+    "cloak": {"normal": 5*FPS, "reversed": 5*FPS,"enhanced": 8*FPS},
+    "patronus": {"normal": 15*FPS, "reversed": 15*FPS,"enhanced": 30*FPS},
+    "golden_stitch": {"normal": 1},
+    "petrification": {"normal": 3*FPS, "reversed": 3*FPS,"enhanced": 6*FPS}
+}
+ITEM_GENERATE_COOLDOWN = 3*FPS
+MAX_ITEM_NUMBER = 5
+ITEM_WIDTH = 50
+ITEM_HEIGHT = 50
+ITEM_TEST_COLOR = pg.Color('violet')
+SORTINGHAT_INVINCIBLE_TIME = 5*FPS
+class ITEM_SET(Enum):
+    GOLDEN_SNITCH = 0
+    CLOAK = 1
+    PETRIFICATION = 2
+    PATRONUS = 3
+    SORTINGHAT = 4
+class ITEM_STATUS(Enum):
+    NORMAL = 0
+    REVERSED = 1
+    ENHANCED = 2
+ITEM_GENERATE_PROBABILITY = [0, 1/4, 1/4, 1/4, 1/4] # should correspond to ITEM_SET
+# The probability of golden snitch should be set to ZERO.
+ITEM_STATUS_PROBABILITY = [12/15, 1/15, 2/15] # should correspond to ITEM_STATES
+GOLDEN_SNITCH_APPEAR_TIME = 5*FPS
 
 # view
 WINDOW_CAPTION = 'Challenge 2023'
@@ -50,35 +77,17 @@ PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta'), pg.Color('blue'), pg.Col
 GHOST_COLOR = [pg.Color('red')]
 class OBJECT_TYPE(IntEnum):
     # The number represents the order of rendering the type.
-    MAP = 1
+    MAP = 0
+    GHOST = 1
     ITEM = 2
-    GHOST = 3
-    PLAYER = 4
-
-# item
-ITEM_DURATION = {
-    "cloak": {"normal": 5*FPS, "reversed": 5*FPS,"enhanced": 8*FPS},
-    "patronus": {"normal": 15*FPS, "reversed": 15*FPS,"enhanced": 30*FPS},
-    "golden_stitch": {"normal": 1},
-    "petrification": {"normal": 3*FPS, "reversed": 3*FPS,"enhanced": 6*FPS}
+    PLAYER = 5
+PICTURES_PATH = {
+    ITEM_SET.CLOAK: "Pictures/Items/Cloak.png",
+    ITEM_SET.GOLDEN_SNITCH: "Pictures/Items/GoldenSnitch.png",
+    ITEM_SET.PATRONUS: "Pictures/Items/Patronus.png",
+    ITEM_SET.PETRIFICATION: "Pictures/Items/Petrification.png",
+    ITEM_SET.SORTINGHAT: "Pictures/Items/SortingHat.png"
 }
-ITEM_GENERATE_COOLDOWN = 3*FPS
-MAX_ITEM_NUMBER = 5
-ITEM_WIDTH = 15
-ITEM_HEIGHT = 15
-ITEM_TEST_COLOR = pg.Color('violet')
-SORTINGHAT_INVINCIBLE_TIME = 5*FPS
-class ITEM_SET(Enum):
-    CLOAK = 0
-    PATRONUS = 1
-    PETRIFICATION = 2
-class ITEM_STATUS(Enum):
-    NORMAL = 0
-    REVERSED = 1
-    ENHANCED = 2
-ITEM_GENERATE_PROBABILITY = [1/3, 1/3, 1/3] #should correspond to ITEM_SET
-ITEM_STATUS_PROBABILITY = [12/15, 1/15, 2/15] #should correspond to ITEM_STATES
-GOLDEN_SNITCH_APPEAR_TIME = 5*FPS
 
 # controller
 PLAYER_KEYS = {

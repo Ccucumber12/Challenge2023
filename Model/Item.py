@@ -48,6 +48,8 @@ class Item_Generator:
         # determining location of item
         generate_x = 0
         generate_y = 0
+        generate_x = random.random() * 800 - 1
+        generate_y = random.random() * 800 - 1
         '''
         Put a random method to determine location here
         '''
@@ -92,7 +94,7 @@ class Item_Generator:
                 generate_x = rand_x
                 generate_y = rand_y
                 max_distance = min_distance_to_players
-        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, "golden_snitch", Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, Const.ITEM_SET.GOLDEN_SNITCH, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
         model.items.append(generate_item)
         self.id_counter = self.id_counter + 1
         print(f"Golden snitch generated at {generate_x, generate_y}!")

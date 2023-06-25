@@ -1,3 +1,5 @@
+import os
+
 import pygame as pg
 
 from InstancesManager import get_game_engine
@@ -23,6 +25,18 @@ class GraphicalView:
         self.screen = pg.display.set_mode(Const.WINDOW_SIZE)
         pg.display.set_caption(Const.WINDOW_CAPTION)
         self.background.fill(Const.BACKGROUND_COLOR)
+
+        # scale the pictures to proper size
+        self.pictures = {}
+        for item in Const.ITEM_SET:
+            picture = pg.image.load(Const.PICTURES_PATH[item]).convert_alpha()
+            bounding_rect = picture.get_bounding_rect()
+            cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
+            cropped_image.blit(picture, (0, 0), bounding_rect)
+            width, height = [cropped_image.get_width(), cropped_image.get_height()]
+            ratio = min(Const.ITEM_WIDTH/width, Const.ITEM_HEIGHT/height)
+            cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
+            self.pictures[item] = cropped_image
 
     def initialize(self, event):
         """
@@ -75,7 +89,7 @@ class GraphicalView:
         for item in model.items:
             center = list(map(int, item.position))
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.item_id, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.type, center))
         for player in model.players:
             center = list(map(int, player.position))
             coord = game_map.convert_coordinate(player.position)
@@ -97,7 +111,8 @@ class GraphicalView:
                 self.screen.blit(i[2], (0, 0))
             elif i[1] == Const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle, but here I just draw a circle for test.
-                pg.draw.circle(self.screen, Const.ITEM_TEST_COLOR, i[3], Const.ITEM_WIDTH)
+                # pg.draw.circle(self.screen, Const.ITEM_TEST_COLOR, i[3], Const.ITEM_WIDTH)
+                self.screen.blit(self.pictures[i[2]], i[3])
 
         pg.display.flip()
 
