@@ -147,7 +147,7 @@ class Player(Character):
         self.respawn_timer = 0
         self.score = 0
         self.effect_timer = 0
-        self.effect = "none"
+        self.effect = None
 
     def tick(self):
         """
@@ -176,16 +176,16 @@ class Player(Character):
         Caught by the ghost.
         Kill player
         """
-        print(f"{self.player_id} is caught!")
+        print(f"{self.player_id} was caught!")
         model = get_game_engine()
-        if self.effect == "sortinghat":
+        if self.effect == Const.ITEM_SET.SORTINGHAT:
             others = [x for x in Const.PLAYER_IDS if x != self.player_id]
             victim = random.choice(others)
             second = ceil(model.timer / Const.FPS)
             for _ in range(5):
                 minute = second // 60
                 model.players[victim.value].score -= Const.PLAYER_ADD_SCORE[minute]
-            self.effect = "none"
+            self.effect = None
             self.invincible = model.timer + Const.SORTINGHAT_INVINCIBLE_TIME
             return
         elif not self.dead:
@@ -203,7 +203,7 @@ class Player(Character):
         """
         # Modify position of player
         # self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
-        if self.effect == "petrification":
+        if self.effect == Const.ITEM_SET.PETRIFICATION:
             return
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
         y = 1 if direction == 'down' else -1 if direction == 'up' else 0
@@ -221,22 +221,22 @@ class Player(Character):
 
     def remove_effect(self):
         self.effect_timer = 0
-        if self.effect == "cloak":
+        if self.effect == Const.ITEM_SET.CLOAK:
             self.invisible = False
-        elif self.effect == "patronus":
+        elif self.effect == Const.ITEM_SET.PATRONUS:
             pass
-        self.effect = "none"
+        self.effect = None
 
-    def get_effect(self, effect: str, effect_status: str):
+    def get_effect(self, effect: Const.ITEM_SET, effect_status: Const.ITEM_STATUS):
         self.effect = effect
         self.effect_timer = Const.ITEM_DURATION[effect][effect_status]
-        if self.effect == "cloak":
+        if self.effect == Const.ITEM_SET.CLOAK:
             self.invisible = True
-        elif self.effect == "patronus":
+        elif self.effect == Const.ITEM_SET.PATRONUS:
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, random.randint(0, 3)))
             # The parameters passed is not properly assigned yet
-        elif self.effect == "petrification":
+        elif self.effect == Const.ITEM_SET.PETRIFICATION:
             # One can't move when it's effect is pertification.
             # It will be implemented in function move_direction.
             pass
@@ -245,7 +245,7 @@ class Player(Character):
 class Patronus(Character):
     def __init__(self, patronus_id, position, chase_player):
         self.patronus_id = patronus_id
-        speed = Const.SPEED_ATTACK
+        speed = Const.PATRONUS_SPEED
         super().__init__(position, speed)
         self.chase_player = chase_player  # The player which the patronous choose to chase
 

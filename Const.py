@@ -8,12 +8,12 @@ GAME_LENGTH = 60 * FPS
 # Characters
 # Player
 class PLAYER_IDS(Enum):
+    def __str__(self):
+        return f"{self.name}"
     PLAYER0 = 0
     PLAYER1 = 1
     PLAYER2 = 2
     PLAYER3 = 3
-    def __str__(self):
-        return f"{self.name}"
 PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400), pg.Vector2(200, 200), pg.Vector2(600, 200)]
 PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
@@ -22,9 +22,9 @@ PLAYER_SPEED = 100
 NUM_OF_PLAYERS = 4
 # Ghost
 class GHOST_IDS(Enum):
-    DEMENTOR = 0
     def __str__(self):
         return f"{self.name}"
+    DEMENTOR = 0
 DIRECTION_TO_VEC2 = {
     'up': pg.Vector2(0, -1),
     'left': pg.Vector2(-1, 0),
@@ -44,6 +44,8 @@ class GHOST_STATE(IntEnum):
     CHASE = 1
     WANDER = 2
     TELEPORT = 4
+# patronus
+PATRONUS_SPEED = PLAYER_SPEED
     
 # Map
 MAP_ROAD = 0
@@ -58,11 +60,29 @@ STATE_STOP = 3  # not implemented yet
 STATE_ENDGAME = 4
 
 # item
+class ITEM_SET(Enum):
+    def __str__(self):
+        return f"{self.name}"
+    GOLDEN_SNITCH = 0
+    CLOAK = 1
+    PATRONUS = 3
+    PETRIFICATION = 2
+    SORTINGHAT = 4
+class ITEM_STATUS(Enum):
+    def __str__(self):
+        return f"{self.name}"
+    NORMAL = 0
+    REVERSED = 1
+    ENHANCED = 2
+ITEM_GENERATE_PROBABILITY = [0, 1/4, 1/4, 1/4, 1/4] # should correspond to ITEM_SET
+# The probability of golden snitch should be set to ZERO.
+ITEM_STATUS_PROBABILITY = [15/15, 0/15, 0/15] # should correspond to ITEM_STATES
 ITEM_DURATION = {
-    "cloak": {"normal": 5*FPS, "reversed": 5*FPS,"enhanced": 8*FPS},
-    "patronus": {"normal": 15*FPS, "reversed": 15*FPS,"enhanced": 30*FPS},
-    "golden_stitch": {"normal": 1},
-    "petrification": {"normal": 3*FPS, "reversed": 3*FPS,"enhanced": 6*FPS}
+    ITEM_SET.GOLDEN_SNITCH: {ITEM_STATUS.NORMAL: 1},
+    ITEM_SET.CLOAK: {ITEM_STATUS.NORMAL: 5*FPS, ITEM_STATUS.REVERSED: 5*FPS,ITEM_STATUS.ENHANCED: 8*FPS},
+    ITEM_SET.PATRONUS: {ITEM_STATUS.NORMAL: 15*FPS, ITEM_STATUS.REVERSED: 15*FPS,ITEM_STATUS.ENHANCED: 30*FPS},
+    ITEM_SET.PETRIFICATION: {ITEM_STATUS.NORMAL: 3*FPS, ITEM_STATUS.REVERSED: 3*FPS,ITEM_STATUS.ENHANCED: 6*FPS},
+    ITEM_SET.SORTINGHAT: {ITEM_STATUS.NORMAL: 10*FPS, ITEM_STATUS.REVERSED: 10*FPS, ITEM_STATUS.ENHANCED: 10}
 }
 ITEM_GENERATE_COOLDOWN = 3*FPS
 MAX_ITEM_NUMBER = 5
@@ -70,19 +90,6 @@ ITEM_WIDTH = 50
 ITEM_HEIGHT = 50
 ITEM_TEST_COLOR = pg.Color('violet')
 SORTINGHAT_INVINCIBLE_TIME = 5*FPS
-class ITEM_SET(Enum):
-    GOLDEN_SNITCH = 0
-    CLOAK = 1
-    PETRIFICATION = 2
-    PATRONUS = 3
-    SORTINGHAT = 4
-class ITEM_STATUS(Enum):
-    NORMAL = 0
-    REVERSED = 1
-    ENHANCED = 2
-ITEM_GENERATE_PROBABILITY = [0, 1/4, 1/4, 1/4, 1/4] # should correspond to ITEM_SET
-# The probability of golden snitch should be set to ZERO.
-ITEM_STATUS_PROBABILITY = [12/15, 1/15, 2/15] # should correspond to ITEM_STATES
 GOLDEN_SNITCH_APPEAR_TIME = 5*FPS
 
 # view

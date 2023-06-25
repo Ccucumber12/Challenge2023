@@ -49,7 +49,7 @@ class GameEngine:
         # self.players = [Player(0), Player(1), Player(2), Player(3)]
         # self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD)]
         self.patronuses = []
-        self.items = []
+        self.items = set()
         self.timer = 0
         self.user_events = {}
         self.item_generator = Item_Generator()
@@ -77,6 +77,16 @@ class GameEngine:
             # self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
             # self.ghosts[0].teleport(pg.Vector2(random.random() * 800 - 1, random.random() * 800 - 1))
             self.item_generator.tick()
+
+            # Check if a item is eaten
+            item_deletions = []
+            for item in self.items:
+                eaten = item.tick()
+                if eaten is not None:
+                    item_deletions.append(item.tick())
+            for item in item_deletions:
+                self.items.remove(item)
+                del item
 
             # Handle user events
             if self.timer in self.user_events:

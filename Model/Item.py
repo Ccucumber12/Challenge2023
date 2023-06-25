@@ -26,8 +26,9 @@ class Item:
                 '''
                 Apply the effect to the player according to the type of item (item_type).
                 '''
-                if self.status == "normal":
-                    player.get_effect(self.type, self.status)
+                print(f"{player.player_id} get effect: {self.type} ({self.status})")
+                player.get_effect(self.type, self.status)
+                return self # which will be removed later in Model.py
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
@@ -56,7 +57,7 @@ class Item_Generator:
         generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
         # print(generate_item)
         model = get_game_engine()
-        model.items.append(generate_item)
+        model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
         print(f"Item {generate_type} generated at {generate_x, generate_y}!")
 
@@ -94,8 +95,8 @@ class Item_Generator:
                 generate_x = rand_x
                 generate_y = rand_y
                 max_distance = min_distance_to_players
-        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, Const.ITEM_SET.GOLDEN_SNITCH, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, "normal")
-        model.items.append(generate_item)
+        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter, Const.ITEM_SET.GOLDEN_SNITCH, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, Const.ITEM_STATUS.NORMAL)
+        model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
         print(f"Golden snitch generated at {generate_x, generate_y}!")
         print(generate_item)
