@@ -40,7 +40,10 @@ class GameEngine:
         """
         self.clock = pg.time.Clock()
         self._state = Const.STATE_MENU
-        self.players = [Player(0), Player(1), Player(2), Player(3)]
+        self.players = []
+        for i in Const.PLAYER_IDS:
+            self.players.append(Player(i))
+        # self.players = [Player(0), Player(1), Player(2), Player(3)]
         self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD)]
         self.patronuses = []
         self.items = []

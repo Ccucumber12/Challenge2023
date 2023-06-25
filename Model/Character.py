@@ -134,7 +134,7 @@ class Player(Character):
         self.player_id = player_id
         model = get_game_engine()
 
-        position = pg.Vector2(model.map.get_spawn_point(player_id))
+        position = pg.Vector2(model.map.get_spawn_point(player_id.value))
 
         #temporary: gets random positioin for spawn point
         position = super().get_random_position(position)
@@ -176,15 +176,15 @@ class Player(Character):
         Caught by the ghost.
         Kill player
         """
-        print(f"Player {self.player_id} is caught!")
+        print(f"{self.player_id} is caught!")
         model = get_game_engine()
         if self.effect == "sortinghat":
-            others = [x for x in range(4) if x != self.player_id]
+            others = [x for x in Const.PLAYER_IDS if x != self.player_id]
             victim = random.choice(others)
             second = ceil(model.timer / Const.FPS)
             for _ in range(5):
                 minute = second // 60
-                model.players[victim].score -= Const.PLAYER_ADD_SCORE[minute]
+                model.players[victim.value].score -= Const.PLAYER_ADD_SCORE[minute]
             self.effect = "none"
             self.invincible = model.timer + Const.SORTINGHAT_INVINCIBLE_TIME
             return
@@ -193,7 +193,7 @@ class Player(Character):
             model.register_user_event(Const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def respawn_handler(self):
-        print(f"Player {self.player_id} respawned!")
+        print(f"{self.player_id} respawned!")
         self.dead = False
 
     def move_direction(self, direction: str):

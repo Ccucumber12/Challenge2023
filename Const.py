@@ -9,6 +9,13 @@ PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
 PLAYER_ADD_SCORE = [2, 3, 5]
 PLAYER_SPEED = 100
+class PLAYER_IDS(Enum):
+    PLAYER0 = 0
+    PLAYER1 = 1
+    PLAYER2 = 2
+    PLAYER3 = 3
+    def __str__(self):
+        return f"{self.name}"
 NUM_OF_PLAYERS = 4
 DIRECTION_TO_VEC2 = {
     'up': pg.Vector2(0, -1),
@@ -86,7 +93,12 @@ PICTURES_PATH = {
     ITEM_SET.GOLDEN_SNITCH: "Pictures/Items/GoldenSnitch.png",
     ITEM_SET.PATRONUS: "Pictures/Items/Patronus.png",
     ITEM_SET.PETRIFICATION: "Pictures/Items/Petrification.png",
-    ITEM_SET.SORTINGHAT: "Pictures/Items/SortingHat.png"
+    ITEM_SET.SORTINGHAT: "Pictures/Items/SortingHat.png",
+    PLAYER_IDS.PLAYER0: "Pictures/Characters/Players/Player0.png",
+    PLAYER_IDS.PLAYER1: "Pictures/Characters/Players/Player1.png",
+    PLAYER_IDS.PLAYER2: "Pictures/Characters/Players/Player2.png",
+    PLAYER_IDS.PLAYER3: "Pictures/Characters/Players/Player3.png",
+    OBJECT_TYPE.GHOST: "Pictures/Characters/Ghosts"
 }
 
 # controller

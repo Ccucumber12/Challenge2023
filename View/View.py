@@ -28,15 +28,25 @@ class GraphicalView:
 
         # scale the pictures to proper size
         self.pictures = {}
-        for item in Const.ITEM_SET:
-            picture = pg.image.load(Const.PICTURES_PATH[item]).convert_alpha()
+        def crop(picture: pg.Surface, desire_width, desire_height):
+            """
+            Will scale the image to desire size without changing the ratio of the width and height.
+            The size of cropped image won't be bigger than desire size.
+            """
+            picture = picture.convert_alpha()
             bounding_rect = picture.get_bounding_rect()
             cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
             cropped_image.blit(picture, (0, 0), bounding_rect)
             width, height = [cropped_image.get_width(), cropped_image.get_height()]
-            ratio = min(Const.ITEM_WIDTH/width, Const.ITEM_HEIGHT/height)
+            ratio = min(desire_width/width, desire_height/height)
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
-            self.pictures[item] = cropped_image
+            return cropped_image
+        for item in Const.ITEM_SET:
+            picture = pg.image.load(Const.PICTURES_PATH[item])
+            self.pictures[item] = crop(picture, Const.ITEM_WIDTH, Const.ITEM_HEIGHT)
+        for player in Const.PLAYER_IDS:
+            picture = pg.image.load(Const.PICTURES_PATH[player])
+            self.pictures[player] = crop(picture, Const.PLAYER_RADIUS*2, Const.PLAYER_RADIUS*2)
 
     def initialize(self, event):
         """
@@ -88,8 +98,9 @@ class GraphicalView:
         objects = []
         for item in model.items:
             center = list(map(int, item.position))
+            lr = [x - y for x, y in zip(center, [Const.ITEM_WIDTH/2, Const.ITEM_HEIGHT/2])]
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.type, center))
+            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.type, lr))
         for player in model.players:
             center = list(map(int, player.position))
             coord = game_map.convert_coordinate(player.position)
@@ -104,7 +115,8 @@ class GraphicalView:
         objects.sort(key=lambda x: (x[0], x[1]))
         for i in objects:
             if i[1] == Const.OBJECT_TYPE.PLAYER:
-                pg.draw.circle(self.screen, Const.PLAYER_COLOR[i[2]], i[3], Const.PLAYER_RADIUS)
+                # pg.draw.circle(self.screen, Const.PLAYER_COLOR[i[2].value], i[3], Const.PLAYER_RADIUS)
+                self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == Const.OBJECT_TYPE.GHOST:
                 pg.draw.circle(self.screen, Const.GHOST_COLOR[i[2]], i[3], Const.GHOST_RADIUS)
             elif i[1] == Const.OBJECT_TYPE.MAP:
