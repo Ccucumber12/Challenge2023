@@ -45,9 +45,12 @@ class ItemGenerator:
     def choose_location(self, condidates: list[pg.Vector2], objects: list[pg.Vector2]) -> pg.Vector2:
         best_location = pg.Vector2(0, 0)
         max_distance = 0
+        model = get_game_engine()
         for candidate in condidates:
-            # discard points out of range.
-            if not (1 <= candidate.x <= Const.ARENA_SIZE[0] and 1 <= candidate.y <= Const.ARENA_SIZE[1]):
+            # discard points not leggel
+            if not (1 <= candidate.x <= Const.ARENA_SIZE[0]
+                    and 1 <= candidate.y <= Const.ARENA_SIZE[1]
+                    and model.map.get_type(candidate) == Const.MAP_OBSTACLE):
                 continue
             min_distance_to_objects = Const.ARENA_SIZE[0] + Const.ARENA_SIZE[1]
             for object in objects:
@@ -67,21 +70,21 @@ class ItemGenerator:
         generate_status = random.choices(
             list(Const.ITEM_STATUS), weights=Const.ITEM_STATUS_PROBABILITY)[0]
 
-        # determining location of item
-
-        generate_x = random.randint(0, Const.ARENA_SIZE[0])
-        generate_y = random.randint(0, Const.ARENA_SIZE[1])
+        # generate candidates of position
+        rand_times = 12
+        candidates_x = random.sample(range(Const.ARENA_SIZE[0]), rand_times)
+        candidates_y = random.sample(range(Const.ARENA_SIZE[1]), rand_times)
+        candidates = [pg.Vector2(x, y)
+                      for x, y in zip(candidates_x, candidates_y)]
         model = get_game_engine()
-        while model.map.get_type(pg.Vector2(generate_x, generate_y)) == Const.MAP_OBSTACLE:
-            generate_x = random.randint(0, Const.ARENA_SIZE[0])
-            generate_y = random.randint(0, Const.ARENA_SIZE[1])
+        items_position = [item.position for item in model.items]
 
-        generate_item = Item(pg.Vector2(generate_x, generate_y), self.id_counter,
+        best = self.choose_location(candidates, items_position)
+        generate_item = Item(best, self.id_counter,
                              generate_type, Const.ITEM_WIDTH, Const.ITEM_HEIGHT, generate_status)
-        model = get_game_engine()
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
-        print(f"Item {generate_type} generated at {generate_x, generate_y}!")
+        print(f"Item {generate_type} generated at {best}!")
 
     def generate_handler(self):
         model = get_game_engine()
@@ -93,13 +96,8 @@ class ItemGenerator:
             model.register_user_event(1, self.generate_handler)
 
     def generate_golden_snitch(self):
-        # find a position that is far from all the players
-        max_distance = 0
-        generate_x = 0
-        generate_y = 0
-
         # randomly draw points in the arena according to a standard distribution
-        rand_times = 10
+        rand_times = 12
         candidates_x = np.random.normal(
             Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[0] / 4, rand_times)
         candidates_y = np.random.normal(
@@ -116,4 +114,4 @@ class ItemGenerator:
                              Const.ITEM_WIDTH, Const.ITEM_HEIGHT, Const.ITEM_STATUS.NORMAL)
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
-        print(f"Golden snitch generated at {generate_x, generate_y}!")
+        print(f"Golden snitch generated at {best}!")
