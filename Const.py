@@ -111,6 +111,14 @@ class OBJECT_TYPE(IntEnum):
 class SCENE(Enum):
     TITLE = 0
     SCORE_BOARD = 1
+SCOREBOARD_FONT_SIZE = 32
+TIME_POSITION = [(854, 160), (912, 160), (971, 160), (1029, 160)]
+SCORE_POSITION = [
+    [(854, 287), (912, 287), (971, 287), (1029, 287)],
+    [(854, 414), (912, 414), (971, 414), (1029, 414)],
+    [(854, 540), (912, 540), (971, 540), (1029, 540)],
+    [(854, 670), (912, 670), (971, 670), (1029, 670)],
+]
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "Pictures/Items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "Pictures/Items/GoldenSnitch.png",
@@ -125,6 +133,7 @@ PICTURES_PATH = {
     SCENE.TITLE: "Pictures/Scenes/Title.png",
     SCENE.SCORE_BOARD: "Pictures/Scenes/Scoreboard.png",
 }
+FONT_PATH = "Fonts"
 
 # controller
 PLAYER_KEYS = {

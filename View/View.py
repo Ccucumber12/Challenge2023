@@ -93,7 +93,7 @@ class GraphicalView:
         self.screen.blit(self.pictures[Const.SCENE.TITLE], ((Const.WINDOW_SIZE[0]-Const.TITLE_SIZE[0])/2, 0))
 
         # draw text
-        font = pg.font.Font(None, 36)
+        font = pg.font.Font(os.path.join(Const.FONT_PATH, "magic-school.one.ttf"), 36)
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
         text_center = (Const.WINDOW_SIZE[0] / 2, 20)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
@@ -138,7 +138,20 @@ class GraphicalView:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
 
+        # Scoreboard
         self.screen.blit(self.pictures[Const.SCENE.SCORE_BOARD], (Const.ARENA_SIZE[0], 0))
+        font = pg.font.Font(os.path.join(Const.FONT_PATH, "magic-school.one.ttf"), 36)
+        for position in Const.TIME_POSITION:
+            text_surface = font.render("8", True, pg.Color('black'))
+            text_center = position
+            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        for row in Const.SCORE_POSITION:
+            for position in row:
+                text_surface = font.render("8", True, pg.Color('black'))
+                text_center = position
+                self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+
+        # pg.draw.circle(self.screen, pg.Color('red'), (854, 161), 3)
 
         pg.display.flip()
 

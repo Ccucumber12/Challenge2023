@@ -35,6 +35,12 @@ class Controller:
                 ev_manager.post(EventQuit())
             if event_pg.type == pg.KEYDOWN:
                 key_down_events.append(event_pg)
+            # for orientating
+            if event_pg.type == pg.MOUSEBUTTONDOWN:
+                if event_pg.button == 1:  # Left mouse button
+                    mouse_pos = event_pg.pos
+                    x, y = mouse_pos
+                    print(f"Mouse click position: ({x}, {y})")
 
         cur_state = model.state
         if cur_state == Const.STATE_MENU: self.ctrl_menu(key_down_events)
