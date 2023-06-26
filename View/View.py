@@ -141,15 +141,22 @@ class GraphicalView:
         # Scoreboard
         self.screen.blit(self.pictures[Const.SCENE.SCORE_BOARD], (Const.ARENA_SIZE[0], 0))
         font = pg.font.Font(os.path.join(Const.FONT_PATH, "magic-school.one.ttf"), 36)
-        for position in Const.TIME_POSITION:
-            text_surface = font.render("8", True, pg.Color('black'))
-            text_center = position
-            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-        for row in Const.SCORE_POSITION:
-            for position in row:
-                text_surface = font.render("8", True, pg.Color('black'))
-                text_center = position
-                self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        def print_digit(digit: int, position):
+            text_surface = font.render(str(digit), True, pg.Color('black'))
+            self.screen.blit(text_surface, text_surface.get_rect(center=position))
+        # Time
+        count_down = (Const.GAME_LENGTH - model.timer) // Const.FPS
+        print_digit(count_down//60//10, Const.TIME_POSITION[0])
+        print_digit(count_down//60%10, Const.TIME_POSITION[1])
+        print_digit(count_down%60//10, Const.TIME_POSITION[2])
+        print_digit(count_down%60%10, Const.TIME_POSITION[3])
+
+        for i in range(Const.NUM_OF_PLAYERS):
+            score = model.players[i].score
+            j = 1000
+            for position in Const.SCORE_POSITION[i]:
+                print_digit(int(score//j%10), position)
+                j /= 10
 
         # pg.draw.circle(self.screen, pg.Color('red'), (854, 161), 3)
 

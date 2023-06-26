@@ -3,7 +3,7 @@ from enum import Enum, auto, IntEnum
 
 # model
 FPS = 60 # frame per second
-GAME_LENGTH = 60 * FPS
+GAME_LENGTH = 300 * FPS
 
 # Characters
 # Player
