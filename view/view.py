@@ -2,17 +2,17 @@ import os
 
 import pygame as pg
 
-from InstancesManager import get_game_engine
-from InstancesManager import get_event_manager
-from EventManager.Events import EventInitialize, EventEveryTick
-import Const
+from instances_manager import get_game_engine
+from instances_manager import get_event_manager
+from event_manager.events import EventInitialize, EventEveryTick
+import const
 
 
 class GraphicalView:
     """
     Draws the state of GameEngine onto the screen.
     """
-    background = pg.Surface(Const.ARENA_SIZE)
+    background = pg.Surface(const.ARENA_SIZE)
 
     def __init__(self):
         """
@@ -22,9 +22,9 @@ class GraphicalView:
         """
         self.register_listeners()
 
-        self.screen = pg.display.set_mode(Const.WINDOW_SIZE)
-        pg.display.set_caption(Const.WINDOW_CAPTION)
-        self.background.fill(Const.BACKGROUND_COLOR)
+        self.screen = pg.display.set_mode(const.WINDOW_SIZE)
+        pg.display.set_caption(const.WINDOW_CAPTION)
+        self.background.fill(const.BACKGROUND_COLOR)
 
         # scale the pictures to proper size
         self.pictures = {}
@@ -41,21 +41,21 @@ class GraphicalView:
             ratio = min(desire_width/width, desire_height/height)
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
-        for item in Const.ITEM_SET:
-            picture = pg.image.load(Const.PICTURES_PATH[item])
-            self.pictures[item] = crop(picture, Const.ITEM_WIDTH, Const.ITEM_HEIGHT)
-        for player in Const.PLAYER_IDS:
-            picture = pg.image.load(Const.PICTURES_PATH[player])
-            self.pictures[player] = crop(picture, Const.PLAYER_RADIUS*2, Const.PLAYER_RADIUS*2)
-        for ghost in Const.GHOST_IDS:
-            picture = pg.image.load(Const.PICTURES_PATH[ghost])
-            self.pictures[ghost] = crop(picture, Const.GHOST_RADIUS*2, Const.GHOST_RADIUS*2)
-        picture = pg.image.load(Const.PICTURES_PATH[Const.SCENE.SCORE_BOARD])
-        self.pictures[Const.SCENE.SCORE_BOARD] = crop(picture, Const.ARENA_SIZE[0], Const.ARENA_SIZE[1])
+        for item in const.ITEM_SET:
+            picture = pg.image.load(const.PICTURES_PATH[item])
+            self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT)
+        for player in const.PLAYER_IDS:
+            picture = pg.image.load(const.PICTURES_PATH[player])
+            self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2)
+        for ghost in const.GHOST_IDS:
+            picture = pg.image.load(const.PICTURES_PATH[ghost])
+            self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2)
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD])
+        self.pictures[const.SCENE.SCORE_BOARD] = crop(picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
-        picture = pg.image.load(Const.PICTURES_PATH[Const.SCENE.TITLE])
-        self.pictures[Const.SCENE.TITLE] = crop(picture, 2*Const.ARENA_SIZE[0], Const.ARENA_SIZE[1])
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.TITLE])
+        self.pictures[const.SCENE.TITLE] = crop(picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.TITLE].get_width())
         # print(self.pictures[Const.SCENE.TITLE].get_height())
 
@@ -70,10 +70,10 @@ class GraphicalView:
 
         model = get_game_engine()
         cur_state = model.state
-        if cur_state == Const.STATE_MENU: self.render_menu()
-        elif cur_state == Const.STATE_PLAY: self.render_play()
-        elif cur_state == Const.STATE_STOP: self.render_stop()
-        elif cur_state == Const.STATE_ENDGAME: self.render_endgame()
+        if cur_state == const.STATE_MENU: self.render_menu()
+        elif cur_state == const.STATE_PLAY: self.render_play()
+        elif cur_state == const.STATE_STOP: self.render_stop()
+        elif cur_state == const.STATE_ENDGAME: self.render_endgame()
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -85,24 +85,24 @@ class GraphicalView:
         Display the current fps on the window caption.
         """
         model = get_game_engine()
-        pg.display.set_caption(f'{Const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
+        pg.display.set_caption(f'{const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
 
     def render_menu(self):
         # draw background
         # self.screen.fill(Const.BACKGROUND_COLOR)
-        self.screen.blit(self.pictures[Const.SCENE.TITLE], ((Const.WINDOW_SIZE[0]-Const.TITLE_SIZE[0])/2, 0))
+        self.screen.blit(self.pictures[const.SCENE.TITLE], ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
 
         # draw text
-        font = pg.font.Font(os.path.join(Const.FONT_PATH, "magic-school.one.ttf"), 36)
+        font = pg.font.Font(os.path.join(const.FONT_PATH, "magic-school.one.ttf"), 36)
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
-        text_center = (Const.WINDOW_SIZE[0] / 2, 20)
+        text_center = (const.WINDOW_SIZE[0] / 2, 20)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
 
     def render_play(self):
         # draw background
-        self.screen.fill(Const.BACKGROUND_COLOR)
+        self.screen.fill(const.BACKGROUND_COLOR)
 
         # draw players
         model = get_game_engine()
@@ -110,51 +110,51 @@ class GraphicalView:
         objects = []
         for item in model.items:
             center = list(map(int, item.position))
-            lt = [x - y for x, y in zip(center, [Const.ITEM_WIDTH/2, Const.ITEM_HEIGHT/2])]
+            lt = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.ITEM, item.type, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, lt))
         for player in model.players:
             center = list(map(int, player.position))
-            lt = [x - y for x, y in zip(center, [Const.PLAYER_RADIUS, Const.PLAYER_RADIUS])]
+            lt = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS])]
             coord = game_map.convert_coordinate(player.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.PLAYER, player.player_id, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.PLAYER, player.player_id, lt))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
-            lt = [x - y for x, y in zip(center, [Const.GHOST_RADIUS, Const.GHOST_RADIUS])]
+            lt = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
             coord = game_map.convert_coordinate(ghost.position)
-            objects.append((coord[1], Const.OBJECT_TYPE.GHOST, ghost.ghost_id, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, lt))
         for row, image in game_map.images:
-            objects.append((row, Const.OBJECT_TYPE.MAP, image))
+            objects.append((row, const.OBJECT_TYPE.MAP, image))
 
         objects.sort(key=lambda x: (x[0], x[1]))
         for i in objects:
-            if i[1] == Const.OBJECT_TYPE.PLAYER:
+            if i[1] == const.OBJECT_TYPE.PLAYER:
                 self.screen.blit(self.pictures[i[2]], i[3])
-            elif i[1] == Const.OBJECT_TYPE.GHOST:
+            elif i[1] == const.OBJECT_TYPE.GHOST:
                 self.screen.blit(self.pictures[i[2]], i[3])
-            elif i[1] == Const.OBJECT_TYPE.MAP:
+            elif i[1] == const.OBJECT_TYPE.MAP:
                 self.screen.blit(i[2], (0, 0))
-            elif i[1] == Const.OBJECT_TYPE.ITEM:
+            elif i[1] == const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
 
         # Scoreboard
-        self.screen.blit(self.pictures[Const.SCENE.SCORE_BOARD], (Const.ARENA_SIZE[0], 0))
-        font = pg.font.Font(os.path.join(Const.FONT_PATH, "magic-school.one.ttf"), 36)
+        self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))
+        font = pg.font.Font(os.path.join(const.FONT_PATH, "magic-school.one.ttf"), 36)
         def print_digit(digit: int, position):
             text_surface = font.render(str(digit), True, pg.Color('black'))
             self.screen.blit(text_surface, text_surface.get_rect(center=position))
         # Time
-        count_down = (Const.GAME_LENGTH - model.timer) // Const.FPS
-        print_digit(count_down//60//10, Const.TIME_POSITION[0])
-        print_digit(count_down//60%10, Const.TIME_POSITION[1])
-        print_digit(count_down%60//10, Const.TIME_POSITION[2])
-        print_digit(count_down%60%10, Const.TIME_POSITION[3])
+        count_down = (const.GAME_LENGTH - model.timer) // const.FPS
+        print_digit(count_down//60//10, const.TIME_POSITION[0])
+        print_digit(count_down//60%10, const.TIME_POSITION[1])
+        print_digit(count_down%60//10, const.TIME_POSITION[2])
+        print_digit(count_down%60%10, const.TIME_POSITION[3])
 
-        for i in range(Const.NUM_OF_PLAYERS):
+        for i in range(const.NUM_OF_PLAYERS):
             score = model.players[i].score
             j = 1000
-            for position in Const.SCORE_POSITION[i]:
+            for position in const.SCORE_POSITION[i]:
                 print_digit(int(score//j%10), position)
                 j /= 10
 
@@ -167,6 +167,6 @@ class GraphicalView:
 
     def render_endgame(self):
         # draw background
-        self.screen.fill(Const.BACKGROUND_COLOR)
+        self.screen.fill(const.BACKGROUND_COLOR)
 
         pg.display.flip()

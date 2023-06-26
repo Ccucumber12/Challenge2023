@@ -1,4 +1,4 @@
-from EventManager.EventManager import BaseEvent
+from event_manager.event_manager import BaseEvent
 
 
 class EventInitialize(BaseEvent):

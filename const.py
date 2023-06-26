@@ -120,20 +120,20 @@ SCORE_POSITION = [
     [(854, 670), (912, 670), (971, 670), (1029, 670)],
 ]
 PICTURES_PATH = {
-    ITEM_SET.CLOAK: "Pictures/Items/Cloak.png",
-    ITEM_SET.GOLDEN_SNITCH: "Pictures/Items/GoldenSnitch.png",
-    ITEM_SET.PATRONUS: "Pictures/Items/Patronus.png",
-    ITEM_SET.PETRIFICATION: "Pictures/Items/Petrification.png",
-    ITEM_SET.SORTINGHAT: "Pictures/Items/SortingHat.png",
-    PLAYER_IDS.PLAYER0: "Pictures/Characters/Players/Player0.png",
-    PLAYER_IDS.PLAYER1: "Pictures/Characters/Players/Player1.png",
-    PLAYER_IDS.PLAYER2: "Pictures/Characters/Players/Player2.png",
-    PLAYER_IDS.PLAYER3: "Pictures/Characters/Players/Player3.png",
-    GHOST_IDS.DEMENTOR: "Pictures/Characters/Ghosts/Dementor.png",
-    SCENE.TITLE: "Pictures/Scenes/Title.png",
-    SCENE.SCORE_BOARD: "Pictures/Scenes/Scoreboard.png",
+    ITEM_SET.CLOAK: "pictures/items/Cloak.png",
+    ITEM_SET.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",
+    ITEM_SET.PATRONUS: "pictures/items/Patronus.png",
+    ITEM_SET.PETRIFICATION: "pictures/items/Petrification.png",
+    ITEM_SET.SORTINGHAT: "pictures/items/SortingHat.png",
+    PLAYER_IDS.PLAYER0: "pictures/characters/players/Player0.png",
+    PLAYER_IDS.PLAYER1: "pictures/characters/players/Player1.png",
+    PLAYER_IDS.PLAYER2: "pictures/characters/players/Player2.png",
+    PLAYER_IDS.PLAYER3: "pictures/characters/players/Player3.png",
+    GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
+    SCENE.TITLE: "pictures/scenes/Title.png",
+    SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
 }
-FONT_PATH = "Fonts"
+FONT_PATH = "fonts"
 
 # controller
 PLAYER_KEYS = {

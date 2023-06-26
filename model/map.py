@@ -5,7 +5,7 @@ import re
 
 import pygame
 
-import Const
+import const
 
 
 class Map:
@@ -21,14 +21,14 @@ class Map:
         """
         For detection of obstacles
         """
-        x = max(0, min(self.size[0] - 1, int(position[0] * self.size[0] / Const.ARENA_SIZE[0])))
-        y = max(0, min(self.size[1] - 1, int(position[1] * self.size[1] / Const.ARENA_SIZE[1])))
+        x = max(0, min(self.size[0] - 1, int(position[0] * self.size[0] / const.ARENA_SIZE[0])))
+        y = max(0, min(self.size[1] - 1, int(position[1] * self.size[1] / const.ARENA_SIZE[1])))
         return x, y
 
     def convert_cell(self, cell, dx, dy):
         #dx, dy denote the specific part of the cell that should be traveled to
-        x = max(0, min(Const.ARENA_SIZE[0], (cell[0] + 0.5 * (1 + dx) ) * Const.ARENA_SIZE[0] / self.size[0]))
-        y = max(0, min(Const.ARENA_SIZE[1], (cell[1] + 0.5 * (1 + dy) ) * Const.ARENA_SIZE[1] / self.size[1]))
+        x = max(0, min(const.ARENA_SIZE[0], (cell[0] + 0.5 * (1 + dx) ) * const.ARENA_SIZE[0] / self.size[0]))
+        y = max(0, min(const.ARENA_SIZE[1], (cell[1] + 0.5 * (1 + dy) ) * const.ARENA_SIZE[1] / self.size[1]))
         return x, y
 
     def get_type(self, position):
@@ -44,8 +44,8 @@ class Map:
 
     def get_spawn_point(self, num):
         x, y = self.spawn[num]
-        x = (x + 0.5) * Const.ARENA_SIZE[0] / self.size[0]
-        y = (y + 0.5) * Const.ARENA_SIZE[1] / self.size[1]
+        x = (x + 0.5) * const.ARENA_SIZE[0] / self.size[0]
+        y = (y + 0.5) * const.ARENA_SIZE[1] / self.size[1]
         return x, y
 
 
@@ -62,7 +62,7 @@ def load_map(map_dir):
     images = []
     for i in data['images']:
         loaded_image = pygame.image.load(os.path.join(map_dir, i))
-        loaded_image = pygame.transform.scale(loaded_image, Const.ARENA_SIZE)
+        loaded_image = pygame.transform.scale(loaded_image, const.ARENA_SIZE)
         images.append((int(data['images'][i]), loaded_image))
 
     with open(map_file) as f:

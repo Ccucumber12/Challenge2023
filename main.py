@@ -1,10 +1,10 @@
 import pygame as pg
 
-import InstancesManager
-from Controller.Controller import Controller
-from EventManager.EventManager import EventManager
-from Model.Model import GameEngine
-from View.View import GraphicalView
+import instances_manager
+from controller.controller import Controller
+from event_manager.event_manager import EventManager
+from model.model import GameEngine
+from view.view import GraphicalView
 
 
 def main():
@@ -13,9 +13,9 @@ def main():
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
-    InstancesManager.register_event_manager(ev_manager)
+    instances_manager.register_event_manager(ev_manager)
     model = GameEngine()
-    InstancesManager.register_game_engine(model)
+    instances_manager.register_game_engine(model)
     Controller()
     GraphicalView()
 

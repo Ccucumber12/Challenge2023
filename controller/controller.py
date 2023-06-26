@@ -1,9 +1,9 @@
 import pygame as pg
 
-import Const
-from EventManager.Events import (EventEveryTick, EventInitialize,
+import const
+from event_manager.events import (EventEveryTick, EventInitialize,
                                  EventPlayerMove, EventQuit, EventStateChange)
-from InstancesManager import get_event_manager, get_game_engine
+from instances_manager import get_event_manager, get_game_engine
 
 
 class Controller:
@@ -43,10 +43,10 @@ class Controller:
                     print(f"Mouse click position: ({x}, {y})")
 
         cur_state = model.state
-        if cur_state == Const.STATE_MENU: self.ctrl_menu(key_down_events)
-        if cur_state == Const.STATE_PLAY: self.ctrl_play(key_down_events)
-        if cur_state == Const.STATE_STOP: self.ctrl_stop(key_down_events)
-        if cur_state == Const.STATE_ENDGAME: self.ctrl_endgame(key_down_events)
+        if cur_state == const.STATE_MENU: self.ctrl_menu(key_down_events)
+        if cur_state == const.STATE_PLAY: self.ctrl_play(key_down_events)
+        if cur_state == const.STATE_STOP: self.ctrl_stop(key_down_events)
+        if cur_state == const.STATE_ENDGAME: self.ctrl_endgame(key_down_events)
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -57,12 +57,12 @@ class Controller:
         ev_manager = get_event_manager()
         for event_pg in key_down_events:
             if event_pg.type == pg.KEYDOWN and event_pg.key == pg.K_SPACE:
-                ev_manager.post(EventStateChange(Const.STATE_PLAY))
+                ev_manager.post(EventStateChange(const.STATE_PLAY))
 
     def ctrl_play(self, key_down_events):
         ev_manager = get_event_manager()
         keys = pg.key.get_pressed()
-        for k, v in Const.PLAYER_KEYS.items():
+        for k, v in const.PLAYER_KEYS.items():
             if keys[k]:
                 ev_manager.post(EventPlayerMove(*v))
         # FOR TEST:
