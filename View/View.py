@@ -52,8 +52,12 @@ class GraphicalView:
             self.pictures[ghost] = crop(picture, Const.GHOST_RADIUS*2, Const.GHOST_RADIUS*2)
         picture = pg.image.load(Const.PICTURES_PATH[Const.SCENE.SCORE_BOARD])
         self.pictures[Const.SCENE.SCORE_BOARD] = crop(picture, Const.ARENA_SIZE[0], Const.ARENA_SIZE[1])
-        # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
+        # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
+        picture = pg.image.load(Const.PICTURES_PATH[Const.SCENE.TITLE])
+        self.pictures[Const.SCENE.TITLE] = crop(picture, 2*Const.ARENA_SIZE[0], Const.ARENA_SIZE[1])
+        # print(self.pictures[Const.SCENE.TITLE].get_width())
+        # print(self.pictures[Const.SCENE.TITLE].get_height())
 
     def initialize(self, event):
         """
@@ -85,12 +89,13 @@ class GraphicalView:
 
     def render_menu(self):
         # draw background
-        self.screen.fill(Const.BACKGROUND_COLOR)
+        # self.screen.fill(Const.BACKGROUND_COLOR)
+        self.screen.blit(self.pictures[Const.SCENE.TITLE], ((Const.WINDOW_SIZE[0]-Const.TITLE_SIZE[0])/2, 0))
 
         # draw text
         font = pg.font.Font(None, 36)
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
-        text_center = (Const.WINDOW_SIZE[0] / 2, Const.WINDOW_SIZE[1] / 2)
+        text_center = (Const.WINDOW_SIZE[0] / 2, 20)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()

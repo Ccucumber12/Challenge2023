@@ -97,6 +97,7 @@ WINDOW_CAPTION = 'Challenge 2023'
 WINDOW_SIZE = (800+282, 800)
 ARENA_SIZE = (800, 800)
 SCORE_BOARD_SIZE = (282, 800)
+TITLE_SIZE = (1168, 800)
 BACKGROUND_COLOR = pg.Color('black')
 PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta'), pg.Color('blue'), pg.Color('gold')]
 GHOST_COLOR = [pg.Color('red')]
