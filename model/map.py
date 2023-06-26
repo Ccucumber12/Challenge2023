@@ -26,9 +26,11 @@ class Map:
         return x, y
 
     def convert_cell(self, cell, dx, dy):
-        #dx, dy denote the specific part of the cell that should be traveled to
-        x = max(0, min(const.ARENA_SIZE[0], (cell[0] + 0.5 * (1 + dx) ) * const.ARENA_SIZE[0] / self.size[0]))
-        y = max(0, min(const.ARENA_SIZE[1], (cell[1] + 0.5 * (1 + dy) ) * const.ARENA_SIZE[1] / self.size[1]))
+        # dx, dy denote the specific part of the cell that should be traveled to
+        x = max(0, min(const.ARENA_SIZE[0],
+                       (cell[0] + 0.5 * (1 + dx)) * const.ARENA_SIZE[0] / self.size[0]))
+        y = max(0, min(const.ARENA_SIZE[1],
+                       (cell[1] + 0.5 * (1 + dy)) * const.ARENA_SIZE[1] / self.size[1]))
         return x, y
 
     def get_type(self, position):
@@ -75,7 +77,7 @@ def load_map(map_dir):
             for x in range(0, size[0]):
                 map_list[x][y] = int(row[x])
             y += 1
-     
+
     """ Feature: Add "thickness" to the walls so it doesn't look like the character is in the walls"
     new_map_list = [[0] * size[0] for _ in range(0, size[1])]
     for y in range(size[1]):

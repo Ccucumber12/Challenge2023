@@ -3,6 +3,7 @@ class EventManager:
     It coordinate communication between the Model, View, and Controller.
     Model, View, and Controller are all listeners, the EventManager will broadcast an event to them by post()
     """
+
     def __init__(self):
         self.listeners = dict()
 
@@ -50,4 +51,3 @@ class BaseEvent:
     def __str__(self):
         # For Debug
         return self.name
-

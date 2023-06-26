@@ -2,7 +2,7 @@ import pygame as pg
 
 import const
 from event_manager.events import (EventEveryTick, EventInitialize,
-                                 EventPlayerMove, EventQuit, EventStateChange)
+                                  EventPlayerMove, EventQuit, EventStateChange)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -43,10 +43,14 @@ class Controller:
                     print(f"Mouse click position: ({x}, {y})")
 
         cur_state = model.state
-        if cur_state == const.STATE_MENU: self.ctrl_menu(key_down_events)
-        if cur_state == const.STATE_PLAY: self.ctrl_play(key_down_events)
-        if cur_state == const.STATE_STOP: self.ctrl_stop(key_down_events)
-        if cur_state == const.STATE_ENDGAME: self.ctrl_endgame(key_down_events)
+        if cur_state == const.STATE_MENU:
+            self.ctrl_menu(key_down_events)
+        if cur_state == const.STATE_PLAY:
+            self.ctrl_play(key_down_events)
+        if cur_state == const.STATE_STOP:
+            self.ctrl_stop(key_down_events)
+        if cur_state == const.STATE_ENDGAME:
+            self.ctrl_endgame(key_down_events)
 
     def register_listeners(self):
         ev_manager = get_event_manager()

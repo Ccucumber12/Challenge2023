@@ -28,6 +28,7 @@ class GraphicalView:
 
         # scale the pictures to proper size
         self.pictures = {}
+
         def crop(picture: pg.Surface, desire_width, desire_height):
             """
             Will scale the image to desire size without changing the ratio of the width and height.
@@ -51,11 +52,13 @@ class GraphicalView:
             picture = pg.image.load(const.PICTURES_PATH[ghost])
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2)
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD])
-        self.pictures[const.SCENE.SCORE_BOARD] = crop(picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+        self.pictures[const.SCENE.SCORE_BOARD] = crop(
+            picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.TITLE])
-        self.pictures[const.SCENE.TITLE] = crop(picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+        self.pictures[const.SCENE.TITLE] = crop(
+            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.TITLE].get_width())
         # print(self.pictures[Const.SCENE.TITLE].get_height())
 
@@ -70,10 +73,14 @@ class GraphicalView:
 
         model = get_game_engine()
         cur_state = model.state
-        if cur_state == const.STATE_MENU: self.render_menu()
-        elif cur_state == const.STATE_PLAY: self.render_play()
-        elif cur_state == const.STATE_STOP: self.render_stop()
-        elif cur_state == const.STATE_ENDGAME: self.render_endgame()
+        if cur_state == const.STATE_MENU:
+            self.render_menu()
+        elif cur_state == const.STATE_PLAY:
+            self.render_play()
+        elif cur_state == const.STATE_STOP:
+            self.render_stop()
+        elif cur_state == const.STATE_ENDGAME:
+            self.render_endgame()
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -90,7 +97,8 @@ class GraphicalView:
     def render_menu(self):
         # draw background
         # self.screen.fill(Const.BACKGROUND_COLOR)
-        self.screen.blit(self.pictures[const.SCENE.TITLE], ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
+        self.screen.blit(self.pictures[const.SCENE.TITLE],
+                         ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
 
         # draw text
         font = pg.font.Font(os.path.join(const.FONT_PATH, "magic-school.one.ttf"), 36)
@@ -141,21 +149,22 @@ class GraphicalView:
         # Scoreboard
         self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))
         font = pg.font.Font(os.path.join(const.FONT_PATH, "magic-school.one.ttf"), 36)
+
         def print_digit(digit: int, position):
             text_surface = font.render(str(digit), True, pg.Color('black'))
             self.screen.blit(text_surface, text_surface.get_rect(center=position))
         # Time
         count_down = (const.GAME_LENGTH - model.timer) // const.FPS
-        print_digit(count_down//60//10, const.TIME_POSITION[0])
-        print_digit(count_down//60%10, const.TIME_POSITION[1])
-        print_digit(count_down%60//10, const.TIME_POSITION[2])
-        print_digit(count_down%60%10, const.TIME_POSITION[3])
+        print_digit(count_down // 60 // 10, const.TIME_POSITION[0])
+        print_digit(count_down // 60 % 10, const.TIME_POSITION[1])
+        print_digit(count_down % 60 // 10, const.TIME_POSITION[2])
+        print_digit(count_down % 60 % 10, const.TIME_POSITION[3])
 
         for i in range(const.NUM_OF_PLAYERS):
             score = model.players[i].score
             j = 1000
             for position in const.SCORE_POSITION[i]:
-                print_digit(int(score//j%10), position)
+                print_digit(int(score // j % 10), position)
                 j /= 10
 
         # pg.draw.circle(self.screen, pg.Color('red'), (854, 161), 3)

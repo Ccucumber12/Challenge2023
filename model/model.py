@@ -1,12 +1,10 @@
-import random
-
 import pygame as pg
 
 import const
 from event_manager.event_manager import *
 from event_manager.events import (EventEveryTick, EventInitialize,
-                                 EventPlayerMove, EventQuit, EventStateChange,
-                                 EventTimesUp)
+                                  EventPlayerMove, EventQuit, EventStateChange,
+                                  EventTimesUp)
 from instances_manager import get_event_manager
 from model.character import Ghost, Player
 from model.item import ItemGenerator
@@ -46,8 +44,6 @@ class GameEngine:
         self.ghosts = []
         for i in const.GHOST_IDS:
             self.ghosts.append(Ghost(i, const.GHOST_INIT_TP_CD))
-        # self.players = [Player(0), Player(1), Player(2), Player(3)]
-        # self.ghosts = [Ghost(0, Const.GHOST_INIT_TP_CD)]
         self.patronuses = []
         self.items = set()
         self.timer = 0
@@ -74,8 +70,6 @@ class GameEngine:
 
             if self.timer == const.GAME_LENGTH:
                 ev_manager.post(EventTimesUp())
-            # self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
-            # self.ghosts[0].teleport(pg.Vector2(random.random() * 800 - 1, random.random() * 800 - 1))
 
             # Check if a item is eaten
             item_deletions = []
@@ -169,9 +163,3 @@ class GameEngine:
         while self.running:
             ev_manager.post(EventEveryTick())
             self.clock.tick(const.FPS)
-
-    # def test(self):
-    #     """
-    #     For test.
-    #     """
-    #     self.players[0].get_effect("petrification", "normal")
