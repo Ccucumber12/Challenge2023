@@ -79,15 +79,15 @@ class Item_Generator:
         generate_y = 0
         # randomly draw points in the arena according to a standard distribution
         rand_times = 10
-        candidates_x = np.random.normal(Const.WINDOW_SIZE[0] / 2, Const.WINDOW_SIZE[0] / 4, rand_times)
-        candidates_y = np.random.normal(Const.WINDOW_SIZE[1] / 2, Const.WINDOW_SIZE[1] / 4, rand_times)
+        candidates_x = np.random.normal(Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[0] / 4, rand_times)
+        candidates_y = np.random.normal(Const.ARENA_SIZE[1] / 2, Const.ARENA_SIZE[1] / 4, rand_times)
         model = get_game_engine()
         # choose the point that has a max distance to players
         for rand_x, rand_y in zip(candidates_x, candidates_y):
             # discard points out of range
-            if not(1 <= rand_x <= Const.WINDOW_SIZE[0] and 1 <= rand_y <= Const.WINDOW_SIZE[1]):
+            if not(1 <= rand_x <= Const.ARENA_SIZE[0] and 1 <= rand_y <= Const.ARENA_SIZE[1]):
                 continue
-            min_distance_to_players = Const.WINDOW_SIZE[0] + Const.WINDOW_SIZE[1]
+            min_distance_to_players = Const.ARENA_SIZE[0] + Const.ARENA_SIZE[1]
             for player in model.players:
                 distance_to_player = math.hypot(player.position.x - rand_x, player.position.y - rand_y)
                 min_distance_to_players = min(min_distance_to_players, distance_to_player)

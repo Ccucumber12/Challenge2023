@@ -94,17 +94,22 @@ GOLDEN_SNITCH_APPEAR_TIME = 5*FPS
 
 # view
 WINDOW_CAPTION = 'Challenge 2023'
-WINDOW_SIZE = (800, 800)
+WINDOW_SIZE = (800+282, 800)
 ARENA_SIZE = (800, 800)
+SCORE_BOARD_SIZE = (282, 800)
 BACKGROUND_COLOR = pg.Color('black')
 PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta'), pg.Color('blue'), pg.Color('gold')]
 GHOST_COLOR = [pg.Color('red')]
 class OBJECT_TYPE(IntEnum):
     # The number represents the order of rendering the type.
     MAP = 0
-    GHOST = 1
-    ITEM = 2
+    # SCORE_BOARD = 1
+    GHOST = 2
+    ITEM = 3
     PLAYER = 5
+class SCENE(Enum):
+    TITLE = 0
+    SCORE_BOARD = 1
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "Pictures/Items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "Pictures/Items/GoldenSnitch.png",
@@ -116,6 +121,8 @@ PICTURES_PATH = {
     PLAYER_IDS.PLAYER2: "Pictures/Characters/Players/Player2.png",
     PLAYER_IDS.PLAYER3: "Pictures/Characters/Players/Player3.png",
     GHOST_IDS.DEMENTOR: "Pictures/Characters/Ghosts/Dementor.png",
+    SCENE.TITLE: "Pictures/Scenes/Title.png",
+    SCENE.SCORE_BOARD: "Pictures/Scenes/Scoreboard.png",
 }
 
 # controller

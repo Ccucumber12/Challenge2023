@@ -50,6 +50,10 @@ class GraphicalView:
         for ghost in Const.GHOST_IDS:
             picture = pg.image.load(Const.PICTURES_PATH[ghost])
             self.pictures[ghost] = crop(picture, Const.GHOST_RADIUS*2, Const.GHOST_RADIUS*2)
+        picture = pg.image.load(Const.PICTURES_PATH[Const.SCENE.SCORE_BOARD])
+        self.pictures[Const.SCENE.SCORE_BOARD] = crop(picture, Const.ARENA_SIZE[0], Const.ARENA_SIZE[1])
+        # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
+        # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
 
     def initialize(self, event):
         """
@@ -86,7 +90,7 @@ class GraphicalView:
         # draw text
         font = pg.font.Font(None, 36)
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
-        text_center = (Const.ARENA_SIZE[0] / 2, Const.ARENA_SIZE[1] / 2)
+        text_center = (Const.WINDOW_SIZE[0] / 2, Const.WINDOW_SIZE[1] / 2)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
@@ -128,6 +132,8 @@ class GraphicalView:
             elif i[1] == Const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
+
+        self.screen.blit(self.pictures[Const.SCENE.SCORE_BOARD], (Const.ARENA_SIZE[0], 0))
 
         pg.display.flip()
 
