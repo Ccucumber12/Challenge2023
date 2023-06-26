@@ -9,7 +9,7 @@ from EventManager.Events import (EventEveryTick, EventInitialize,
                                  EventTimesUp)
 from InstancesManager import get_event_manager
 from Model.Character import Ghost, Player
-from Model.Item import Item_Generator
+from Model.Item import ItemGenerator
 from Model.Map import load_map
 
 
@@ -52,7 +52,7 @@ class GameEngine:
         self.items = set()
         self.timer = 0
         self.user_events = {}
-        self.item_generator = Item_Generator()
+        self.item_generator = ItemGenerator()
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -76,14 +76,13 @@ class GameEngine:
                 ev_manager.post(EventTimesUp())
             # self.ghosts[0].move_direction(pg.Vector2(random.random() * 2 - 1, random.random() * 2 - 1))
             # self.ghosts[0].teleport(pg.Vector2(random.random() * 800 - 1, random.random() * 800 - 1))
-            self.item_generator.tick()
 
             # Check if a item is eaten
             item_deletions = []
             for item in self.items:
                 eaten = item.tick()
                 if eaten is not None:
-                    item_deletions.append(item.tick())
+                    item_deletions.append(eaten)
             for item in item_deletions:
                 self.items.remove(item)
                 del item
@@ -128,7 +127,8 @@ class GameEngine:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
-        ev_manager.register_listener(EventStateChange, self.handle_state_change)
+        ev_manager.register_listener(
+            EventStateChange, self.handle_state_change)
         ev_manager.register_listener(EventQuit, self.handle_quit)
         ev_manager.register_listener(EventPlayerMove, self.handle_move)
         ev_manager.register_listener(EventTimesUp, self.handle_times_up)
