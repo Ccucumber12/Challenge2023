@@ -6,8 +6,8 @@ from event_manager.events import (EventEveryTick, EventInitialize,
                                   EventPlayerMove, EventQuit, EventStateChange,
                                   EventTimesUp)
 from instances_manager import get_event_manager
-from model.character import Ghost, Player
-from model.item import ItemGenerator
+from model.character import Ghost, Patronus, Player
+from model.item import Item, ItemGenerator
 from model.map import load_map
 
 
@@ -26,7 +26,6 @@ class GameEngine:
         self._state = None
         self.map = load_map('Maps/movetest')
         self.timer = 0
-        self.user_events = {}
 
     @property
     def state(self):
@@ -38,16 +37,16 @@ class GameEngine:
         """
         self.clock = pg.time.Clock()
         self._state = const.STATE_MENU
-        self.players = []
+        self.players: list[Player] = []
         for i in const.PLAYER_IDS:
             self.players.append(Player(i))
-        self.ghosts = []
+        self.ghosts: list[Ghost] = []
         for i in const.GHOST_IDS:
             self.ghosts.append(Ghost(i, const.GHOST_INIT_TP_CD))
-        self.patronuses = []
-        self.items = set()
+        self.patronuses: list[Patronus] = []
+        self.items: set[Item] = set()
         self.timer = 0
-        self.user_events = {}
+        self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
 
     def handle_every_tick(self, event):
@@ -111,7 +110,7 @@ class GameEngine:
     def handle_quit(self, event):
         self.running = False
 
-    def handle_move(self, event):
+    def handle_move(self, event: EventPlayerMove):
         self.players[event.player_id].move_direction(event.direction)
 
     def handle_times_up(self, event):
@@ -137,7 +136,7 @@ class GameEngine:
     def update_objects(self):
         """
         Update the objects not controlled by user.
-        For example: obstacles, items, special effects
+        For example: obstacles, items, special effects.
         """
         for player in self.players:
             player.tick()
@@ -152,7 +151,7 @@ class GameEngine:
 
     def run(self):
         """
-        The main loop of the game is in this function.
+        Execute the main loop of the game is in this function.
         This function activates the GameEngine.
         """
         self.running = True

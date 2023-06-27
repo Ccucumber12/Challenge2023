@@ -24,7 +24,7 @@ class Character:
 
     def move(self, x, y):
         """
-        +x: right, +y: down
+        +x: right, +y: down.
         (x, y) will be automatically transfered to unit vector.
         Move the player along the direction by its speed.
         Will automatically clip the position so no need to worry out-of-bound moving.
@@ -133,20 +133,20 @@ class Character:
         """Finds a random position that does not collide with obstacles"""
         Map = get_game_engine().map
         while obj == None or Map.get_type(obj) == const.MAP_OBSTACLE:
-            obj = pg.Vector2(random.randint(
-                0, const.ARENA_SIZE[0]), random.randint(0, const.ARENA_SIZE[1]))
+            obj = pg.Vector2(random.randint(0, const.ARENA_SIZE[0]), 
+                             random.randint(0, const.ARENA_SIZE[1]))
         return obj
 
 
 class Player(Character):
-    def __init__(self, player_id):
+    def __init__(self, player_id: const.PLAYER_IDS):
         self.player_id = player_id
         model = get_game_engine()
 
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
 
         # temporary: gets random positioin for spawn point
-        position = super().get_random_position(position)
+        position = self.get_random_position(position)
 
         speed = const.PLAYER_SPEED
         super().__init__(position, speed)
@@ -170,13 +170,14 @@ class Player(Character):
             self.caught()
 
     def iscaught(self):
+        """Return if the player is caught by one of the ghosts"""
         if self.dead or self.invincible:
             # If the player has sortinghat and is invincible, the effect of sortinghat won't triggered.
             # Even if the player is invisible, the ghost can still catch him.
             return False
         model = get_game_engine()
         for ghost in model.ghosts:
-            if super().get_distance(ghost) < (const.PLAYER_RADIUS + const.GHOST_RADIUS):
+            if self.get_distance(ghost) < (const.PLAYER_RADIUS + const.GHOST_RADIUS):
                 return True
         return False
 
@@ -273,7 +274,7 @@ class Ghost(Character):
         position = const.GHOST_INIT_POSITION[ghost_id]  # is a pg.Vector2
 
         # temp
-        position = super().get_random_position(position)
+        position = self.get_random_position(position)
 
         speed = const.GHOST_INIT_SPEED
         super().__init__(position, speed)
@@ -359,7 +360,7 @@ class Ghost(Character):
 
     def wander(self):
         if self.wander_pos == None:
-            self.wander_pos = super().get_random_position(self.wander_pos)
+            self.wander_pos = self.get_random_position(self.wander_pos)
         self.move_direction(pg.Vector2(super().pathfind(
             self.wander_pos.x, self.wander_pos.y))-self.position)
 

@@ -2,10 +2,9 @@ import os
 
 import pygame as pg
 
-from instances_manager import get_game_engine
-from instances_manager import get_event_manager
-from event_manager.events import EventInitialize, EventEveryTick
 import const
+from event_manager.events import EventEveryTick, EventInitialize
+from instances_manager import get_event_manager, get_game_engine
 
 
 class GraphicalView:

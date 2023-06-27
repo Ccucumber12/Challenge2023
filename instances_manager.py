@@ -8,7 +8,9 @@ def register_event_manager(event_manager):
 
 
 def get_event_manager():
-    return __event_manager
+    from event_manager.event_manager import EventManager
+    event_manager: EventManager = __event_manager
+    return event_manager
 
 
 def register_game_engine(game_engine):
@@ -17,4 +19,6 @@ def register_game_engine(game_engine):
 
 
 def get_game_engine():
-    return __game_engine
+    from model.model import GameEngine
+    game_engine: GameEngine = __game_engine
+    return game_engine

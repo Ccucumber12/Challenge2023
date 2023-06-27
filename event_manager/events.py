@@ -31,7 +31,7 @@ class EventTimesUp(BaseEvent):
 class EventPlayerMove(BaseEvent):
     name = 'PlayerMove event'
 
-    def __init__(self, player_id, direction):
+    def __init__(self, player_id: int, direction):
         super().__init__()
         self.player_id = player_id
         self.direction = direction

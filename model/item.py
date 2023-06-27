@@ -10,7 +10,7 @@ from instances_manager import get_game_engine
 
 
 class Item:
-    def __init__(self, position: pg.Vector2, item_id, item_type, item_width, item_height, item_status: const.ITEM_STATUS):
+    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET, item_width, item_height, item_status: const.ITEM_STATUS):
         self.item_id = item_id
         self.type = item_type
         self.position = position
@@ -26,8 +26,8 @@ class Item:
         for player in model.players:
             if utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width):
                 # Apply the effect to the player according to the type of item (item_type).
-                print(f"{player.player_id} get effect: {self.type} ({self.status})")
                 player.get_effect(self.type, self.status)
+                print(f"{player.player_id} get effect: {self.type} ({self.status})")
                 return self  # which will be removed later in Model.py
 
 
@@ -37,7 +37,8 @@ class ItemGenerator:
         model.register_user_event(
             const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
         model.register_user_event(
-            const.GOLDEN_SNITCH_APPEAR_TIME, self.generate_golden_snitch)
+            const.GOLDEN_SNITCH_APPEAR_TIME,
+            self.generate_golden_snitch)
         self.id_counter = 1
 
     def choose_location(self, candidates: list[pg.Vector2], objects: list[pg.Vector2]) -> pg.Vector2:
@@ -64,7 +65,7 @@ class ItemGenerator:
         """
         Choose and try to generate a item at a location is far from all other items.
 
-        Return if succeeded.
+        Returns whether the attempt was successful.
         """
         # determining the type of generated item
         generate_type = random.choices(
