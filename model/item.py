@@ -60,8 +60,12 @@ class ItemGenerator:
                 max_distance = min_distance_to_objects
         return best_location
 
-    def generate(self):
-        """Choose and generate a item at a location is far from all other items"""
+    def generate(self) -> bool:
+        """
+        Choose and try to generate a item at a location is far from all other items.
+
+        Return if succeeded.
+        """
         # determining the type of generated item
         generate_type = random.choices(
             list(const.ITEM_SET), weights=const.ITEM_GENERATE_PROBABILITY)[0]
@@ -77,19 +81,31 @@ class ItemGenerator:
         items_position = [item.position for item in model.items]
 
         best = self.choose_location(candidates, items_position)
-        generate_item = Item(best, self.id_counter, generate_type,
-                             const.ITEM_WIDTH, const.ITEM_HEIGHT, generate_status)
-        model.items.add(generate_item)
-        self.id_counter = self.id_counter + 1
-        print(f"Item {generate_type} generated at {best}!")
+        if best == pg.Vector2(0, 0):
+            print("Failed to generate item!")
+            return False
+        else:
+            generate_item = Item(best, self.id_counter, generate_type,
+                                 const.ITEM_WIDTH, const.ITEM_HEIGHT, generate_status)
+            model.items.add(generate_item)
+            self.id_counter = self.id_counter + 1
+            print(f"Item {generate_type} generated at {best}!")
+            return True
 
     def generate_handler(self):
         model = get_game_engine()
+        try_again: int
+        # if the number of item is less than MAX_ITEM_NUMBER, try to generate a item
+        # else, wiat a rand time in the range [1, ITEM_GENERATE_COOLDOWN] and try again
         if len(model.items) < const.MAX_ITEM_NUMBER:
-            self.generate()
-            model.register_user_event(const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
+            # try to generate a item, and try again after 1 tick if the tempt failed
+            if self.generate():
+                try_again = const.ITEM_GENERATE_COOLDOWN
+            else:
+                try_again = 1
         else:
-            model.register_user_event(1, self.generate_handler)
+            try_again = random.randint(1, const.ITEM_GENERATE_COOLDOWN)
+        model.register_user_event(try_again, self.generate_handler)
 
     def generate_golden_snitch(self):
         """Choose and generate golden snitch at a location is far from all players."""
