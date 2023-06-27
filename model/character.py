@@ -72,12 +72,15 @@ class Character:
 
             def get_neighbors(cell):
                 neighbors = []
-                directions = [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1),
-                              (-1, -1), (1, -1), (-1, 1)]  # Right, Left, Down, Up
+                directions = [(0, 1), (0, -1), (1, 0), (-1, 0), 
+                              (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Right, Left, Down, Up
                 for dx, dy in directions:
                     new_row = cell[0] + dx
                     new_col = cell[1] + dy
-                    if 0 <= new_row < rows and 0 <= new_col < cols and grid[new_row][new_col] != const.MAP_OBSTACLE and grid[cell[0]][new_col] != const.MAP_OBSTACLE and grid[new_row][cell[1]] != const.MAP_OBSTACLE:
+                    if (0 <= new_row < rows and 0 <= new_col < cols 
+                        and grid[new_row][new_col] != const.MAP_OBSTACLE 
+                        and grid[cell[0]][new_col] != const.MAP_OBSTACLE 
+                        and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
                         neighbors.append((new_row, new_col))
                 return neighbors
 
@@ -102,7 +105,8 @@ class Character:
                     if closed[neighbor[0]][neighbor[1]]:
                         continue
                     tentative_g = g + 1
-                    if parent[neighbor[0]][neighbor[1]] is None or tentative_g < dis[neighbor[0]][neighbor[1]]:
+                    if (parent[neighbor[0]][neighbor[1]] is None 
+                        or tentative_g < dis[neighbor[0]][neighbor[1]]):
                         parent[neighbor[0]][neighbor[1]] = (
                             current[0], current[1], tentative_g)
                         dis[neighbor[0]][neighbor[1]] = tentative_g
@@ -116,12 +120,11 @@ class Character:
         end = Map.convert_coordinate([x, y])
         path = a_star(grid, start, end)
 
-        r = (x-self.position[0])**2 + (y-self.position[1])**2
-        dx = (x - self.position[0])/r
-        dy = (y - self.position[1])/r
-        # print("Start: ", start, "End: ", end, "Path:", path)
-
         if len(path) > 1:
+            r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
+            dx = (x - self.position[0]) / r
+            dy = (y - self.position[1]) / r
+
             return Map.convert_cell((path[1][0], path[1][1]), dx, dy)
         else:
             return x, y
