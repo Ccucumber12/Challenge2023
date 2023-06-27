@@ -101,9 +101,9 @@ class GraphicalView:
                          ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
 
         # draw text
-        font = pg.font.Font(os.path.join(const.FONT_PATH, "magic-school.one.ttf"), 36)
+        font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
-        text_center = (const.WINDOW_SIZE[0] / 2, 20)
+        text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
