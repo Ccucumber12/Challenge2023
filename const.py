@@ -79,8 +79,8 @@ class ITEM_SET(Enum):
         return f"{self.name}"
     GOLDEN_SNITCH = 0
     CLOAK = 1
-    PATRONUS = 3
-    PETRIFICATION = 2
+    PATRONUS = 2
+    PETRIFICATION = 3
     SORTINGHAT = 4
 
 class ITEM_STATUS(Enum):

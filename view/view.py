@@ -28,16 +28,17 @@ class GraphicalView:
 
         # scale the pictures to proper size
         self.pictures = {}
+        self.grayscale_image = {}
 
         def crop(picture: pg.Surface, desire_width, desire_height):
             """
             Will scale the image to desire size without changing the ratio of the width and height.
             The size of cropped image won't be bigger than desire size.
             """
-            picture = picture.convert_alpha()
-            bounding_rect = picture.get_bounding_rect()
+            image = picture.convert_alpha()
+            bounding_rect = image.get_bounding_rect()
             cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
-            cropped_image.blit(picture, (0, 0), bounding_rect)
+            cropped_image.blit(image, (0, 0), bounding_rect)
             width, height = [cropped_image.get_width(), cropped_image.get_height()]
             ratio = min(desire_width/width, desire_height/height)
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
@@ -48,6 +49,7 @@ class GraphicalView:
         for player in const.PLAYER_IDS:
             picture = pg.image.load(const.PICTURES_PATH[player])
             self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2)
+            self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost])
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2)
@@ -137,7 +139,10 @@ class GraphicalView:
         objects.sort(key=lambda x: (x[0], x[1]))
         for i in objects:
             if i[1] == const.OBJECT_TYPE.PLAYER:
-                self.screen.blit(self.pictures[i[2]], i[3])
+                if player.effect == const.ITEM_SET.PETRIFICATION:
+                    self.screen.blit(self.grayscale_image[i[2]], i[3])
+                else:
+                    self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == const.OBJECT_TYPE.GHOST:
                 self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == const.OBJECT_TYPE.MAP:
