@@ -27,8 +27,14 @@ class Item:
             if (utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width)
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
-                player.get_effect(self.type, self.status)
-                print(f"{player.player_id} get effect: {self.type} ({self.status})")
+                if self.type == const.ITEM_SET.PETRIFICATION:
+                    others = [x for x in model.players if x != player]
+                    victim = random.choice(others)
+                    victim.get_effect(self.type, self.status)
+                    print(f"{victim.player_id} get effect: {self.type} ({self.status})")
+                else:
+                    player.get_effect(self.type, self.status)
+                    print(f"{player.player_id} get effect: {self.type} ({self.status})")
                 return self  # which will be removed later in Model.py
 
 
