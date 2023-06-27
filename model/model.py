@@ -60,12 +60,10 @@ class GameEngine:
             self.timer += 1
 
             # checks if a new second has passed and calls each player to update score
-            self.second_change = True if self.timer % const.FPS == 0 else False
-            self.minutes_passed = (self.timer // const.FPS) // 60
-            if self.second_change:
+            if self.timer % const.FPS == 0:
                 for player in self.players:
-                    player.add_score(self.minutes_passed)
-                # print(self.items)
+                    if not player.dead:
+                        player.add_score(const.PLAYER_ADD_SCORE[(self.timer // const.FPS) // 60])
 
             if self.timer == const.GAME_LENGTH:
                 ev_manager.post(EventTimesUp())

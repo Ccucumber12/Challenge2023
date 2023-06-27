@@ -223,10 +223,8 @@ class Player(Character):
         self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
 
-    def add_score(self, minutes: int):
-        if self.dead:
-            return
-        self.score += const.PLAYER_ADD_SCORE[minutes]
+    def add_score(self, points: int):
+        self.score += points
 
     def remove_effect(self):
         self.effect_timer = 0
@@ -239,7 +237,10 @@ class Player(Character):
     def get_effect(self, effect: const.ITEM_SET, effect_status: const.ITEM_STATUS):
         self.effect = effect
         self.effect_timer = const.ITEM_DURATION[effect][effect_status]
-        if self.effect == const.ITEM_SET.CLOAK:
+        if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
+            self.add_score(150)
+            self.speed *= 1.5
+        elif self.effect == const.ITEM_SET.CLOAK:
             self.invisible = True
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()

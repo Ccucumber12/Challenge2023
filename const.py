@@ -3,6 +3,7 @@ from enum import Enum, IntEnum
 import pygame as pg
 
 # model
+
 FPS = 60  # frame per second
 GAME_LENGTH = 180 * FPS
 
@@ -14,6 +15,7 @@ GAME_LENGTH = 180 * FPS
 class PLAYER_IDS(Enum):
     def __str__(self):
         return f"{self.name}"
+    
     PLAYER0 = 0
     PLAYER1 = 1
     PLAYER2 = 2
@@ -66,6 +68,7 @@ MAP_PUDDLE = 1
 MAP_OBSTACLE = 2
 
 # State machine constants
+
 STATE_POP = 0  # for convenience, not really a state which we can be in
 STATE_MENU = 1
 STATE_PLAY = 2
@@ -101,12 +104,12 @@ ITEM_DURATION = {
     ITEM_SET.PETRIFICATION: {ITEM_STATUS.NORMAL: 3*FPS, ITEM_STATUS.REVERSED: 3*FPS, ITEM_STATUS.ENHANCED: 6*FPS},
     ITEM_SET.SORTINGHAT: {ITEM_STATUS.NORMAL: 10*FPS, ITEM_STATUS.REVERSED: 10*FPS, ITEM_STATUS.ENHANCED: 10}
 }
-ITEM_GENERATE_COOLDOWN = 10*FPS
-MAX_ITEM_NUMBER = 3
+ITEM_GENERATE_COOLDOWN = 5*FPS
+MAX_ITEM_NUMBER = 5
 ITEM_WIDTH = 50
 ITEM_HEIGHT = 50
 SORTINGHAT_INVINCIBLE_TIME = 5*FPS
-GOLDEN_SNITCH_APPEAR_TIME = 120*FPS
+GOLDEN_SNITCH_APPEAR_TIME = 30*FPS
 
 # view
 WINDOW_CAPTION = 'Challenge 2023'

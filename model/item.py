@@ -24,7 +24,8 @@ class Item:
     def tick(self):
         model = get_game_engine()
         for player in model.players:
-            if utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width):
+            if (utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width)
+                    and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 player.get_effect(self.type, self.status)
                 print(f"{player.player_id} get effect: {self.type} ({self.status})")
