@@ -127,7 +127,7 @@ class GraphicalView:
             center = list(map(int, player.position))
             lt = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS])]
             coord = game_map.convert_coordinate(player.position)
-            objects.append((coord[1], const.OBJECT_TYPE.PLAYER, player.player_id, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.PLAYER, player.player_id, lt, player.effect))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
             lt = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
@@ -139,7 +139,7 @@ class GraphicalView:
         objects.sort(key=lambda x: (x[0], x[1]))
         for i in objects:
             if i[1] == const.OBJECT_TYPE.PLAYER:
-                if player.effect == const.ITEM_SET.PETRIFICATION:
+                if i[4] == const.ITEM_SET.PETRIFICATION:
                     self.screen.blit(self.grayscale_image[i[2]], i[3])
                 else:
                     self.screen.blit(self.pictures[i[2]], i[3])
