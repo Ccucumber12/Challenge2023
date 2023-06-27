@@ -148,26 +148,27 @@ class GraphicalView:
 
         # Scoreboard
         self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))
-        font = pg.font.Font(os.path.join(const.FONT_PATH, "magic-school.one.ttf"), 36)
 
-        def print_digit(digit: int, position):
-            text_surface = font.render(str(digit), True, pg.Color('black'))
+        def print_text(text, position, font="magic-school.one.ttf", size=36):
+            font = pg.font.Font(os.path.join(const.FONT_PATH, font), size)
+            text_surface = font.render(str(text), True, pg.Color('black'))
             self.screen.blit(text_surface, text_surface.get_rect(center=position))
+        # Name
+        for i in range(const.NUM_OF_PLAYERS):
+            print_text(const.PLAYER_NAME[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20)
         # Time
         count_down = (const.GAME_LENGTH - model.timer) // const.FPS
-        print_digit(count_down // 60 // 10, const.TIME_POSITION[0])
-        print_digit(count_down // 60 % 10, const.TIME_POSITION[1])
-        print_digit(count_down % 60 // 10, const.TIME_POSITION[2])
-        print_digit(count_down % 60 % 10, const.TIME_POSITION[3])
-
+        print_text(count_down // 60 // 10, const.TIME_POSITION[0])
+        print_text(count_down // 60 % 10, const.TIME_POSITION[1])
+        print_text(count_down % 60 // 10, const.TIME_POSITION[2])
+        print_text(count_down % 60 % 10, const.TIME_POSITION[3])
+        # Score
         for i in range(const.NUM_OF_PLAYERS):
             score = model.players[i].score
             j = 1000
             for position in const.SCORE_POSITION[i]:
-                print_digit(int(score // j % 10), position)
+                print_text(int(score // j % 10), position)
                 j /= 10
-
-        # pg.draw.circle(self.screen, pg.Color('red'), (854, 161), 3)
 
         pg.display.flip()
 

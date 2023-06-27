@@ -219,6 +219,8 @@ class Player(Character):
         self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
 
     def add_score(self, minutes: int):
+        if self.dead:
+            return
         self.score += const.PLAYER_ADD_SCORE[minutes]
 
     def remove_effect(self):

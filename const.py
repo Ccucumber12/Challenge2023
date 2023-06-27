@@ -133,6 +133,8 @@ class SCENE(Enum):
 
 SCOREBOARD_FONT_SIZE = 32
 TIME_POSITION = [(854, 160), (912, 160), (971, 160), (1029, 160)]
+PLAYER_NAME = ["Hermione Yellow", "Hermione Pink", "Hermione Gray", "Hermione Blue"]
+NAME_POSITION = [(940, 238), (940, 365), (940, 490), (937, 620)]
 SCORE_POSITION = [
     [(854, 287), (912, 287), (971, 287), (1029, 287)],
     [(854, 414), (912, 414), (971, 414), (1029, 414)],
