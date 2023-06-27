@@ -17,6 +17,7 @@ class Character:
         self.position = position
         self.speed = speed
 
+    # might be discard since there is a built-in pg.Vector2.distance_to()
     def get_distance(self, character):
         """gets euclidean distance between self and character"""
         return (self.position - character.position).length()

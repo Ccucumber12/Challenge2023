@@ -5,4 +5,4 @@ import pygame as pg
 
 def overlaped(a: pg.Vector2, r_a, b: pg.Vector2, r_b) -> bool:
     """ Treat a and b as circle with and return if thay are opverlaped"""
-    return math.hypot(a.x - b.x, a.y - b.y) <= r_a + r_b
+    return a.distance_to(b) <= r_a + r_b

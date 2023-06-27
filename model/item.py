@@ -5,8 +5,8 @@ import numpy as np
 import pygame as pg
 
 import const
-from instances_manager import get_game_engine
 import utl
+from instances_manager import get_game_engine
 
 
 class Item:
@@ -25,9 +25,7 @@ class Item:
         model = get_game_engine()
         for player in model.players:
             if utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width):
-                '''
-                Apply the effect to the player according to the type of item (item_type).
-                '''
+                # Apply the effect to the player according to the type of item (item_type).
                 print(f"{player.player_id} get effect: {self.type} ({self.status})")
                 player.get_effect(self.type, self.status)
                 return self  # which will be removed later in Model.py
@@ -54,8 +52,8 @@ class ItemGenerator:
                     and model.map.get_type(candidate) == const.MAP_OBSTACLE):
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]
-            for object in objects:
-                distance_to_object = math.hypot(object.x - candidate.x, object.y - candidate.y)
+            for obj in objects:
+                distance_to_object = math.hypot(obj.x - candidate.x, obj.y - candidate.y)
                 min_distance_to_objects = min(min_distance_to_objects, distance_to_object)
             if min_distance_to_objects > max_distance:
                 best_location = candidate
@@ -63,6 +61,7 @@ class ItemGenerator:
         return best_location
 
     def generate(self):
+        """Choose and generate a item at a location is far from all other items"""
         # determining the type of generated item
         generate_type = random.choices(
             list(const.ITEM_SET), weights=const.ITEM_GENERATE_PROBABILITY)[0]
@@ -93,6 +92,7 @@ class ItemGenerator:
             model.register_user_event(1, self.generate_handler)
 
     def generate_golden_snitch(self):
+        """Choose and generate golden snitch at a location is far from all players."""
         # randomly draw points in the arena according to a standard distribution
         rand_times = 12
         candidates_x = np.random.normal(
