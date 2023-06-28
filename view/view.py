@@ -29,29 +29,37 @@ class GraphicalView:
         self.pictures = {}
         self.grayscale_image = {}
 
-        def crop(picture: pg.Surface, desire_width, desire_height):
+        def crop(picture: pg.Surface, desire_width, desire_height, large = False):
             """
             Will scale the image to desire size without changing the ratio of the width and height.
-            The size of cropped image won't be bigger than desire size.
+
+            The size of cropped image won't be bigger than desired size if `large == False`.
+
+            The size of cropped image won't be smaller than desired size if `large == True`.
             """
             image = picture.convert_alpha()
             bounding_rect = image.get_bounding_rect()
             cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
             cropped_image.blit(image, (0, 0), bounding_rect)
             width, height = [cropped_image.get_width(), cropped_image.get_height()]
-            ratio = min(desire_width/width, desire_height/height)
+            if large:
+                ratio = max(desire_width/width, desire_height/height)
+            else:
+                ratio = min(desire_width/width, desire_height/height)
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
         for item in const.ITEM_SET:
             picture = pg.image.load(const.PICTURES_PATH[item])
-            self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT)
+            self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
+            # print([self.pictures[item].get_width(), self.pictures[item].get_height()])
         for player in const.PLAYER_IDS:
             picture = pg.image.load(const.PICTURES_PATH[player])
-            self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2)
+            self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
             self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
+            # print([self.pictures[player].get_width(), self.pictures[player].get_height()])
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost])
-            self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2)
+            self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD])
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
