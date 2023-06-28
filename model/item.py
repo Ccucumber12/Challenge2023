@@ -90,14 +90,14 @@ class ItemGenerator:
         for player in model.players:
             too_close = True if too_close or best.distance_to(player.position) < 150 else False
         if best == pg.Vector2(0, 0) or too_close:
-            print("Failed to generate item!")
+            # print("Failed to generate item!")
             return False
         else:
             generate_item = Item(best, self.id_counter, generate_type,
                                  const.ITEM_WIDTH, const.ITEM_HEIGHT, generate_status)
             model.items.add(generate_item)
             self.id_counter = self.id_counter + 1
-            print(f"Item {generate_type} generated at {best}!")
+            # print(f"Item {generate_type} generated at {best}!")
             return True
 
     def generate_handler(self):
@@ -134,4 +134,4 @@ class ItemGenerator:
                              const.ITEM_WIDTH, const.ITEM_HEIGHT, const.ITEM_STATUS.NORMAL)
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
-        print(f"Golden snitch generated at {best}!")
+        # print(f"Golden snitch generated at {best}!")

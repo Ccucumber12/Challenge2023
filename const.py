@@ -12,7 +12,7 @@ GAME_LENGTH = 180 * FPS
 
 # Player
 
-class PLAYER_IDS(Enum):
+class PLAYER_IDS(IntEnum):
     def __str__(self):
         return f"{self.name}"
     
@@ -119,6 +119,8 @@ SCORE_BOARD_SIZE = (282, 800)
 TITLE_SIZE = (1168, 800)
 BACKGROUND_COLOR = pg.Color('black')
 CLOAK_TRANSPARENCY = 128 # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
+SORTINGHAT_ANIMATION_SPEED = 500
+SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
 
 class OBJECT_TYPE(IntEnum):
     # The number represents the order of rendering the type.

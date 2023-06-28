@@ -29,6 +29,7 @@ class GraphicalView:
         self.pictures = {}
         self.grayscale_image = {}
         self.transparent_image = {}
+        self.sortinghat_animation = []
 
         def crop(picture: pg.Surface, desire_width, desire_height, large = False):
             """
@@ -73,6 +74,14 @@ class GraphicalView:
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.TITLE].get_width())
         # print(self.pictures[Const.SCENE.TITLE].get_height())
+        
+        # Sortinghat animation
+        picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT])
+        self.sortinghat_animation.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+        angle = 0
+        while angle < 360:
+            angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
+            self.sortinghat_animation.append(pg.transform.rotate(self.sortinghat_animation[0], angle))
 
     def initialize(self, event):
         """
@@ -123,9 +132,9 @@ class GraphicalView:
     def render_play(self):
         # draw background
         self.screen.fill(const.BACKGROUND_COLOR)
+        model = get_game_engine()
 
         # draw players
-        model = get_game_engine()
         game_map = model.map
         objects = []
         for item in model.items:
@@ -162,6 +171,24 @@ class GraphicalView:
             elif i[1] == const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
+
+        # Sortinghat animation
+        animations = model.sortinghat_animations.copy()
+        for animation in animations:
+            position = animation[0]
+            victim = animation[1]
+            destination = model.players[victim.value].position
+            index = animation[2]
+            model.sortinghat_animations.remove(animation)
+            if (destination-position).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
+                # maybe here can add some special effect
+                continue
+            self.screen.blit(self.sortinghat_animation[index], position)
+            index += 1
+            if index == len(self.sortinghat_animation):
+                index = 0
+            position = position + (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
+            model.sortinghat_animations.append((position, victim, index))
 
         # Scoreboard
         self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))

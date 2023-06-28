@@ -170,12 +170,12 @@ class Player(Character):
             self.caught()
 
     def iscaught(self):
+        model = get_game_engine()
         """Return if the player is caught by one of the ghosts"""
-        if self.dead or self.invincible:
+        if self.dead or self.invincible >= model.timer:
             # If the player has sortinghat and is invincible, the effect of sortinghat won't triggered.
             # Even if the player is invisible, the ghost can still catch him.
             return False
-        model = get_game_engine()
         for ghost in model.ghosts:
             if self.get_distance(ghost) < (const.PLAYER_RADIUS + const.GHOST_RADIUS):
                 return True
@@ -189,13 +189,14 @@ class Player(Character):
         print(f"{self.player_id} was caught!")
         model = get_game_engine()
         if self.effect == const.ITEM_SET.SORTINGHAT:
+            self.remove_effect()
             others = [x for x in const.PLAYER_IDS if x != self.player_id]
             victim = random.choice(others)
+            model.sortinghat_animations.append((self.position, victim, 0))
             second = ceil(model.timer / const.FPS)
             for _ in range(5):
                 minute = second // 60
                 model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
-            self.effect = None
             self.invincible = model.timer + const.SORTINGHAT_INVINCIBLE_TIME
             return
         elif not self.dead:
