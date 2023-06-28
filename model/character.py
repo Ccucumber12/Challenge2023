@@ -200,6 +200,7 @@ class Player(Character):
             return
         elif not self.dead:
             self.dead = True
+            self.remove_effect()
             model.register_user_event(const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def respawn_handler(self):
