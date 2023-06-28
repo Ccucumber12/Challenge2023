@@ -28,6 +28,7 @@ class GraphicalView:
         # scale the pictures to proper size
         self.pictures = {}
         self.grayscale_image = {}
+        self.transparent_image = {}
 
         def crop(picture: pg.Surface, desire_width, desire_height, large = False):
             """
@@ -51,12 +52,14 @@ class GraphicalView:
         for item in const.ITEM_SET:
             picture = pg.image.load(const.PICTURES_PATH[item])
             self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
-            # print([self.pictures[item].get_width(), self.pictures[item].get_height()])
         for player in const.PLAYER_IDS:
             picture = pg.image.load(const.PICTURES_PATH[player])
             self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
+            # grayscale
             self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
-            # print([self.pictures[player].get_width(), self.pictures[player].get_height()])
+            # transparent
+            self.transparent_image[player] = self.pictures[player].convert_alpha()
+            self.transparent_image[player].set_alpha(const.CLOAK_TRANSPARENCY)
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost])
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
@@ -148,6 +151,8 @@ class GraphicalView:
             if i[1] == const.OBJECT_TYPE.PLAYER:
                 if i[4] == const.ITEM_SET.PETRIFICATION:
                     self.screen.blit(self.grayscale_image[i[2]], i[3])
+                elif i[4] == const.ITEM_SET.CLOAK:
+                    self.screen.blit(self.transparent_image[i[2]], i[3])
                 else:
                     self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == const.OBJECT_TYPE.GHOST:

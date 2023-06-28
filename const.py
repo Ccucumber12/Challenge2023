@@ -118,8 +118,7 @@ ARENA_SIZE = (800, 800)
 SCORE_BOARD_SIZE = (282, 800)
 TITLE_SIZE = (1168, 800)
 BACKGROUND_COLOR = pg.Color('black')
-PLAYER_COLOR = [pg.Color('green'), pg.Color('magenta'), pg.Color('blue'), pg.Color('gold')]
-GHOST_COLOR = [pg.Color('red')]
+CLOAK_TRANSPARENCY = 128 # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
 
 class OBJECT_TYPE(IntEnum):
     # The number represents the order of rendering the type.
