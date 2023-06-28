@@ -13,7 +13,7 @@ class Character:
     Parent class of Player, Ghost and all movable characters
     """
 
-    def __init__(self, position: pg.Vector2, speed):
+    def __init__(self, position: pg.Vector2, speed: int):
         self.position = position
         self.speed = speed
 
@@ -218,6 +218,8 @@ class Player(Character):
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
         y = 1 if direction == 'down' else -1 if direction == 'up' else 0
         super().move(x, y)
+
+        self.position   
 
         # clipping
         self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))

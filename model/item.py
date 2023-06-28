@@ -41,11 +41,8 @@ class Item:
 class ItemGenerator:
     def __init__(self):
         model = get_game_engine()
-        model.register_user_event(
-            const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
-        model.register_user_event(
-            const.GOLDEN_SNITCH_APPEAR_TIME,
-            self.generate_golden_snitch)
+        model.register_user_event(const.ITEM_GENERATE_COOLDOWN, self.generate_handler)
+        model.register_user_event(const.GOLDEN_SNITCH_APPEAR_TIME, self.generate_golden_snitch)
         self.id_counter = 1
 
     def choose_location(self, candidates: list[pg.Vector2], objects: list[pg.Vector2]) -> pg.Vector2:
@@ -81,15 +78,18 @@ class ItemGenerator:
             list(const.ITEM_STATUS), weights=const.ITEM_STATUS_PROBABILITY)[0]
 
         # generate candidates of position
-        rand_times = 12
-        candidates_x = random.sample(range(const.ARENA_SIZE[0]), rand_times)
-        candidates_y = random.sample(range(const.ARENA_SIZE[1]), rand_times)
+        rand_times = 15
+        candidates_x = random.sample(1, range(const.ARENA_SIZE[0]), rand_times)
+        candidates_y = random.sample(1, range(const.ARENA_SIZE[1]), rand_times)
         candidates = [pg.Vector2(x, y) for x, y in zip(candidates_x, candidates_y)]
         model = get_game_engine()
         items_position = [item.position for item in model.items]
 
         best = self.choose_location(candidates, items_position)
-        if best == pg.Vector2(0, 0):
+        too_close = False
+        for player in model.players:
+            too_close = True if too_close or best.distance_to(player.position) < 150 else False
+        if best == pg.Vector2(0, 0) or too_close:
             print("Failed to generate item!")
             return False
         else:
@@ -118,7 +118,7 @@ class ItemGenerator:
     def generate_golden_snitch(self):
         """Choose and generate golden snitch at a location is far from all players."""
         # randomly draw points in the arena according to a standard distribution
-        rand_times = 12
+        rand_times = 15
         candidates_x = np.random.normal(
             const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[0] / 4, rand_times)
         candidates_y = np.random.normal(
