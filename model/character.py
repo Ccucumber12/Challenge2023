@@ -72,15 +72,15 @@ class Character:
 
             def get_neighbors(cell):
                 neighbors = []
-                directions = [(0, 1), (0, -1), (1, 0), (-1, 0), 
+                directions = [(0, 1), (0, -1), (1, 0), (-1, 0),
                               (1, 1), (-1, -1), (1, -1), (-1, 1)]  # Right, Left, Down, Up
                 for dx, dy in directions:
                     new_row = cell[0] + dx
                     new_col = cell[1] + dy
-                    if (0 <= new_row < rows and 0 <= new_col < cols 
-                        and grid[new_row][new_col] != const.MAP_OBSTACLE 
-                        and grid[cell[0]][new_col] != const.MAP_OBSTACLE 
-                        and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
+                    if (0 <= new_row < rows and 0 <= new_col < cols
+                        and grid[new_row][new_col] != const.MAP_OBSTACLE
+                        and grid[cell[0]][new_col] != const.MAP_OBSTACLE
+                            and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
                         neighbors.append((new_row, new_col))
                 return neighbors
 
@@ -105,8 +105,8 @@ class Character:
                     if closed[neighbor[0]][neighbor[1]]:
                         continue
                     tentative_g = g + 1
-                    if (parent[neighbor[0]][neighbor[1]] is None 
-                        or tentative_g < dis[neighbor[0]][neighbor[1]]):
+                    if (parent[neighbor[0]][neighbor[1]] is None
+                            or tentative_g < dis[neighbor[0]][neighbor[1]]):
                         parent[neighbor[0]][neighbor[1]] = (
                             current[0], current[1], tentative_g)
                         dis[neighbor[0]][neighbor[1]] = tentative_g
@@ -133,7 +133,7 @@ class Character:
         """Finds a random position that does not collide with obstacles"""
         Map = get_game_engine().map
         while obj == None or Map.get_type(obj) == const.MAP_OBSTACLE:
-            obj = pg.Vector2(random.randint(0, const.ARENA_SIZE[0]), 
+            obj = pg.Vector2(random.randint(0, const.ARENA_SIZE[0]),
                              random.randint(0, const.ARENA_SIZE[1]))
         return obj
 
@@ -217,9 +217,9 @@ class Player(Character):
             return
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
         y = 1 if direction == 'down' else -1 if direction == 'up' else 0
-        super().move(x, y)
+        self.move(x, y)
 
-        self.position   
+        self.position
 
         # clipping
         self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
@@ -263,11 +263,9 @@ class Patronus(Character):
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        x = 1 if self.position.x < self.chase_player.position.x else - \
-            1 if self.position.x > self.chase_player.position.x else 0
-        y = 1 if self.position.y < self.chase_player.position.y else - \
-            1 if self.position.y > self.chase_player.position.y else 0
-        super().move(x, y)
+        x = 1 if self.position.x < self.chase_player.position.x else -1 if self.position.x > self.chase_player.position.x else 0
+        y = 1 if self.position.y < self.chase_player.position.y else -1 if self.position.y > self.chase_player.position.y else 0
+        self.move(x, y)
 
 
 class Ghost(Character):

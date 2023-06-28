@@ -79,8 +79,8 @@ class ItemGenerator:
 
         # generate candidates of position
         rand_times = 15
-        candidates_x = random.sample(1, range(const.ARENA_SIZE[0]), rand_times)
-        candidates_y = random.sample(1, range(const.ARENA_SIZE[1]), rand_times)
+        candidates_x = random.sample(range(1, const.ARENA_SIZE[0]), rand_times)
+        candidates_y = random.sample(range(1, const.ARENA_SIZE[1]), rand_times)
         candidates = [pg.Vector2(x, y) for x, y in zip(candidates_x, candidates_y)]
         model = get_game_engine()
         items_position = [item.position for item in model.items]
