@@ -69,10 +69,7 @@ class GraphicalView:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
@@ -85,11 +82,8 @@ class GraphicalView:
 
         # Sortinghat animation
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
-<<<<<<< Updated upstream
         self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
-=======
-        self.sortinghat_animation.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
->>>>>>> Stashed changes
+
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS

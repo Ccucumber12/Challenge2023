@@ -36,7 +36,6 @@ class Character:
         # If it hits an obstacle, try a smaller distance
         r = (x * x + y * y) ** (1 / 2)
         for attempt in range(3):
-
             # Calculate new position
             new_position = self.position + self.speed / const.FPS * pg.Vector2((x / r), (y / r))
 
@@ -44,7 +43,6 @@ class Character:
             new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
             new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
 
-            # Todo: Obstacle checking
             model = get_game_engine()
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
                 x, y = x/2, y/2
@@ -372,13 +370,8 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-<<<<<<< Updated upstream
-        self.move_direction(pg.Vector2(self.pathfind(
-            self.prey.position.x, self.prey.position.y))-self.position)
-=======
         self.move_direction(pg.Vector2( \
             super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
->>>>>>> Stashed changes
 
         # Goes straight to the position
         # self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)

@@ -17,9 +17,36 @@ class Item:
         self.width = item_width
         self.height = item_height
         self.status = item_status
+        self.eaten = False
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
+
+    def move_golden_snitch(self):
+        model = get_game_engine()
+        def getweight(pos):
+            ret = max(10, math.sqrt((pos - pg.Vector2(const.ARENA_SIZE[0]/2, const.ARENA_SIZE[1]/2)).length()))
+            for player in model.players:
+                ret += (10000 / min(200, (pos - player.position).length()))
+            return ret
+
+        vec = [pg.Vector2(math.cos(angle), math.sin(angle)).normalize() * const.GOLDEN_SNITCH_SPEED / const.FPS for angle in [math.radians(i * (360 / 10)) for i in range(10)]]
+        vec.append(pg.Vector2(0, 0))
+        weights = [getweight(self.position + pos) for pos in vec]
+        ind = weights.index(min(weights)) 
+
+        new_position = self.position + vec[ind]
+        # clamp
+        new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
+        new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
+
+        # Todo: Portal
+        portal = model.map.get_portal(new_position)
+        if portal is not None:
+            print('Portal', portal)
+        # Update
+        self.position = new_position
+        return 
 
     def tick(self):
         model = get_game_engine()
@@ -27,6 +54,7 @@ class Item:
             if (utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width)
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
+                self.eaten = True
                 if self.type == const.ITEM_SET.PETRIFICATION:
                     others = [x for x in model.players if x != player]
                     victim = random.choice(others)
@@ -35,8 +63,8 @@ class Item:
                 else:
                     player.get_effect(self.type, self.status)
                     print(f"{player.player_id} get effect: {self.type} ({self.status})")
-                return self  # which will be removed later in Model.py
-
+        if self.type == const.ITEM_SET.GOLDEN_SNITCH:
+            self.move_golden_snitch()
 
 class ItemGenerator:
     def __init__(self):

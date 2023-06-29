@@ -73,9 +73,9 @@ class GameEngine:
             # Check if a item is eaten
             item_deletions = []
             for item in self.items:
-                eaten = item.tick()
-                if eaten is not None:
-                    item_deletions.append(eaten)
+                item.tick()
+                if item.eaten:
+                    item_deletions.append(item)
             for item in item_deletions:
                 self.items.remove(item)
                 del item
