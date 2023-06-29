@@ -25,7 +25,7 @@ PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400),
                         pg.Vector2(200, 200), pg.Vector2(600, 200)]
 PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
-PLAYER_ADD_SCORE = [2, 3, 5]
+PLAYER_ADD_SCORE = [2, 3, 5, 5]
 PLAYER_SPEED = 100
 NUM_OF_PLAYERS = 4
 
@@ -93,9 +93,9 @@ class ITEM_STATUS(Enum):
     REVERSED = 1
     ENHANCED = 2
 
-ITEM_GENERATE_PROBABILITY = [0, 1/4, 1/4, 1/4, 1/4]  # should correspond to ITEM_SET
+ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond to ITEM_SET
 # The probability of golden snitch should be set to ZERO.
-ITEM_STATUS_PROBABILITY = [15/15, 0/15, 0/15]  # should correspond to ITEM_STATES
+ITEM_STATUS_PROBABILITY = [15 / 15, 0 / 15, 0 / 15]  # should correspond to ITEM_STATES
 
 ITEM_DURATION = {
     ITEM_SET.GOLDEN_SNITCH: {ITEM_STATUS.NORMAL: 1},

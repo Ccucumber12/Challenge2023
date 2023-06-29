@@ -34,7 +34,7 @@ class GraphicalView:
         self.sortinghat_animation_pictures = []
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
 
-        def crop(picture: pg.Surface, desire_width, desire_height, large = False):
+        def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
             Will scale the image to desire size without changing the ratio of the width and height.
 
@@ -58,7 +58,8 @@ class GraphicalView:
             self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
         for player in const.PLAYER_IDS:
             picture = pg.image.load(const.PICTURES_PATH[player])
-            self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
+            self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2,
+                                         const.PLAYER_RADIUS*2, True)
             # grayscale
             self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
             # transparent
@@ -77,14 +78,16 @@ class GraphicalView:
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.TITLE].get_width())
         # print(self.pictures[Const.SCENE.TITLE].get_height())
-        
+
         # Sortinghat animation
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT])
-        self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+        self.sortinghat_animation_pictures.append(
+            crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
-            self.sortinghat_animation_pictures.append(pg.transform.rotate(self.sortinghat_animation_pictures[0], angle))
+            self.sortinghat_animation_pictures.append(
+                pg.transform.rotate(self.sortinghat_animation_pictures[0], angle))
 
     def initialize(self, event):
         """
@@ -149,7 +152,8 @@ class GraphicalView:
             center = list(map(int, player.position))
             lt = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS])]
             coord = game_map.convert_coordinate(player.position)
-            objects.append((coord[1], const.OBJECT_TYPE.PLAYER, player.player_id, lt, player.effect))
+            objects.append((coord[1], const.OBJECT_TYPE.PLAYER,
+                           player.player_id, lt, player.effect))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
             lt = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
@@ -179,7 +183,7 @@ class GraphicalView:
         triggers = model.ghost_teleport_chanting_animation_trigger.copy()
         for animation in triggers:
             self.ghost_teleport_chanting_animations.append(
-                    GatheringParticleEffect(animation[0], animation[1] + model.timer))
+                GatheringParticleEffect(animation[0], animation[1] + model.timer))
             model.ghost_teleport_chanting_animation_trigger.remove(animation)
         animations = self.ghost_teleport_chanting_animations.copy()
         for effect in animations:
@@ -205,7 +209,8 @@ class GraphicalView:
             index += 1
             if index == len(self.sortinghat_animation_pictures):
                 index = 0
-            position = position + (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
+            position = position + \
+                (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
             model.sortinghat_animations.append((position, victim, index))
 
         # Scoreboard
@@ -243,6 +248,7 @@ class GraphicalView:
 
         pg.display.flip()
 
+
 class GatheringParticleEffect:
     """
     Create a particle effect of circles gathering to a point, 
@@ -250,37 +256,37 @@ class GatheringParticleEffect:
 
     The number of particles will increase as the chanting time goes on.
     """
+
     def __init__(self, position: pg.Vector2, alive_time) -> None:
         self.position = position
-        self.particles: list(Particle) = []
+        self.particles: list[Particle] = []
         self.particle_number = random.randint(9, 11)
         self.alive_time = alive_time
         for _ in range(self.particle_number):
             self.particles.append(Particle(position))
 
     def tick(self) -> None:
-        arrived_particle = []
+        arrived_particle: list[Particle] = []
         for particle in self.particles:
             particle.update()
             if particle.arrive():
                 arrived_particle.append(particle)
                 self.particle_number -= 1
         self.particles = [x for x in self.particles if x not in arrived_particle]
-        for _ in range(len(arrived_particle)):
+        for _ in range(2 * len(arrived_particle)):
             if self.particle_number > 15:
                 break
             if random.random() >= 0.4:
                 self.particles.append(Particle(self.position))
                 self.particle_number += 1
-            if random.random() >= 0.4:
-                self.particles.append(Particle(self.position))
-                self.particle_number += 1
+
 
 class Particle:
     def __init__(self, position: pg.Vector2):
         self.speed = random.randint(50, 300)
-        self.displacement = pg.Vector2((random.choice([1, -1]) * random.uniform(5*self.speed / const.FPS, 50), 
-                                        random.choice([1, -1]) * random.uniform(5*self.speed / const.FPS, 50)))
+        self.displacement = pg.Vector2((
+            random.choice([1, -1]) * random.uniform(5 * self.speed / const.FPS, 50),
+            random.choice([1, -1]) * random.uniform(5 * self.speed / const.FPS, 50)))
         self.destination = position
         self.position: pg.Vector2 = position + self.displacement
         self.color = (random.randint(50, 255), random.randint(50, 255), random.randint(50, 255))

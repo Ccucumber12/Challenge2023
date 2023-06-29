@@ -139,7 +139,7 @@ class Character:
 
 
 class Player(Character):
-    def __init__(self, player_id: const.PLAYER_IDS):
+    def __init__(self, player_id: int):
         self.player_id = player_id
         model = get_game_engine()
 
@@ -248,7 +248,10 @@ class Player(Character):
             self.invisible = True
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
-            model.patronuses.append(Patronus(0, self.position, random.randint(0, 3)))
+            print(type(list(const.PLAYER_IDS)[0]))
+            model.patronuses.append(
+                Patronus(0, self.position, 
+                         random.choice([x for x in const.PLAYER_IDS if x != self.player_id])))
             # The parameters passed is not properly assigned yet
         elif self.effect == const.ITEM_SET.PETRIFICATION:
             # One can't move when it's effect is pertification.
@@ -257,16 +260,19 @@ class Player(Character):
 
 
 class Patronus(Character):
-    def __init__(self, patronus_id, position, chase_player):
+    def __init__(self, patronus_id: int, position: pg.Vector2, chase_player: Player):
         self.patronus_id = patronus_id
         speed = const.PATRONUS_SPEED
         super().__init__(position, speed)
         self.chase_player = chase_player  # The player which the patronous choose to chase
+        print(f"A patronus chasing {chase_player} has gernerated at {position}!")
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        x = 1 if self.position.x < self.chase_player.position.x else -1 if self.position.x > self.chase_player.position.x else 0
-        y = 1 if self.position.y < self.chase_player.position.y else -1 if self.position.y > self.chase_player.position.y else 0
+        x = 1 if self.position.x < self.chase_player.position.x else -1 \
+            if self.position.x > self.chase_player.position.x else 0
+        y = 1 if self.position.y < self.chase_player.position.y else -1 \
+            if self.position.y > self.chase_player.position.y else 0
         self.move(x, y)
 
 
@@ -305,7 +311,7 @@ class Ghost(Character):
             # Avoid division by zero
             x = self.speed / const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
             y = self.speed / const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-            super().move(x, y)
+            self.move(x, y)
 
         # clipping
         self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
@@ -326,7 +332,8 @@ class Ghost(Character):
         model = get_game_engine()
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
-        model.ghost_teleport_chanting_animation_trigger.append((self.position, const.GHOST_CHANTING_TIME))
+        model.ghost_teleport_chanting_animation_trigger.append(
+            (self.position, const.GHOST_CHANTING_TIME))
 
     def teleport_handler(self):
         self.teleport_chanting = False
@@ -350,7 +357,7 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move_direction(pg.Vector2(super().pathfind(
+        self.move_direction(pg.Vector2(self.pathfind(
             self.prey.position.x, self.prey.position.y))-self.position)
 
         # Goes straight to the position
@@ -365,7 +372,7 @@ class Ghost(Character):
     def wander(self):
         if self.wander_pos == None:
             self.wander_pos = self.get_random_position(self.wander_pos)
-        self.move_direction(pg.Vector2(super().pathfind(
+        self.move_direction(pg.Vector2(self.pathfind(
             self.wander_pos.x, self.wander_pos.y))-self.position)
 
     def tick(self):
