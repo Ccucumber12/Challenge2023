@@ -296,7 +296,6 @@ class Patronus(Character):
         # clipping
         self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
         self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
-        print(f"Patronus {self.patronus_id} moved to {self.position}!")
 
     def chase(self):
         """
