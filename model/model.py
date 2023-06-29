@@ -85,6 +85,7 @@ class GameEngine:
                 events = self.user_events[self.timer]
                 for event in events:
                     event()
+                del self.user_events[self.timer]
 
         elif cur_state == const.STATE_ENDGAME:
             self.update_endgame()
