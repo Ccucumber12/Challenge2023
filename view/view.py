@@ -54,10 +54,10 @@ class GraphicalView:
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
         for item in const.ITEM_SET:
-            picture = pg.image.load(const.PICTURES_PATH[item])
+            picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
         for player in const.PLAYER_IDS:
-            picture = pg.image.load(const.PICTURES_PATH[player])
+            picture = pg.image.load(const.PICTURES_PATH[player]).convert_alpha()
             self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
             # grayscale
             self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
@@ -65,21 +65,22 @@ class GraphicalView:
             self.transparent_image[player] = self.pictures[player].convert_alpha()
             self.transparent_image[player].set_alpha(const.CLOAK_TRANSPARENCY)
         for ghost in const.GHOST_IDS:
-            picture = pg.image.load(const.PICTURES_PATH[ghost])
+            picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
-        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD])
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
+
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
-        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.TITLE])
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.TITLE]).convert_alpha()
         self.pictures[const.SCENE.TITLE] = crop(
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.TITLE].get_width())
         # print(self.pictures[Const.SCENE.TITLE].get_height())
         
         # Sortinghat animation
-        picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT])
+        picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
         self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
         angle = 0
         while angle < 360:
