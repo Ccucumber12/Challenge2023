@@ -18,24 +18,35 @@ class Item:
         self.height = item_height
         self.status = item_status
         self.eaten = False
+        self.golden_snitch_goal = None
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
 
     def move_golden_snitch(self):
         model = get_game_engine()
+        def mindis():
+            return min((player.position - self.position).length() for player in model.players)
         def getweight(pos):
-            ret = max(10, math.sqrt((pos - pg.Vector2(const.ARENA_SIZE[0]/2, const.ARENA_SIZE[1]/2)).length()))
+            ret = (pos - pg.Vector2(const.ARENA_SIZE[0]/2, const.ARENA_SIZE[1]/2)).length()*2
+            dis = (pos - self.position).length()
             for player in model.players:
-                ret += (10000 / min(200, (pos - player.position).length()))
+                vec1 = player.position - self.position
+                vec2 = pos - self.position
+                if vec2.dot(vec1) > 0 and vec1.length() < 200:
+                    ret += (20000 / min(150, abs((player.position - self.position).cross(pos - self.position)) / dis))
             return ret
-
-        vec = [pg.Vector2(math.cos(angle), math.sin(angle)).normalize() * const.GOLDEN_SNITCH_SPEED / const.FPS for angle in [math.radians(i * (360 / 10)) for i in range(10)]]
-        vec.append(pg.Vector2(0, 0))
-        weights = [getweight(self.position + pos) for pos in vec]
-        ind = weights.index(min(weights)) 
-
-        new_position = self.position + vec[ind]
+        if (self.golden_snitch_goal is None) or mindis() < 100:
+            pnts = [pg.Vector2(random.uniform(0, const.ARENA_SIZE[0]), random.uniform(0, const.ARENA_SIZE[1])) for i in range(50)] 
+            weights = [getweight(pos) for pos in pnts]
+            self.golden_snitch_goal = pnts[weights.index(min(weights))]
+    
+        #print("weight", getweight(self.golden_snitch_goal))
+        if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED / const.FPS:
+            new_position = self.golden_snitch_goal
+            self.golden_snitch_goal = None
+        else:
+            new_position = self.position + (self.golden_snitch_goal - self.position).normalize() * const.GOLDEN_SNITCH_SPEED / const.FPS        
         # clamp
         new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
         new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
