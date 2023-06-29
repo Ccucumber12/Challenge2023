@@ -17,6 +17,9 @@ class Character:
         self.position = position
         self.speed = speed
 
+        #This caches the first x cells in the calculated path
+        self.saved_path = []
+
     # might be discard since there is a built-in pg.Vector2.distance_to()
     def get_distance(self, character):
         """gets euclidean distance between self and character"""
@@ -114,20 +117,30 @@ class Character:
                         heapq.heappush(open_list, (tentative_g +
                                                    neighbor_h, tentative_g, neighbor))
             return []
+
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
+        
+        ##Checks saved path
+        while len(self.saved_path) > 0 and start == self.saved_path[0]:
+            self.saved_path.pop(0);
+        ##Checks if the character is too far from path (by maybe teleport or something)
+        if len(self.saved_path) > 0 and abs(start[0] - self.saved_path[0][0]) + abs(start[1] - self.saved_path[0][1]) > 2:
+            self.saved_path = []
+
         end = Map.convert_coordinate([x, y])
-        path = a_star(grid, start, end)
-
-        if len(path) > 1:
-            r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
-            dx = (x - self.position[0]) / r
-            dy = (y - self.position[1]) / r
-
-            return Map.convert_cell((path[1][0], path[1][1]), dx, dy)
-        else:
+        
+        if len(self.saved_path) == 0:
+            path = a_star(grid, start, end)
+            self.saved_path = [(path[i][0], path[i][1]) for i in range(1, min(len(path), const.CACHE_CELLS+1))]
+        if len(self.saved_path) == 0:
             return x, y
+        r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
+        dx = (x - self.position[0]) / r
+        dy = (y - self.position[1]) / r
+
+        return Map.convert_cell((self.saved_path[0][0], self.saved_path[0][1]), dx, dy)
 
     def get_random_position(self, obj):
         """Finds a random position that does not collide with obstacles"""
@@ -347,7 +360,9 @@ class Ghost(Character):
         self.state = const.GHOST_STATE.CHASE
         self.chase_time = const.GHOST_CHASE_TIME
         model.register_user_event(const.GHOST_CHASE_TIME, self.wander_handler)
-        self.chase_time += 3 * const.FPS
+        self.speed = min(const.GHOST_MAX_SPEED, self.speed + self.chase_time / const.FPS)
+        print(f"Ghost speed updated to {self.speed}")
+        self.chase_time += 2 * const.FPS
 
     def chase(self):
         """
@@ -357,8 +372,13 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
+<<<<<<< Updated upstream
         self.move_direction(pg.Vector2(self.pathfind(
             self.prey.position.x, self.prey.position.y))-self.position)
+=======
+        self.move_direction(pg.Vector2( \
+            super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
+>>>>>>> Stashed changes
 
         # Goes straight to the position
         # self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
@@ -367,7 +387,8 @@ class Ghost(Character):
         model = get_game_engine()
         self.state = const.GHOST_STATE.WANDER
         self.wander_pos = None
-        model.register_user_event(self.wander_time, self.chase_handler)
+        model.register_user_event(int(self.wander_time), self.chase_handler)
+        self.wander_time = max(0.5 * const.FPS, self.wander_time - 0.5 * const.FPS)
 
     def wander(self):
         if self.wander_pos == None:
@@ -394,7 +415,7 @@ class Ghost(Character):
                 # Choose prey by closest person alive
                 self.prey = min(
                     (player for player in model.players if not player.dead and not player.invisible),
-                    key=lambda player: self.get_distance(player) - player.score, default=None
+                    key=lambda player: self.get_distance(player) - player.score + random.random(), default=None
                 )
                 if self.prey is None:
                     break

@@ -8,7 +8,6 @@ import const
 from event_manager.events import EventEveryTick, EventInitialize
 from instances_manager import get_event_manager, get_game_engine
 
-
 class GraphicalView:
     """
     Draws the state of GameEngine onto the screen.
@@ -23,7 +22,9 @@ class GraphicalView:
         """
         self.register_listeners()
 
-        self.screen = pg.display.set_mode(const.WINDOW_SIZE)
+        #optimization
+
+        self.screen = pg.display.set_mode(size=const.WINDOW_SIZE, flags=pg.DOUBLEBUF)
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
 
@@ -68,7 +69,10 @@ class GraphicalView:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
@@ -81,7 +85,11 @@ class GraphicalView:
 
         # Sortinghat animation
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
+<<<<<<< Updated upstream
         self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+=======
+        self.sortinghat_animation.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+>>>>>>> Stashed changes
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
