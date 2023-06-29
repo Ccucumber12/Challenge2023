@@ -49,6 +49,7 @@ class GameEngine:
         self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
         self.sortinghat_animations = []
+        self.ghost_teleport_chanting_animation_trigger = []
 
     def handle_every_tick(self, event):
         cur_state = self.state

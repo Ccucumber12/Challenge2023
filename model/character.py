@@ -326,6 +326,7 @@ class Ghost(Character):
         model = get_game_engine()
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
+        model.ghost_teleport_chanting_animation_trigger.append((self.position, const.GHOST_CHANTING_TIME))
 
     def teleport_handler(self):
         self.teleport_chanting = False

@@ -1,4 +1,6 @@
+import random
 import os
+import math
 
 import pygame as pg
 
@@ -29,7 +31,8 @@ class GraphicalView:
         self.pictures = {}
         self.grayscale_image = {}
         self.transparent_image = {}
-        self.sortinghat_animation = []
+        self.sortinghat_animation_pictures = []
+        self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
 
         def crop(picture: pg.Surface, desire_width, desire_height, large = False):
             """
@@ -77,11 +80,11 @@ class GraphicalView:
         
         # Sortinghat animation
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT])
-        self.sortinghat_animation.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+        self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
-            self.sortinghat_animation.append(pg.transform.rotate(self.sortinghat_animation[0], angle))
+            self.sortinghat_animation_pictures.append(pg.transform.rotate(self.sortinghat_animation_pictures[0], angle))
 
     def initialize(self, event):
         """
@@ -172,6 +175,21 @@ class GraphicalView:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
 
+        # Ghost teleport chanting animation
+        triggers = model.ghost_teleport_chanting_animation_trigger.copy()
+        for animation in triggers:
+            self.ghost_teleport_chanting_animations.append(
+                    GatheringParticleEffect(animation[0], animation[1] + model.timer))
+            model.ghost_teleport_chanting_animation_trigger.remove(animation)
+        animations = self.ghost_teleport_chanting_animations.copy()
+        for effect in animations:
+            if effect.alive_time < model.timer:
+                self.ghost_teleport_chanting_animations.remove(effect)
+                continue
+            for particle in effect.particles:
+                pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
+            effect.tick()
+
         # Sortinghat animation
         animations = model.sortinghat_animations.copy()
         for animation in animations:
@@ -183,9 +201,9 @@ class GraphicalView:
             if (destination-position).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
                 # maybe here can add some special effect
                 continue
-            self.screen.blit(self.sortinghat_animation[index], position)
+            self.screen.blit(self.sortinghat_animation_pictures[index], position)
             index += 1
-            if index == len(self.sortinghat_animation):
+            if index == len(self.sortinghat_animation_pictures):
                 index = 0
             position = position + (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
             model.sortinghat_animations.append((position, victim, index))
@@ -224,3 +242,54 @@ class GraphicalView:
         self.screen.fill(const.BACKGROUND_COLOR)
 
         pg.display.flip()
+
+class GatheringParticleEffect:
+    """
+    Create a particle effect of circles gathering to a point, 
+    representing ghost's teleport chanting effect.
+
+    The number of particles will increase as the chanting time goes on.
+    """
+    def __init__(self, position: pg.Vector2, alive_time) -> None:
+        self.position = position
+        self.particles: list(Particle) = []
+        self.particle_number = random.randint(9, 11)
+        self.alive_time = alive_time
+        for _ in range(self.particle_number):
+            self.particles.append(Particle(position))
+
+    def tick(self) -> None:
+        arrived_particle = []
+        for particle in self.particles:
+            particle.update()
+            if particle.arrive():
+                arrived_particle.append(particle)
+                self.particle_number -= 1
+        self.particles = [x for x in self.particles if x not in arrived_particle]
+        for _ in range(len(arrived_particle)):
+            if self.particle_number > 15:
+                break
+            if random.random() >= 0.4:
+                self.particles.append(Particle(self.position))
+                self.particle_number += 1
+            if random.random() >= 0.4:
+                self.particles.append(Particle(self.position))
+                self.particle_number += 1
+
+class Particle:
+    def __init__(self, position: pg.Vector2):
+        self.speed = random.randint(50, 300)
+        self.displacement = pg.Vector2((random.choice([1, -1]) * random.uniform(5*self.speed / const.FPS, 50), 
+                                        random.choice([1, -1]) * random.uniform(5*self.speed / const.FPS, 50)))
+        self.destination = position
+        self.position: pg.Vector2 = position + self.displacement
+        self.color = (random.randint(50, 255), random.randint(50, 255), random.randint(50, 255))
+        self.radius = random.uniform(3, 10)
+
+    def update(self):
+        self.position = self.position - self.displacement.normalize() * self.speed / const.FPS
+
+    def arrive(self) -> bool:
+        if (self.destination - self.position).length() < 2 * self.speed / const.FPS:
+            return True
+        return False
