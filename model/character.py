@@ -17,7 +17,7 @@ class Character:
         self.position = position
         self.speed = speed
 
-        #This caches the first x cells in the calculated path
+        # This caches the first x cells in the calculated path
         self.saved_path = []
 
     # might be discard since there is a built-in pg.Vector2.distance_to()
@@ -119,19 +119,20 @@ class Character:
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
-        
-        ##Checks saved path
+
+        # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
-            self.saved_path.pop(0);
-        ##Checks if the character is too far from path (by maybe teleport or something)
+            self.saved_path.pop(0)
+        # Checks if the character is too far from path (by maybe teleport or something)
         if len(self.saved_path) > 0 and abs(start[0] - self.saved_path[0][0]) + abs(start[1] - self.saved_path[0][1]) > 2:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
-        
+
         if len(self.saved_path) == 0:
             path = a_star(grid, start, end)
-            self.saved_path = [(path[i][0], path[i][1]) for i in range(1, min(len(path), const.CACHE_CELLS+1))]
+            self.saved_path = [(path[i][0], path[i][1])
+                               for i in range(1, min(len(path), const.CACHE_CELLS+1))]
         if len(self.saved_path) == 0:
             return x, y
         r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
@@ -260,9 +261,7 @@ class Player(Character):
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
             print(type(list(const.PLAYER_IDS)[0]))
-            model.patronuses.append(
-                Patronus(0, self.position, 
-                         random.choice([x for x in const.PLAYER_IDS if x != self.player_id])))
+            model.patronuses.append(Patronus(0, self.position, self))
             # The parameters passed is not properly assigned yet
         elif self.effect == const.ITEM_SET.PETRIFICATION:
             # One can't move when it's effect is pertification.
@@ -271,20 +270,48 @@ class Player(Character):
 
 
 class Patronus(Character):
-    def __init__(self, patronus_id: int, position: pg.Vector2, chase_player: Player):
+    def __init__(self, patronus_id: int, position: pg.Vector2, owner: Player):
         self.patronus_id = patronus_id
-        speed = const.PATRONUS_SPEED
-        super().__init__(position, speed)
-        self.chase_player = chase_player  # The player which the patronous choose to chase
-        print(f"A patronus chasing {chase_player} has gernerated at {position}!")
+        super().__init__(position, const.PATRONUS_SPEED)
+        self.owner = owner
+        self.score = 500
+        self.chasing = self.choose_target()
+        print(f"Patronus {self.patronus_id} belong to {owner.player_id} was gernerated at {position}!")
+
+    def choose_target(self) -> Player | None:
+        players = get_game_engine().players
+        candidates = [ply for ply in players if ply != self.owner and not ply.dead]
+        if not len(candidates) == 0:
+            return random.choice(candidates)
+        else:
+            return None
+
+    def move_direction(self, direction):
+        if direction[0] != 0 or direction[1] != 0:
+            # Avoid division by zero
+            x = self.speed / const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+            y = self.speed / const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
+            self.move(x, y)
+
+        # clipping
+        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
+        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
+        print(f"Patronus {self.patronus_id} moved to {self.position}!")
+
+    def chase(self):
+        """
+        Ghost will move toward its prey.
+        """
+        # Uses Pathfind
+        self.move_direction(pg.Vector2(
+            self.pathfind(self.chasing.position.x, self.chasing.position.y)) - self.position)
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        x = 1 if self.position.x < self.chase_player.position.x else -1 \
-            if self.position.x > self.chase_player.position.x else 0
-        y = 1 if self.position.y < self.chase_player.position.y else -1 \
-            if self.position.y > self.chase_player.position.y else 0
-        self.move(x, y)
+        if self.chasing == None or self.chasing.dead:
+            self.chasing = self.choose_target()
+        if self.chasing != None:
+            self.chase()
 
 
 class Ghost(Character):
@@ -370,7 +397,7 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move_direction(pg.Vector2( \
+        self.move_direction(pg.Vector2(
             super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
 
         # Goes straight to the position

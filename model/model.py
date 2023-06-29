@@ -142,6 +142,8 @@ class GameEngine:
         for player in self.players:
             player.tick()
         self.ghosts[0].tick()
+        for patronuse in self.patronuses:
+            patronuse.tick()
 
     def update_endgame(self):
         """
