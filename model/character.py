@@ -5,7 +5,8 @@ from math import ceil, sqrt
 import pygame as pg
 
 import const
-from instances_manager import get_game_engine
+from instances_manager import get_game_engine, get_event_manager
+from event_manager.events import *
 
 
 class Character:
@@ -343,8 +344,7 @@ class Ghost(Character):
         model = get_game_engine()
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
-        model.ghost_teleport_chanting_animation_trigger.append(
-            (self.position, const.GHOST_CHANTING_TIME))
+        get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_distination))
 
     def teleport_handler(self):
         self.teleport_chanting = False

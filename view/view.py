@@ -5,7 +5,7 @@ import math
 import pygame as pg
 
 import const
-from event_manager.events import EventEveryTick, EventInitialize
+from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 
 class GraphicalView:
@@ -114,6 +114,7 @@ class GraphicalView:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
+        ev_manager.register_listener(EventGhostTeleport, self.add_ghost_teleport_chanting_animation)
 
     def display_fps(self):
         """
@@ -121,6 +122,11 @@ class GraphicalView:
         """
         model = get_game_engine()
         pg.display.set_caption(f'{const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
+    
+    def add_ghost_teleport_chanting_animation(self, event):
+        model = get_game_engine()
+        self.ghost_teleport_chanting_animations.append(
+            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer))
 
     def render_menu(self):
         # draw background
@@ -181,11 +187,6 @@ class GraphicalView:
                 self.screen.blit(self.pictures[i[2]], i[3])
 
         # Ghost teleport chanting animation
-        triggers = model.ghost_teleport_chanting_animation_trigger.copy()
-        for animation in triggers:
-            self.ghost_teleport_chanting_animations.append(
-                GatheringParticleEffect(animation[0], animation[1] + model.timer))
-            model.ghost_teleport_chanting_animation_trigger.remove(animation)
         animations = self.ghost_teleport_chanting_animations.copy()
         for effect in animations:
             if effect.alive_time < model.timer:
