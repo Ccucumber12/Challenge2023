@@ -207,11 +207,6 @@ class GraphicalView:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
 
-        # # Test: show the position of patronuses
-        # for patronus in model.patronuses:
-        #     center = list(map(int, patronus.position))
-        #     a = pg.draw.circle(self.screen, (100, 100, 100), center, 10)
-
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()
         for effect in animations:

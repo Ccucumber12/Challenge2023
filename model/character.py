@@ -287,23 +287,12 @@ class Patronus(Character):
         else:
             return None
 
-    def move_direction(self, direction: pg.Vector2):
-        if not direction == pg.Vector2(0, 0):
-            # Avoid division by zero
-            x = self.speed / const.FPS * direction.x / direction.length()
-            y = self.speed / const.FPS * direction.y / direction.length()
-            self.move(x, y)
-
-        # clipping
-        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
-
     def chase(self):
         """
         Ghost will move toward its prey.
         """
         # Uses Pathfind
-        self.move_direction(pg.Vector2(
+        self.move(pg.Vector2(
             self.pathfind(self.chasing.position.x, self.chasing.position.y)) - self.position)
 
     def iscaught(self) -> bool:
@@ -352,11 +341,11 @@ class Ghost(Character):
         self.wander_pos = None
         self.chase_time = const.GHOST_CHASE_TIME
 
-    def move_direction(self, direction: pg.Vector2):
+    def move(self, direction: pg.Vector2):
         if self.teleport_chanting:
             return
 
-        self.move(direction)
+        super().move(direction)
 
     def teleport(self, destination: pg.Vector2):
         """
@@ -399,11 +388,8 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move_direction(pg.Vector2(
-            super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
-
-        # Goes straight to the position
-        # self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
+        self.move(pg.Vector2(
+            self.pathfind(self.prey.position.x, self.prey.position.y))-self.position)
 
     def wander_handler(self):
         model = get_game_engine()
@@ -415,8 +401,8 @@ class Ghost(Character):
     def wander(self):
         if self.wander_pos == None:
             self.wander_pos = self.get_random_position(self.wander_pos)
-        self.move_direction(pg.Vector2(self.pathfind(
-            self.wander_pos.x, self.wander_pos.y))-self.position)
+        self.move(pg.Vector2(self.pathfind(self.wander_pos.x, self.wander_pos.y))
+                  - self.position)
 
     def tick(self):
         """
@@ -443,12 +429,7 @@ class Ghost(Character):
                     prey_candidates,
                     key=lambda x: self.get_distance(x) - x.score + random.random(),
                     default=None)
-                print(f"Ghost are chasing {self.prey}!")
 
-                # self.prey = min(
-                #     (player for player in model.players if not player.dead and not player.invisible),
-                #     key=lambda player: self.get_distance(player) - player.score + random.random(), default=None
-                # )
                 if self.prey is None:
                     break
             if self.teleport_available and self.prey is not None \
