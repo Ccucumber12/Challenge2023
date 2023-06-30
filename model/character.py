@@ -5,8 +5,8 @@ from math import ceil, sqrt
 import pygame as pg
 
 import const
-from instances_manager import get_game_engine, get_event_manager
 from event_manager.events import *
+from instances_manager import get_event_manager, get_game_engine
 
 
 class Character:
@@ -18,7 +18,7 @@ class Character:
         self.position = position
         self.speed = speed
 
-        #This caches the first x cells in the calculated path
+        # This caches the first x cells in the calculated path
         self.saved_path = []
 
     # might be discard since there is a built-in pg.Vector2.distance_to()
@@ -26,19 +26,23 @@ class Character:
         """gets euclidean distance between self and character"""
         return (self.position - character.position).length()
 
-    def move(self, x, y):
+    def move(self, direction: pg.Vector2):
         """
-        +x: right, +y: down.
-        (x, y) will be automatically transfered to unit vector.
         Move the player along the direction by its speed.
+        +x: right, +y: down.
+        direction will be automatically transfered to unit vector.
         Will automatically clip the position so no need to worry out-of-bound moving.
         """
 
+        # If direction = (0, 0), then no need to move
+        if direction == pg.Vector2(0, 0):
+            return
+
         # If it hits an obstacle, try a smaller distance
-        r = (x * x + y * y) ** (1 / 2)
+        direction /= direction.length()
         for attempt in range(3):
             # Calculate new position
-            new_position = self.position + self.speed / const.FPS * pg.Vector2((x / r), (y / r))
+            new_position = self.position + self.speed / const.FPS * direction
 
             # clamp
             new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
@@ -46,7 +50,7 @@ class Character:
 
             model = get_game_engine()
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
-                x, y = x/2, y/2
+                direction /= 2
                 continue
             # Todo: Portal
             portal = model.map.get_portal(new_position)
@@ -80,8 +84,8 @@ class Character:
                     new_row = cell[0] + dx
                     new_col = cell[1] + dy
                     if (0 <= new_row < rows and 0 <= new_col < cols
-                        and grid[new_row][new_col] != const.MAP_OBSTACLE
-                        and grid[cell[0]][new_col] != const.MAP_OBSTACLE
+                            and grid[new_row][new_col] != const.MAP_OBSTACLE
+                            and grid[cell[0]][new_col] != const.MAP_OBSTACLE
                             and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
                         neighbors.append((new_row, new_col))
                 return neighbors
@@ -120,19 +124,20 @@ class Character:
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
-        
-        ##Checks saved path
+
+        # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
-            self.saved_path.pop(0);
-        ##Checks if the character is too far from path (by maybe teleport or something)
+            self.saved_path.pop(0)
+        # Checks if the character is too far from path (by maybe teleport or something)
         if len(self.saved_path) > 0 and abs(start[0] - self.saved_path[0][0]) + abs(start[1] - self.saved_path[0][1]) > 2:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
-        
+
         if len(self.saved_path) == 0:
             path = a_star(grid, start, end)
-            self.saved_path = [(path[i][0], path[i][1]) for i in range(1, min(len(path), const.CACHE_CELLS+1))]
+            self.saved_path = [(path[i][0], path[i][1])
+                               for i in range(1, min(len(path), const.CACHE_CELLS+1))]
         if len(self.saved_path) == 0:
             return x, y
         r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
@@ -159,9 +164,9 @@ class Player(Character):
 
         # temporary: gets random positioin for spawn point
         position = self.get_random_position(position)
-
         speed = const.PLAYER_SPEED
         super().__init__(position, speed)
+
         self.dead = False
         self.invisible = False
         self.invincible = 0  # will be invicible until timer > invincible.
@@ -226,18 +231,11 @@ class Player(Character):
         Will automatically clip the position so no need to worry out-of-bound moving.
         """
         # Modify position of player
-        # self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
         if self.effect == const.ITEM_SET.PETRIFICATION:
             return
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
         y = 1 if direction == 'down' else -1 if direction == 'up' else 0
-        self.move(x, y)
-
-        self.position
-
-        # clipping
-        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
+        self.move(pg.Vector2(x, y))
 
     def add_score(self, points: int):
         self.score += points
@@ -262,7 +260,7 @@ class Player(Character):
             model = get_game_engine()
             print(type(list(const.PLAYER_IDS)[0]))
             model.patronuses.append(
-                Patronus(0, self.position, 
+                Patronus(0, self.position,
                          random.choice([x for x in const.PLAYER_IDS if x != self.player_id])))
             # The parameters passed is not properly assigned yet
         elif self.effect == const.ITEM_SET.PETRIFICATION:
@@ -285,7 +283,7 @@ class Patronus(Character):
             if self.position.x > self.chase_player.position.x else 0
         y = 1 if self.position.y < self.chase_player.position.y else -1 \
             if self.position.y > self.chase_player.position.y else 0
-        self.move(x, y)
+        self.move(pg.Vector2(x, y))
 
 
 class Ghost(Character):
@@ -315,19 +313,11 @@ class Ghost(Character):
         self.wander_pos = None
         self.chase_time = const.GHOST_CHASE_TIME
 
-    def move_direction(self, direction):
+    def move_direction(self, direction: pg.Vector2):
         if self.teleport_chanting:
             return
 
-        if direction[0] != 0 or direction[1] != 0:
-            # Avoid division by zero
-            x = self.speed / const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-            y = self.speed / const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-            self.move(x, y)
-
-        # clipping
-        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
+        self.move(direction)
 
     def teleport(self, destination: pg.Vector2):
         """
@@ -370,7 +360,7 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move_direction(pg.Vector2( \
+        self.move_direction(pg.Vector2(
             super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
 
         # Goes straight to the position
