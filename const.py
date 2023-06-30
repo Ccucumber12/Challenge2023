@@ -164,6 +164,12 @@ PICTURES_PATH = {
 }
 FONT_PATH = "fonts"
 
+# sound
+MUSIC_PATH = {
+    STATE_MENU: "music/title_music_v3.wav",
+    STATE_PLAY: "music/ingame_music_all.wav"
+}
+
 # controller
 PLAYER_KEYS = {
     pg.K_UP: (3, 'up'),

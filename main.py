@@ -5,6 +5,7 @@ from controller.controller import Controller
 from event_manager.event_manager import EventManager
 from model.model import GameEngine
 from view.view import GraphicalView
+from sound.sound import BackGroundMusic
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
     instances_manager.register_game_engine(model)
     Controller()
     GraphicalView()
+    BackGroundMusic()
 
     # Main loop
     model.run()
