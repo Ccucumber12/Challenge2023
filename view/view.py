@@ -34,6 +34,7 @@ class GraphicalView:
         self.transparent_image = {}
         self.sortinghat_animation_pictures = []
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
+        self.shining_patronus: pg.Surface
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -68,8 +69,8 @@ class GraphicalView:
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
-        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
 
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
@@ -81,6 +82,8 @@ class GraphicalView:
         # print(self.pictures[Const.SCENE.TITLE].get_height())
 
         # Sortinghat animation
+        picture = pg.image.load("pictures/characters/shining_patronus.png").convert_alpha()
+        self.shining_patronus = crop(picture, const.PATRONUS_RADIUS*2, const.PATRONUS_RADIUS*2, True)
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
         self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
 
@@ -160,6 +163,11 @@ class GraphicalView:
             lt = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
             coord = game_map.convert_coordinate(ghost.position)
             objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, lt))
+        for patronus in model.patronuses:
+            center = list(map(int, patronus.position))
+            lt = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS])]
+            coord = game_map.convert_coordinate(patronus.position)
+            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, lt))
         for row, image in game_map.images:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
 
@@ -174,16 +182,18 @@ class GraphicalView:
                     self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == const.OBJECT_TYPE.GHOST:
                 self.screen.blit(self.pictures[i[2]], i[3])
+            elif i[1] == const.OBJECT_TYPE.PATRONUS:
+                self.screen.blit(self.shining_patronus, i[3])
             elif i[1] == const.OBJECT_TYPE.MAP:
                 self.screen.blit(i[2], (0, 0))
             elif i[1] == const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle.
                 self.screen.blit(self.pictures[i[2]], i[3])
 
-        # Test: show the position of patronuses
-        for patronus in model.patronuses:
-            center = list(map(int, patronus.position))
-            a = pg.draw.circle(self.screen, (100, 100, 100), center, 10)
+        # # Test: show the position of patronuses
+        # for patronus in model.patronuses:
+        #     center = list(map(int, patronus.position))
+        #     a = pg.draw.circle(self.screen, (100, 100, 100), center, 10)
 
         # Ghost teleport chanting animation
         triggers = model.ghost_teleport_chanting_animation_trigger.copy()
