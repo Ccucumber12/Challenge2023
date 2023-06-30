@@ -1,6 +1,6 @@
 import heapq
 import random
-from math import ceil, sqrt
+from math import ceil
 
 import pygame as pg
 
@@ -39,7 +39,7 @@ class Character:
             return
 
         # If it hits an obstacle, try a smaller distance
-        direction /= direction.length()
+        direction = direction.normalize()
         for attempt in range(3):
             # Calculate new position
             new_position = self.position + self.speed / const.FPS * direction
@@ -342,6 +342,7 @@ class Ghost(Character):
         self.chase_time = const.GHOST_CHASE_TIME
 
     def move(self, direction: pg.Vector2):
+        """Move the ghost along direction."""
         if self.teleport_chanting:
             return
 
@@ -423,7 +424,7 @@ class Ghost(Character):
                 # Choose prey by closest person alive
 
                 # Include patronuses as possible prey
-                prey_candidates = ([x for x in model.players if not x.dead and not x.invincible]
+                prey_candidates = ([x for x in model.players if not x.dead and not x.invisible]
                                    + model.patronuses)
                 self.prey = min(
                     prey_candidates,
