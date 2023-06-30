@@ -63,6 +63,7 @@ CACHE_CELLS = 3
 
 # patronus
 PATRONUS_SPEED = PLAYER_SPEED
+PATRONUS_RADIUS = PLAYER_RADIUS
 
 
 # Map
@@ -132,6 +133,7 @@ class OBJECT_TYPE(IntEnum):
     # SCORE_BOARD = 1
     GHOST = 2
     ITEM = 3
+    PATRONUS = 4
     PLAYER = 5
 
 class SCENE(Enum):

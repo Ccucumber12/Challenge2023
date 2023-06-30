@@ -140,6 +140,11 @@ class GameEngine:
         for player in self.players:
             player.tick()
         self.ghosts[0].tick()
+        for patronuse in self.patronuses:
+            patronuse.tick()
+            if patronuse.dead:
+                self.patronuses.remove(patronuse)
+                del patronuse
 
     def update_endgame(self):
         """

@@ -258,10 +258,7 @@ class Player(Character):
             self.invisible = True
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
-            print(type(list(const.PLAYER_IDS)[0]))
-            model.patronuses.append(
-                Patronus(0, self.position,
-                         random.choice([x for x in const.PLAYER_IDS if x != self.player_id])))
+            model.patronuses.append(Patronus(0, self.position, self))
             # The parameters passed is not properly assigned yet
         elif self.effect == const.ITEM_SET.PETRIFICATION:
             # One can't move when it's effect is pertification.
@@ -270,20 +267,62 @@ class Player(Character):
 
 
 class Patronus(Character):
-    def __init__(self, patronus_id: int, position: pg.Vector2, chase_player: Player):
+    def __init__(self, patronus_id: int, position: pg.Vector2, owner: Player):
         self.patronus_id = patronus_id
-        speed = const.PATRONUS_SPEED
-        super().__init__(position, speed)
-        self.chase_player = chase_player  # The player which the patronous choose to chase
-        print(f"A patronus chasing {chase_player} has gernerated at {position}!")
+        super().__init__(position, const.PATRONUS_SPEED)
+        self.owner = owner
+        self.score = 500
+        self.chasing = self.choose_target()
+        self.dead = False
+        self.invisible = False
+        print(
+            f"Patronus {self.patronus_id} belong to {owner.player_id} was gernerated at {position}!")
+
+    def choose_target(self) -> Player | None:
+        """Return a player that is not dead and is not the one who call the patronus"""
+        players = get_game_engine().players
+        candidates = [ply for ply in players if ply != self.owner and not ply.dead]
+        if not len(candidates) == 0:
+            return random.choice(candidates)
+        else:
+            return None
+
+    def move_direction(self, direction: pg.Vector2):
+        if not direction == pg.Vector2(0, 0):
+            # Avoid division by zero
+            x = self.speed / const.FPS * direction.x / direction.length()
+            y = self.speed / const.FPS * direction.y / direction.length()
+            self.move(x, y)
+
+        # clipping
+        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
+        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
+
+    def chase(self):
+        """
+        Ghost will move toward its prey.
+        """
+        # Uses Pathfind
+        self.move_direction(pg.Vector2(
+            self.pathfind(self.chasing.position.x, self.chasing.position.y)) - self.position)
+
+    def iscaught(self) -> bool:
+        """Return if the player is caught by one of the ghosts"""
+        model = get_game_engine()
+        for ghost in model.ghosts:
+            if self.get_distance(ghost) < (const.PATRONUS_RADIUS + const.GHOST_RADIUS):
+                return True
+        return False
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        x = 1 if self.position.x < self.chase_player.position.x else -1 \
-            if self.position.x > self.chase_player.position.x else 0
-        y = 1 if self.position.y < self.chase_player.position.y else -1 \
-            if self.position.y > self.chase_player.position.y else 0
-        self.move(pg.Vector2(x, y))
+        if self.chasing == None or self.chasing.dead:
+            self.chasing = self.choose_target()
+        if self.chasing != None:
+            self.chase()
+        if self.iscaught():
+            print(f"Patronus {self.patronus_id} was caught!")
+            self.dead = True
 
 
 class Ghost(Character):
@@ -396,10 +435,20 @@ class Ghost(Character):
                 return
             while (self.prey is None) or (self.prey.dead == True) or (self.prey.invisible):
                 # Choose prey by closest person alive
+
+                # Include patronuses as possible prey
+                prey_candidates = ([x for x in model.players if not x.dead and not x.invincible]
+                                   + model.patronuses)
                 self.prey = min(
-                    (player for player in model.players if not player.dead and not player.invisible),
-                    key=lambda player: self.get_distance(player) - player.score + random.random(), default=None
-                )
+                    prey_candidates,
+                    key=lambda x: self.get_distance(x) - x.score + random.random(),
+                    default=None)
+                print(f"Ghost are chasing {self.prey}!")
+
+                # self.prey = min(
+                #     (player for player in model.players if not player.dead and not player.invisible),
+                #     key=lambda player: self.get_distance(player) - player.score + random.random(), default=None
+                # )
                 if self.prey is None:
                     break
             if self.teleport_available and self.prey is not None \
