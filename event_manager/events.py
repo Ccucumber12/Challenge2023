@@ -1,6 +1,7 @@
 import pygame as pg
 
 from event_manager.event_manager import BaseEvent
+import const
 
 
 class EventInitialize(BaseEvent):
@@ -64,3 +65,14 @@ class EventGhostTeleport(BaseEvent):
 
     def __str__(self):
         return f'{self.name} => ghost_id {self.ghost_id} teleport from {self.position} to {self.destination}'
+
+class EventSortinghat(BaseEvent):
+    name = 'Sortinghat event'
+
+    def __init__(self, assailant: const.PLAYER_IDS, victim: const.PLAYER_IDS):
+        super().__init__()
+        self.assailant = assailant
+        self.victim = victim
+
+    def __str__(self):
+        return f'{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}'

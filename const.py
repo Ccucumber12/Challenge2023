@@ -96,7 +96,7 @@ class ITEM_STATUS(Enum):
     REVERSED = 1
     ENHANCED = 2
 
-ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond to ITEM_SET
+ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 100 / 4]  # should correspond to ITEM_SET
 # The probability of golden snitch should be set to ZERO.
 ITEM_STATUS_PROBABILITY = [15 / 15, 0 / 15, 0 / 15]  # should correspond to ITEM_STATES
 

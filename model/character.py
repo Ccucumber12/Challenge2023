@@ -204,7 +204,7 @@ class Player(Character):
             self.remove_effect()
             others = [x for x in const.PLAYER_IDS if x != self.player_id]
             victim = random.choice(others)
-            model.sortinghat_animations.append((self.position, victim, 0))
+            get_event_manager().post(EventSortinghat(self.player_id, victim))
             second = ceil(model.timer / const.FPS)
             for _ in range(5):
                 minute = second // 60

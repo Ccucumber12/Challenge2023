@@ -22,18 +22,21 @@ class GraphicalView:
         """
         self.register_listeners()
 
-        #optimization
+        # optimization
 
         self.screen = pg.display.set_mode(size=const.WINDOW_SIZE, flags=pg.DOUBLEBUF)
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
+
+        # animations
+        self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
+        self.sortinghat_animations = []
 
         # scale the pictures to proper size
         self.pictures = {}
         self.grayscale_image = {}
         self.transparent_image = {}
         self.sortinghat_animation_pictures = []
-        self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -115,6 +118,7 @@ class GraphicalView:
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
         ev_manager.register_listener(EventGhostTeleport, self.add_ghost_teleport_chanting_animation)
+        ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
 
     def display_fps(self):
         """
@@ -127,6 +131,12 @@ class GraphicalView:
         model = get_game_engine()
         self.ghost_teleport_chanting_animations.append(
             GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer))
+
+    def add_sortinghat_animation(self, event):
+        model = get_game_engine()
+        position = model.players[event.assailant.value].position
+        victim = event.victim
+        self.sortinghat_animations.append((position, victim, 0))
 
     def render_menu(self):
         # draw background
@@ -197,13 +207,13 @@ class GraphicalView:
             effect.tick()
 
         # Sortinghat animation
-        animations = model.sortinghat_animations.copy()
+        animations = self.sortinghat_animations.copy()
         for animation in animations:
             position = animation[0]
             victim = animation[1]
             destination = model.players[victim.value].position
             index = animation[2]
-            model.sortinghat_animations.remove(animation)
+            self.sortinghat_animations.remove(animation)
             if (destination-position).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
                 # maybe here can add some special effect
                 continue
@@ -213,7 +223,7 @@ class GraphicalView:
                 index = 0
             position = position + \
                 (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
-            model.sortinghat_animations.append((position, victim, index))
+            self.sortinghat_animations.append((position, victim, index))
 
         # Scoreboard
         self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))
