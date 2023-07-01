@@ -33,8 +33,14 @@ class Item:
             for player in model.players:
                 vec1 = player.position - self.position
                 vec2 = pos - self.position
-                if vec2.dot(vec1) > 0 and vec1.length() < 200:
-                    ret += (20000 / min(150, abs((player.position - self.position).cross(pos - self.position)) / dis))
+                dot = vec1.dot(vec2)
+                if dot > 0:
+                    dot = 1
+                else:
+                    dot = -1
+                if vec1.length() < 200:
+                    ret += dot * (20000 / min(150, abs(vec1.cross(vec2)) / dis))
+                    
             return ret
         if (self.golden_snitch_goal is None) or mindis() < 100:
             pnts = [pg.Vector2(random.uniform(0, const.ARENA_SIZE[0]), random.uniform(0, const.ARENA_SIZE[1])) for i in range(50)] 
