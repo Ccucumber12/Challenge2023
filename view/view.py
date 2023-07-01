@@ -5,7 +5,7 @@ import math
 import pygame as pg
 
 import const
-from event_manager.events import EventEveryTick, EventInitialize
+from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 
 class GraphicalView:
@@ -22,11 +22,15 @@ class GraphicalView:
         """
         self.register_listeners()
 
-        #optimization
+        # optimization
 
         self.screen = pg.display.set_mode(size=const.WINDOW_SIZE, flags=pg.DOUBLEBUF)
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
+
+        # animations
+        self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
+        self.sortinghat_animations = []
 
         # scale the pictures to proper size
         self.pictures = {}
@@ -34,6 +38,7 @@ class GraphicalView:
         self.transparent_image = {}
         self.sortinghat_animation_pictures = []
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
+        self.shining_patronus: pg.Surface
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -68,8 +73,8 @@ class GraphicalView:
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
-        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
 
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
@@ -81,6 +86,8 @@ class GraphicalView:
         # print(self.pictures[Const.SCENE.TITLE].get_height())
 
         # Sortinghat animation
+        picture = pg.image.load("pictures/characters/shining_patronus.png").convert_alpha()
+        self.shining_patronus = crop(picture, const.PATRONUS_RADIUS*2, const.PATRONUS_RADIUS*2, True)
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
         self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
 
@@ -114,6 +121,8 @@ class GraphicalView:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
+        ev_manager.register_listener(EventGhostTeleport, self.add_ghost_teleport_chanting_animation)
+        ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
 
     def display_fps(self):
         """
@@ -121,6 +130,17 @@ class GraphicalView:
         """
         model = get_game_engine()
         pg.display.set_caption(f'{const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
+    
+    def add_ghost_teleport_chanting_animation(self, event):
+        model = get_game_engine()
+        self.ghost_teleport_chanting_animations.append(
+            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer))
+
+    def add_sortinghat_animation(self, event):
+        model = get_game_engine()
+        position = model.players[event.assailant.value].position
+        victim = event.victim
+        self.sortinghat_animations.append((position, victim, 0))
 
     def render_menu(self):
         # draw background
@@ -160,6 +180,11 @@ class GraphicalView:
             lt = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
             coord = game_map.convert_coordinate(ghost.position)
             objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, lt))
+        for patronus in model.patronuses:
+            center = list(map(int, patronus.position))
+            lt = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS])]
+            coord = game_map.convert_coordinate(patronus.position)
+            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, lt))
         for row, image in game_map.images:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
 
@@ -174,6 +199,8 @@ class GraphicalView:
                     self.screen.blit(self.pictures[i[2]], i[3])
             elif i[1] == const.OBJECT_TYPE.GHOST:
                 self.screen.blit(self.pictures[i[2]], i[3])
+            elif i[1] == const.OBJECT_TYPE.PATRONUS:
+                self.screen.blit(self.shining_patronus, i[3])
             elif i[1] == const.OBJECT_TYPE.MAP:
                 self.screen.blit(i[2], (0, 0))
             elif i[1] == const.OBJECT_TYPE.ITEM:
@@ -181,11 +208,6 @@ class GraphicalView:
                 self.screen.blit(self.pictures[i[2]], i[3])
 
         # Ghost teleport chanting animation
-        triggers = model.ghost_teleport_chanting_animation_trigger.copy()
-        for animation in triggers:
-            self.ghost_teleport_chanting_animations.append(
-                GatheringParticleEffect(animation[0], animation[1] + model.timer))
-            model.ghost_teleport_chanting_animation_trigger.remove(animation)
         animations = self.ghost_teleport_chanting_animations.copy()
         for effect in animations:
             if effect.alive_time < model.timer:
@@ -196,13 +218,13 @@ class GraphicalView:
             effect.tick()
 
         # Sortinghat animation
-        animations = model.sortinghat_animations.copy()
+        animations = self.sortinghat_animations.copy()
         for animation in animations:
             position = animation[0]
             victim = animation[1]
             destination = model.players[victim.value].position
             index = animation[2]
-            model.sortinghat_animations.remove(animation)
+            self.sortinghat_animations.remove(animation)
             if (destination-position).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
                 # maybe here can add some special effect
                 continue
@@ -212,7 +234,7 @@ class GraphicalView:
                 index = 0
             position = position + \
                 (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
-            model.sortinghat_animations.append((position, victim, index))
+            self.sortinghat_animations.append((position, victim, index))
 
         # Scoreboard
         self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))

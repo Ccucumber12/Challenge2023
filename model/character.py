@@ -1,11 +1,12 @@
 import heapq
 import random
-from math import ceil, sqrt
+from math import ceil
 
 import pygame as pg
 
 import const
-from instances_manager import get_game_engine
+from event_manager.events import *
+from instances_manager import get_event_manager, get_game_engine
 
 
 class Character:
@@ -17,7 +18,7 @@ class Character:
         self.position = position
         self.speed = speed
 
-        #This caches the first x cells in the calculated path
+        # This caches the first x cells in the calculated path
         self.saved_path = []
 
     # might be discard since there is a built-in pg.Vector2.distance_to()
@@ -25,19 +26,23 @@ class Character:
         """gets euclidean distance between self and character"""
         return (self.position - character.position).length()
 
-    def move(self, x, y):
+    def move(self, direction: pg.Vector2):
         """
-        +x: right, +y: down.
-        (x, y) will be automatically transfered to unit vector.
         Move the player along the direction by its speed.
+        +x: right, +y: down.
+        direction will be automatically transfered to unit vector.
         Will automatically clip the position so no need to worry out-of-bound moving.
         """
 
+        # If direction = (0, 0), then no need to move
+        if direction == pg.Vector2(0, 0):
+            return
+
         # If it hits an obstacle, try a smaller distance
-        r = (x * x + y * y) ** (1 / 2)
+        direction = direction.normalize()
         for attempt in range(3):
             # Calculate new position
-            new_position = self.position + self.speed / const.FPS * pg.Vector2((x / r), (y / r))
+            new_position = self.position + self.speed / const.FPS * direction
 
             # clamp
             new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
@@ -45,7 +50,7 @@ class Character:
 
             model = get_game_engine()
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
-                x, y = x/2, y/2
+                direction /= 2
                 continue
             # Todo: Portal
             portal = model.map.get_portal(new_position)
@@ -79,8 +84,8 @@ class Character:
                     new_row = cell[0] + dx
                     new_col = cell[1] + dy
                     if (0 <= new_row < rows and 0 <= new_col < cols
-                        and grid[new_row][new_col] != const.MAP_OBSTACLE
-                        and grid[cell[0]][new_col] != const.MAP_OBSTACLE
+                            and grid[new_row][new_col] != const.MAP_OBSTACLE
+                            and grid[cell[0]][new_col] != const.MAP_OBSTACLE
                             and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
                         neighbors.append((new_row, new_col))
                 return neighbors
@@ -119,19 +124,20 @@ class Character:
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
-        
-        ##Checks saved path
+
+        # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
-            self.saved_path.pop(0);
-        ##Checks if the character is too far from path (by maybe teleport or something)
+            self.saved_path.pop(0)
+        # Checks if the character is too far from path (by maybe teleport or something)
         if len(self.saved_path) > 0 and abs(start[0] - self.saved_path[0][0]) + abs(start[1] - self.saved_path[0][1]) > 2:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
-        
+
         if len(self.saved_path) == 0:
             path = a_star(grid, start, end)
-            self.saved_path = [(path[i][0], path[i][1]) for i in range(1, min(len(path), const.CACHE_CELLS+1))]
+            self.saved_path = [(path[i][0], path[i][1])
+                               for i in range(1, min(len(path), const.CACHE_CELLS+1))]
         if len(self.saved_path) == 0:
             return x, y
         r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
@@ -158,9 +164,9 @@ class Player(Character):
 
         # temporary: gets random positioin for spawn point
         position = self.get_random_position(position)
-
         speed = const.PLAYER_SPEED
         super().__init__(position, speed)
+
         self.dead = False
         self.invisible = False
         self.invincible = 0  # will be invicible until timer > invincible.
@@ -203,7 +209,7 @@ class Player(Character):
             self.remove_effect()
             others = [x for x in const.PLAYER_IDS if x != self.player_id]
             victim = random.choice(others)
-            model.sortinghat_animations.append((self.position, victim, 0))
+            get_event_manager().post(EventSortinghat(self.player_id, victim))
             second = ceil(model.timer / const.FPS)
             for _ in range(5):
                 minute = second // 60
@@ -225,18 +231,11 @@ class Player(Character):
         Will automatically clip the position so no need to worry out-of-bound moving.
         """
         # Modify position of player
-        # self.position += self.speed / Const.FPS * Const.DIRECTION_TO_VEC2[direction]
         if self.effect == const.ITEM_SET.PETRIFICATION:
             return
         x = 1 if direction == 'right' else -1 if direction == 'left' else 0
         y = 1 if direction == 'down' else -1 if direction == 'up' else 0
-        self.move(x, y)
-
-        self.position
-
-        # clipping
-        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
+        self.move(pg.Vector2(x, y))
 
     def add_score(self, points: int):
         self.score += points
@@ -259,10 +258,7 @@ class Player(Character):
             self.invisible = True
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
-            print(type(list(const.PLAYER_IDS)[0]))
-            model.patronuses.append(
-                Patronus(0, self.position, 
-                         random.choice([x for x in const.PLAYER_IDS if x != self.player_id])))
+            model.patronuses.append(Patronus(0, self.position, self))
             # The parameters passed is not properly assigned yet
         elif self.effect == const.ITEM_SET.PETRIFICATION:
             # One can't move when it's effect is pertification.
@@ -271,20 +267,51 @@ class Player(Character):
 
 
 class Patronus(Character):
-    def __init__(self, patronus_id: int, position: pg.Vector2, chase_player: Player):
+    def __init__(self, patronus_id: int, position: pg.Vector2, owner: Player):
         self.patronus_id = patronus_id
-        speed = const.PATRONUS_SPEED
-        super().__init__(position, speed)
-        self.chase_player = chase_player  # The player which the patronous choose to chase
-        print(f"A patronus chasing {chase_player} has gernerated at {position}!")
+        super().__init__(position, const.PATRONUS_SPEED)
+        self.owner = owner
+        self.score = 500
+        self.chasing = self.choose_target()
+        self.dead = False
+        self.invisible = False
+        print(
+            f"Patronus {self.patronus_id} belong to {owner.player_id} was gernerated at {position}!")
+
+    def choose_target(self) -> Player | None:
+        """Return a player that is not dead and is not the one who call the patronus"""
+        players = get_game_engine().players
+        candidates = [ply for ply in players if ply != self.owner and not ply.dead]
+        if not len(candidates) == 0:
+            return random.choice(candidates)
+        else:
+            return None
+
+    def chase(self):
+        """
+        Ghost will move toward its prey.
+        """
+        # Uses Pathfind
+        self.move(pg.Vector2(
+            self.pathfind(self.chasing.position.x, self.chasing.position.y)) - self.position)
+
+    def iscaught(self) -> bool:
+        """Return if the player is caught by one of the ghosts"""
+        model = get_game_engine()
+        for ghost in model.ghosts:
+            if self.get_distance(ghost) < (const.PATRONUS_RADIUS + const.GHOST_RADIUS):
+                return True
+        return False
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        x = 1 if self.position.x < self.chase_player.position.x else -1 \
-            if self.position.x > self.chase_player.position.x else 0
-        y = 1 if self.position.y < self.chase_player.position.y else -1 \
-            if self.position.y > self.chase_player.position.y else 0
-        self.move(x, y)
+        if self.chasing == None or self.chasing.dead:
+            self.chasing = self.choose_target()
+        if self.chasing != None:
+            self.chase()
+        if self.iscaught():
+            print(f"Patronus {self.patronus_id} was caught!")
+            self.dead = True
 
 
 class Ghost(Character):
@@ -314,19 +341,12 @@ class Ghost(Character):
         self.wander_pos = None
         self.chase_time = const.GHOST_CHASE_TIME
 
-    def move_direction(self, direction):
+    def move(self, direction: pg.Vector2):
+        """Move the ghost along direction."""
         if self.teleport_chanting:
             return
 
-        if direction[0] != 0 or direction[1] != 0:
-            # Avoid division by zero
-            x = self.speed / const.FPS * direction[0] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-            y = self.speed / const.FPS * direction[1] / sqrt(direction[0] ** 2 + direction[1] ** 2)
-            self.move(x, y)
-
-        # clipping
-        self.position.x = max(0, min(const.ARENA_SIZE[0], self.position.x))
-        self.position.y = max(0, min(const.ARENA_SIZE[1], self.position.y))
+        super().move(direction)
 
     def teleport(self, destination: pg.Vector2):
         """
@@ -343,8 +363,7 @@ class Ghost(Character):
         model = get_game_engine()
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
-        model.ghost_teleport_chanting_animation_trigger.append(
-            (self.position, const.GHOST_CHANTING_TIME))
+        get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_distination))
 
     def teleport_handler(self):
         self.teleport_chanting = False
@@ -370,11 +389,8 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move_direction(pg.Vector2( \
-            super().pathfind(self.prey.position.x, self.prey.position.y))-self.position)
-
-        # Goes straight to the position
-        # self.move_direction([self.prey.position.x, self.prey.position.y]-self.position)
+        self.move(pg.Vector2(
+            self.pathfind(self.prey.position.x, self.prey.position.y))-self.position)
 
     def wander_handler(self):
         model = get_game_engine()
@@ -386,8 +402,8 @@ class Ghost(Character):
     def wander(self):
         if self.wander_pos == None:
             self.wander_pos = self.get_random_position(self.wander_pos)
-        self.move_direction(pg.Vector2(self.pathfind(
-            self.wander_pos.x, self.wander_pos.y))-self.position)
+        self.move(pg.Vector2(self.pathfind(self.wander_pos.x, self.wander_pos.y))
+                  - self.position)
 
     def tick(self):
         """
@@ -406,10 +422,15 @@ class Ghost(Character):
                 return
             while (self.prey is None) or (self.prey.dead == True) or (self.prey.invisible):
                 # Choose prey by closest person alive
+
+                # Include patronuses as possible prey
+                prey_candidates = ([x for x in model.players if not x.dead and not x.invisible]
+                                   + model.patronuses)
                 self.prey = min(
-                    (player for player in model.players if not player.dead and not player.invisible),
-                    key=lambda player: self.get_distance(player) - player.score + random.random(), default=None
-                )
+                    prey_candidates,
+                    key=lambda x: self.get_distance(x) - x.score + random.random(),
+                    default=None)
+
                 if self.prey is None:
                     break
             if self.teleport_available and self.prey is not None \

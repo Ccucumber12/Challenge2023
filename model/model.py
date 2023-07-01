@@ -48,8 +48,6 @@ class GameEngine:
         self.timer = 0
         self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
-        self.sortinghat_animations = []
-        self.ghost_teleport_chanting_animation_trigger = []
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -142,6 +140,11 @@ class GameEngine:
         for player in self.players:
             player.tick()
         self.ghosts[0].tick()
+        for patronuse in self.patronuses:
+            patronuse.tick()
+            if patronuse.dead:
+                self.patronuses.remove(patronuse)
+                del patronuse
 
     def update_endgame(self):
         """
