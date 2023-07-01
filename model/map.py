@@ -10,12 +10,13 @@ import const
 
 class Map:
 
-    def __init__(self, size, map_list, portals, images, spawn):
+    def __init__(self, size, map_list, portals, images, spawn, map_dir):
         self.size = size
         self.map = map_list
         self.images = images
         self.portals = portals
         self.spawn = spawn
+        self.map_dir = map_dir
 
     def convert_coordinate(self, position):
         """
@@ -57,15 +58,11 @@ def load_map(map_dir):
 
     with open(json_file) as f:
         data = json.load(f)
+    images = data['images']
 
     size = list(map(int, [data['width'], data['height']]))
     spawn = [list(map(int, i.split(','))) for i in data['spawn']]
     portals = [list(map(int, re.split('[, ]', i))) for i in data['portals']]
-    images = []
-    for i in data['images']:
-        loaded_image = pygame.image.load(os.path.join(map_dir, i))
-        loaded_image = pygame.transform.scale(loaded_image, const.ARENA_SIZE)
-        images.append((int(data['images'][i]), loaded_image))
 
     with open(map_file) as f:
         rows = csv.reader(f)
@@ -90,4 +87,4 @@ def load_map(map_dir):
     print(new_map_list)
     map_list = new_map_list
     """
-    return Map(size, map_list, portals, images, spawn)
+    return Map(size, map_list, portals, images, spawn, map_dir)

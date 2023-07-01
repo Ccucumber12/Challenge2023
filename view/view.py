@@ -15,6 +15,7 @@ class GraphicalView:
     background = pg.Surface(const.ARENA_SIZE)
 
     def __init__(self):
+        model = get_game_engine()
         """
         This function is called when the GraphicalView is created.
         For more specific objects related to a game instance
@@ -73,6 +74,13 @@ class GraphicalView:
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+
+        
+        self.background_images = []
+        for i in model.map.images:
+            loaded_image = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
+            loaded_image = pg.transform.scale(loaded_image, const.ARENA_SIZE)
+            self.background_images.append((int(model.map.images[i]), loaded_image))
 
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
@@ -185,7 +193,8 @@ class GraphicalView:
             lt = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS])]
             coord = game_map.convert_coordinate(patronus.position)
             objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, lt))
-        for row, image in game_map.images:
+
+        for row, image in self.background_images:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
 
         objects.sort(key=lambda x: (x[0], x[1]))

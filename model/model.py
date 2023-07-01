@@ -24,7 +24,7 @@ class GameEngine:
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map('maps/movetest')
+        self.map = load_map('maps/testmap')
         self.timer = 0
 
     @property
