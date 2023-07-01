@@ -1,0 +1,16 @@
+{
+  "width": 100,
+  "height": 100,
+  "spawn": [
+    "30,30", "30,70", "70,30", "50,50"
+  ],
+  "images": {
+    "disposal.png": -1,
+    "bridge.png": 25,
+    "log.png": 16,
+    "grass.png": 52,
+    "tree.png": 18,
+    "stone.png": 80
+  },
+  "portals": []
+}
