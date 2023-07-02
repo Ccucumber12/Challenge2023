@@ -76,10 +76,10 @@ class Item:
                     others = [x for x in model.players if x != player]
                     victim = random.choice(others)
                     victim.get_effect(self.type, self.status)
-                    print(f"{victim.player_id} get effect: {self.type} ({self.status})")
+                    print(f"{victim.player_id} got effect: {self.type} ({self.status})")
                 else:
                     player.get_effect(self.type, self.status)
-                    print(f"{player.player_id} get effect: {self.type} ({self.status})")
+                    print(f"{player.player_id} got effect: {self.type} ({self.status})")
         if self.type == const.ITEM_SET.GOLDEN_SNITCH:
             self.move_golden_snitch()
 
