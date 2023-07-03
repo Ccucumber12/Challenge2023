@@ -45,7 +45,7 @@ class CastMagicParticleEffect:
     """
 
     def __init__(self, attacker, victim, speed: int, color: pg.Color = None, thickness = 5) -> None:
-        self.current_position = attacker.position
+        self.current_position = pg.Vector2(attacker.position)
         self.victim = victim
         self.speed = speed
         self.color = color
