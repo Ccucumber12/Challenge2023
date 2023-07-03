@@ -105,7 +105,7 @@ class ItemGenerator:
             # discard points not leggel
             if not (1 <= candidate.x <= const.ARENA_SIZE[0]
                     and 1 <= candidate.y <= const.ARENA_SIZE[1]
-                    and model.map.get_type(candidate) == const.MAP_OBSTACLE):
+                    and model.map.get_type(candidate) != const.MAP_OBSTACLE):
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]
             for obj in objects:
