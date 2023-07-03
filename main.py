@@ -1,3 +1,5 @@
+import sys
+
 import pygame as pg
 
 import instances_manager
@@ -11,6 +13,15 @@ from sound.sound import BackGroundMusic
 def main():
     # Initialization
     pg.init()
+
+    if sys.platform == 'win32':
+        # On Windows, the monitor scaling can be set to something besides normal 100%.
+        # PyScreeze and Pillow needs to account for this to make accurate screenshots.
+        import ctypes
+        try:
+            ctypes.windll.user32.SetProcessDPIAware()
+        except AttributeError:
+            pass # Windows XP doesn't support monitor scaling, so just do nothing.
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()

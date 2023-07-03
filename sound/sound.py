@@ -15,10 +15,8 @@ class BackGroundMusic:
         pg.mixer.init()
         self.musics = {}
         self.current_music: pg.mixer.music
-        for state, path in const.MUSIC_PATH.items():
-            self.musics[state] = pg.mixer.Sound(path)
-        self.current_music = self.musics[const.STATE_MENU]
-        self.current_music.play()
+        pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
+        pg.mixer.music.play(-1)
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -33,10 +31,9 @@ class BackGroundMusic:
         pass
 
     def handle_state_change(self, event):
-        self.current_music.stop()
-        if event.state in self.musics:
-            self.current_music = self.musics[event.state]
-            self.current_music.play()
+        if event.state in const.MUSIC_PATH:
+            pg.mixer.music.load(const.MUSIC_PATH[event.state])
+            pg.mixer.music.play(-1)
 
     def handle_every_tick(self, event):
         pass

@@ -38,8 +38,8 @@ class GraphicalView:
         self.grayscale_image = {}
         self.transparent_image = {}
         self.sortinghat_animation_pictures = []
-        self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
         self.shining_patronus: pg.Surface
+        self.magic_circle: pg.Surface
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -93,9 +93,12 @@ class GraphicalView:
         # print(self.pictures[Const.SCENE.TITLE].get_width())
         # print(self.pictures[Const.SCENE.TITLE].get_height())
 
-        # Sortinghat animation
-        picture = pg.image.load("pictures/characters/shining_patronus.png").convert_alpha()
+        # Animation
+        picture = pg.image.load(const.PICTURES_PATH[const.OTEHR_PICTURES.PATRONUS]).convert_alpha()
         self.shining_patronus = crop(picture, const.PATRONUS_RADIUS*2, const.PATRONUS_RADIUS*2, True)
+        picture = pg.image.load(const.PICTURES_PATH[const.OTEHR_PICTURES.MAGIC_CIRCLE]).convert_alpha()
+        self.magic_circle = crop(picture, const.MAGIC_CIRCLE_RADIUS*2, const.MAGIC_CIRCLE_RADIUS*2, True)
+        self.magic_circle.set_alpha(127)
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
         self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
 
@@ -141,14 +144,21 @@ class GraphicalView:
     
     def add_ghost_teleport_chanting_animation(self, event):
         model = get_game_engine()
-        self.ghost_teleport_chanting_animations.append(
-            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer))
+        self.ghost_teleport_chanting_animations.append((
+            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer), event.destination))
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
         position = model.players[event.assailant.value].position
         victim = event.victim
         self.sortinghat_animations.append((position, victim, 0))
+    
+    def get_ul(self, center: list, size: list):
+        """
+        get the upper left of a image.
+        """
+        ul = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
+        return ul
 
     def render_menu(self):
         # draw background
@@ -174,25 +184,25 @@ class GraphicalView:
         objects = []
         for item in model.items:
             center = list(map(int, item.position))
-            lt = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
+            ul = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, ul))
         for player in model.players:
             center = list(map(int, player.position))
-            lt = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS])]
+            ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS])]
             coord = game_map.convert_coordinate(player.position)
             objects.append((coord[1], const.OBJECT_TYPE.PLAYER,
-                           player.player_id, lt, player.effect))
+                           player.player_id, ul, player.effect))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
-            lt = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
+            ul = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
             coord = game_map.convert_coordinate(ghost.position)
-            objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, ul))
         for patronus in model.patronuses:
             center = list(map(int, patronus.position))
-            lt = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS])]
+            ul = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS])]
             coord = game_map.convert_coordinate(patronus.position)
-            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, lt))
+            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, ul))
 
         for row, image in self.background_images:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
@@ -218,13 +228,17 @@ class GraphicalView:
 
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()
-        for effect in animations:
+        for animation in animations:
+            effect = animation[0]
+            destination = animation[1]
             if effect.alive_time < model.timer:
-                self.ghost_teleport_chanting_animations.remove(effect)
+                self.ghost_teleport_chanting_animations.remove(animation)
                 continue
             for particle in effect.particles:
                 pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
             effect.tick()
+            ul = [x - y for x, y in zip(destination, [const.MAGIC_CIRCLE_RADIUS, const.MAGIC_CIRCLE_RADIUS])]
+            self.screen.blit(self.magic_circle, ul)
 
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()

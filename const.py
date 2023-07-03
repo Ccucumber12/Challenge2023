@@ -126,6 +126,7 @@ BACKGROUND_COLOR = pg.Color('black')
 CLOAK_TRANSPARENCY = 128 # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
 SORTINGHAT_ANIMATION_SPEED = 500
 SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
+MAGIC_CIRCLE_RADIUS = GHOST_RADIUS
 
 class OBJECT_TYPE(IntEnum):
     # The number represents the order of rendering the type.
@@ -139,6 +140,10 @@ class OBJECT_TYPE(IntEnum):
 class SCENE(Enum):
     TITLE = 0
     SCORE_BOARD = 1
+
+class OTEHR_PICTURES(Enum):
+    PATRONUS = 0
+    MAGIC_CIRCLE = 1
 
 SCOREBOARD_FONT_SIZE = 32
 SCOREBOARD_COL = [54, 112, 171, 229]
@@ -161,6 +166,8 @@ PICTURES_PATH = {
     GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
     SCENE.TITLE: "pictures/scenes/Title.png",
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
+    OTEHR_PICTURES.PATRONUS: "pictures/characters/shining_patronus.png",
+    OTEHR_PICTURES.MAGIC_CIRCLE: "pictures/characters/ghosts/MagicCircle.png",
 }
 FONT_PATH = "fonts"
 

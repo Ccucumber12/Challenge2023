@@ -91,7 +91,6 @@ class GameEngine:
     def register_user_event(self, delay, handler):
         """
         handler will be executed after delay ticks
-        returns a number that can be used to cancel the event
         """
         if not type(delay) is int:
             raise TypeError("delay should be an integer!")

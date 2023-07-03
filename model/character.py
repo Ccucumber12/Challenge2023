@@ -38,8 +38,10 @@ class Character:
         if direction == pg.Vector2(0, 0):
             return
 
+        # Normalize direction in place
+        direction.normalize_ip()
+
         # If it hits an obstacle, try a smaller distance
-        direction = direction.normalize()
         for attempt in range(3):
             # Calculate new position
             new_position = self.position + self.speed / const.FPS * direction
@@ -210,8 +212,8 @@ class Player(Character):
             others = [x for x in const.PLAYER_IDS if x != self.player_id]
             victim = random.choice(others)
             get_event_manager().post(EventSortinghat(self.player_id, victim))
-            second = ceil(model.timer / const.FPS)
-            for _ in range(5):
+            start_second = ceil(model.timer / const.FPS)
+            for second in range(start_second, start_second + 5):
                 minute = second // 60
                 model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
             self.invincible = model.timer + const.SORTINGHAT_INVINCIBLE_TIME
@@ -270,13 +272,15 @@ class Patronus(Character):
     def __init__(self, patronus_id: int, position: pg.Vector2, owner: Player):
         self.patronus_id = patronus_id
         super().__init__(position, const.PATRONUS_SPEED)
+
         self.owner = owner
-        self.score = 500
         self.chasing = self.choose_target()
-        self.dead = False
+        
+        self.score = 500
         self.invisible = False
+        self.dead = False
         print(
-            f"Patronus {self.patronus_id} belong to {owner.player_id} was gernerated at {position}!")
+            f"A patronus belong to {owner.player_id} was gernerated at {position}!")
 
     def choose_target(self) -> Player | None:
         """Return a player that is not dead and is not the one who call the patronus"""
@@ -390,7 +394,7 @@ class Ghost(Character):
 
         # Uses Pathfind
         self.move(pg.Vector2(
-            self.pathfind(self.prey.position.x, self.prey.position.y))-self.position)
+            self.pathfind(self.prey.position.x, self.prey.position.y)) - self.position)
 
     def wander_handler(self):
         model = get_game_engine()
