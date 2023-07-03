@@ -7,6 +7,8 @@ import pygame as pg
 import const
 from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
+from view.particle import GatheringParticleEffect
+from view.particle import CastMagicParticleEffect
 
 
 class GraphicalView:
@@ -32,6 +34,7 @@ class GraphicalView:
 
         # animations
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
+        self.petrification_animation: list[CastMagicParticleEffect] = []
         self.sortinghat_animations = []
 
         # scale the pictures to proper size
@@ -143,6 +146,7 @@ class GraphicalView:
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
         ev_manager.register_listener(EventGhostTeleport, self.add_ghost_teleport_chanting_animation)
+        ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
 
     def display_fps(self):
@@ -155,7 +159,12 @@ class GraphicalView:
     def add_ghost_teleport_chanting_animation(self, event):
         model = get_game_engine()
         self.ghost_teleport_chanting_animations.append((
-            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer), event.destination))
+            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer, const.GHOST_CHANTING_COLOR), event.destination))
+    
+    def add_cast_petrification_animation(self, event):
+        self.petrification_animation.append((
+            CastMagicParticleEffect(event.attacker, event.victim, const.PETRIFICATION_ANIMATION_SPEED, const.PETRIFICATION_ANIMATION_COLOR, const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
+        
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
@@ -261,6 +270,18 @@ class GraphicalView:
             effect.tick()
             ul = [x - y for x, y in zip(destination, [const.MAGIC_CIRCLE_RADIUS, const.MAGIC_CIRCLE_RADIUS])]
             self.screen.blit(self.magic_circle, ul)
+        
+        # Cast petrification animation
+        animations = self.petrification_animation.copy()
+        for animation in animations:
+            effect = animation[0]
+            victim = animation[1]
+            if effect.tick() == True:
+                self.petrification_animation.remove(animation)
+                victim.set_effect(const.ITEM_SET.PETRIFICATION, const.ITEM_STATUS.NORMAL)
+                continue
+            for particle in effect.particles:
+                pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
 
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()
@@ -341,54 +362,3 @@ class Fog:
         self.position = self.position + pg.Vector2(self.speed/const.FPS, 0)
         if self.position.x > const.WINDOW_SIZE[0]:
             self.position.x -= const.FOG_SIZE[0]
-
-class GatheringParticleEffect:
-    """
-    Create a particle effect of circles gathering to a point, 
-    representing ghost's teleport chanting effect.
-
-    The number of particles will increase as the chanting time goes on.
-    """
-
-    def __init__(self, position: pg.Vector2, alive_time) -> None:
-        self.position = position
-        self.particles: list[Particle] = []
-        self.particle_number = random.randint(9, 11)
-        self.alive_time = alive_time
-        for _ in range(self.particle_number):
-            self.particles.append(Particle(position))
-
-    def tick(self) -> None:
-        arrived_particle: list[Particle] = []
-        for particle in self.particles:
-            particle.update()
-            if particle.arrive():
-                arrived_particle.append(particle)
-                self.particle_number -= 1
-        self.particles = [x for x in self.particles if x not in arrived_particle]
-        for _ in range(2 * len(arrived_particle)):
-            if self.particle_number > 15:
-                break
-            if random.random() >= 0.4:
-                self.particles.append(Particle(self.position))
-                self.particle_number += 1
-
-
-class Particle:
-    def __init__(self, position: pg.Vector2):
-        self.speed = random.randint(50, 300)
-        self.displacement = pg.Vector2((
-            random.choice([1, -1]) * random.uniform(5 * self.speed / const.FPS, 50),
-            random.choice([1, -1]) * random.uniform(5 * self.speed / const.FPS, 50)))
-        self.destination = position
-        self.position: pg.Vector2 = position + self.displacement
-        self.color = (random.randint(50, 255), random.randint(50, 255), random.randint(50, 255))
-        self.radius = random.uniform(3, 10)
-
-    def update(self):
-        self.position = self.position - self.displacement.normalize() * self.speed / const.FPS
-
-    def arrive(self) -> bool:
-        if (self.destination - self.position).length() < 2 * self.speed / const.FPS:
-            return True
-        return False

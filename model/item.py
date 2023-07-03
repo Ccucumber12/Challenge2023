@@ -5,7 +5,8 @@ import pygame as pg
 
 import const
 import utl
-from instances_manager import get_game_engine
+from event_manager.events import EventCastPetrification
+from instances_manager import get_event_manager, get_game_engine
 
 
 class Item:
@@ -81,8 +82,8 @@ class Item:
                 if self.type == const.ITEM_SET.PETRIFICATION:
                     others = [x for x in model.players if x != player]
                     victim = random.choice(others)
-                    victim.set_effect(self.type, self.status)
-                    print(f"{victim.player_id} got effect: {self.type} ({self.status})")
+                    get_event_manager().post(EventCastPetrification(player, victim))
+                    print(f'{player.player_id} cast petrification against {victim.player_id}')
                 else:
                     player.set_effect(self.type, self.status)
                     print(f"{player.player_id} got effect: {self.type} ({self.status})")
