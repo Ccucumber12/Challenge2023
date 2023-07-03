@@ -1,4 +1,3 @@
-import math
 import random
 
 import numpy as np
@@ -10,7 +9,8 @@ from instances_manager import get_game_engine
 
 
 class Item:
-    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET, item_width, item_height, item_status: const.ITEM_STATUS):
+    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET, item_width, 
+                 item_height, item_status: const.ITEM_STATUS):
         self.item_id = item_id
         self.type = item_type
         self.position = position
@@ -80,10 +80,10 @@ class Item:
                 if self.type == const.ITEM_SET.PETRIFICATION:
                     others = [x for x in model.players if x != player]
                     victim = random.choice(others)
-                    victim.get_effect(self.type, self.status)
+                    victim.set_effect(self.type, self.status)
                     print(f"{victim.player_id} got effect: {self.type} ({self.status})")
                 else:
-                    player.get_effect(self.type, self.status)
+                    player.set_effect(self.type, self.status)
                     print(f"{player.player_id} got effect: {self.type} ({self.status})")
         if self.type == const.ITEM_SET.GOLDEN_SNITCH:
             self.move_golden_snitch()
@@ -104,12 +104,12 @@ class ItemGenerator:
         for candidate in candidates:
             # discard points not leggel
             if not (1 <= candidate.x <= const.ARENA_SIZE[0]
-                    and 1 <= candidate.y <= const.ARENA_SIZE[1]
-                    and model.map.get_type(candidate) != const.MAP_OBSTACLE):
+                    and 1 <= candidate.y <= const.ARENA_SIZE[1]) \
+                    and model.map.get_type(candidate) == const.MAP_OBSTACLE:
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]
             for obj in objects:
-                distance_to_object = math.hypot(obj.x - candidate.x, obj.y - candidate.y)
+                distance_to_object = obj.distance_to(candidate)
                 min_distance_to_objects = min(min_distance_to_objects, distance_to_object)
             if min_distance_to_objects > max_distance:
                 best_location = candidate
