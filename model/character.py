@@ -177,17 +177,6 @@ class Player(Character):
         self.effect_timer = 0
         self.effect = None
 
-    def tick(self):
-        """
-        Run when EventEveryTick() arises.
-        """
-        if self.effect_timer > 0:
-            self.effect_timer -= 1
-        else:
-            self.remove_effect()
-        if self.iscaught():
-            self.caught()
-
     def iscaught(self):
         model = get_game_engine()
         """Return if the player is caught by one of the ghosts"""
@@ -267,6 +256,22 @@ class Player(Character):
             # It will be implemented in function move_direction.
             pass
 
+    def tick(self):
+        """
+        Run when EventEveryTick() arises.
+        """
+        model = get_game_engine()
+        if model.map.get_type(self.position) == const.MAP_PUDDLE:
+            self.speed = 0.7 * const.PLAYER_SPEED
+        else:
+            self.speed = const.PLAYER_SPEED
+        if self.effect_timer > 0:
+            self.effect_timer -= 1
+        else:
+            self.remove_effect()
+        if self.iscaught():
+            self.caught()
+
 
 class Patronus(Character):
     def __init__(self, patronus_id: int, position: pg.Vector2, owner: Player):
@@ -309,6 +314,11 @@ class Patronus(Character):
 
     def tick(self):
         # Look for the direction of the player it is chasing
+        model = get_game_engine()
+        if model.map.get_type(self.position) == const.MAP_PUDDLE:
+            self.speed = 0.7 * const.PATRONUS_SPEED
+        else:
+            self.speed = const.PATRONUS_SPEED
         if self.chasing == None or self.chasing.dead:
             self.chasing = self.choose_target()
         if self.chasing != None:
