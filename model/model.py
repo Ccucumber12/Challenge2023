@@ -70,6 +70,16 @@ class GameEngine:
             if self.timer == const.GAME_LENGTH:
                 ev_manager.post(EventTimesUp())
 
+            # Check if a item is eaten
+            item_deletions = []
+            for item in self.items:
+                item.tick()
+                if item.eaten or self.timer > item.vanish_time:
+                    item_deletions.append(item)
+            for item in item_deletions:
+                self.items.remove(item)
+                del item
+
             # Handle user events
             if self.timer in self.user_events:
                 events = self.user_events[self.timer]
