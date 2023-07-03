@@ -19,12 +19,12 @@ class GameEngine:
     def __init__(self):
         """
         This function is called when the GameEngine is created.
-        For more specific objects related to a game instance
-            , they should be initialized in GameEngine.initialize()
+        For more specific objects related to a game instance,
+        they should be initialized in GameEngine.initialize()
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map('maps/testmap')
+        self.map = load_map('maps/river')
         self.timer = 0
 
     @property

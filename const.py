@@ -116,11 +116,11 @@ SORTINGHAT_INVINCIBLE_TIME = 5*FPS
 GOLDEN_SNITCH_APPEAR_TIME = 30*FPS
 GOLDEN_SNITCH_SPEED = 250
 
-# view
+# viewF
 WINDOW_CAPTION = 'Challenge 2023'
-WINDOW_SIZE = (800+282, 800)
 ARENA_SIZE = (800, 800)
 SCORE_BOARD_SIZE = (282, 800)
+WINDOW_SIZE = (ARENA_SIZE[0]+SCORE_BOARD_SIZE[0], ARENA_SIZE[1])
 TITLE_SIZE = (1168, 800)
 BACKGROUND_COLOR = pg.Color('black')
 CLOAK_TRANSPARENCY = 128 # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
@@ -146,15 +146,13 @@ class OTEHR_PICTURES(Enum):
     MAGIC_CIRCLE = 1
 
 SCOREBOARD_FONT_SIZE = 32
-TIME_POSITION = [(854, 160), (912, 160), (971, 160), (1029, 160)]
+SCOREBOARD_COL = [54, 112, 171, 229]
+TIME_POSITION = [(x + ARENA_SIZE[0], 160) for x in SCOREBOARD_COL]
 PLAYER_NAME = ["Hermione Yellow", "Hermione Pink", "Hermione Gray", "Hermione Blue"]
-NAME_POSITION = [(940, 238), (940, 365), (940, 490), (937, 620)]
-SCORE_POSITION = [
-    [(854, 287), (912, 287), (971, 287), (1029, 287)],
-    [(854, 414), (912, 414), (971, 414), (1029, 414)],
-    [(854, 540), (912, 540), (971, 540), (1029, 540)],
-    [(854, 670), (912, 670), (971, 670), (1029, 670)],
-]
+NAME_ROW = [238, 365, 490, 620]
+NAME_POSITION = [(140 + ARENA_SIZE[0], y) for y in NAME_ROW]
+SCORE_ROW = [287, 414, 540, 670]
+SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCORE_ROW]
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "pictures/items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",

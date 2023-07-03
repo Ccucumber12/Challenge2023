@@ -3,7 +3,7 @@ import json
 import os
 import re
 
-import pygame
+import pygame as pg
 
 import const
 
@@ -34,7 +34,7 @@ class Map:
                        (cell[1] + 0.5 * (1 + dy)) * const.ARENA_SIZE[1] / self.size[1]))
         return x, y
 
-    def get_type(self, position):
+    def get_type(self, position: pg.Vector2) -> int:
         x, y = self.convert_coordinate(position)
         return self.map[x][y]
 
