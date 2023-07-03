@@ -65,8 +65,8 @@ class EventCastPetrification(BaseEvent):
     def __str__(self):
         return f'{self.name} => {self.attacker.player_id} cast petrification against {self.victim.player_id}'
 
-class EventPetrified(BaseEvent):
-    name = 'Petrified event'
+class EventPetrify(BaseEvent):
+    name = 'Petrify event'
 
     def __init__(self, victim):
         super().__init__()

@@ -185,6 +185,12 @@ class Player(Character):
         self.effect_timer = 0
         self.effect = None
 
+        ev_manager = get_event_manager()
+        ev_manager.register_listener(EventPetrify, self.handle_petrify)
+    
+    def handle_petrify(self, event):
+        event.victim.set_effect(const.ITEM_SET.PETRIFICATION, const.ITEM_STATUS.NORMAL)
+
     def iscaught(self):
         model = get_game_engine()
         """Return if the player is caught by one of the ghosts"""

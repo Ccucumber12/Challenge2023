@@ -278,7 +278,7 @@ class GraphicalView:
             victim = animation[1]
             if effect.tick() == True:
                 self.petrification_animation.remove(animation)
-                victim.set_effect(const.ITEM_SET.PETRIFICATION, const.ITEM_STATUS.NORMAL)
+                get_event_manager().post(EventPetrify(victim))
                 continue
             for particle in effect.particles:
                 pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
