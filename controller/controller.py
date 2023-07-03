@@ -67,8 +67,11 @@ class Controller:
 
     def ctrl_play(self, key_down_events):
         ev_manager = get_event_manager()
+        model = get_game_engine()
         keys = pg.key.get_pressed()
         for k, v in const.PLAYER_KEYS.items():
+            if model.ai[v[0]] != 'manual':
+                continue
             if keys[k]:
                 ev_manager.post(EventPlayerMove(*v))
         # FOR TEST:

@@ -11,6 +11,7 @@ from instances_manager import get_event_manager
 from model.character import Ghost, Patronus, Player
 from model.item import Item, ItemGenerator
 from model.map import load_map
+import api.api_impl as api_impl
 
 
 class GameEngine:
@@ -18,7 +19,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name):
+    def __init__(self, map_name, ai):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -28,6 +29,8 @@ class GameEngine:
         self._state = None
         self.map = load_map(map_name)
         self.timer = 0
+        self.ai = ai
+        print(ai)
 
     @property
     def state(self):
@@ -50,6 +53,8 @@ class GameEngine:
         self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
+
+        api_impl.init(self.ai)
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -86,6 +91,9 @@ class GameEngine:
                 for event in events:
                     event()
                 del self.user_events[self.timer]
+
+            for i in range(0, 4):
+                api_impl.call_ai(i)
 
         elif cur_state == const.STATE_ENDGAME:
             self.update_endgame()

@@ -27,12 +27,16 @@ def main():
     # Argument parser
     parser = argparse.ArgumentParser(prog='Challenge2023')
     parser.add_argument('map')
+    parser.add_argument('ai1', nargs='?', default='manual')
+    parser.add_argument('ai2', nargs='?', default='manual')
+    parser.add_argument('ai3', nargs='?', default='manual')
+    parser.add_argument('ai4', nargs='?', default='manual')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     instances_manager.register_event_manager(ev_manager)
-    model = GameEngine(args.map)
+    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4])
     instances_manager.register_game_engine(model)
     Controller()
     GraphicalView()
