@@ -19,6 +19,7 @@ class Item:
         self.status = item_status
         self.eaten = False
         self.golden_snitch_goal = None
+        self.vanish_time = get_game_engine().timer + const.ITEM_LIFETIME[item_type]
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"

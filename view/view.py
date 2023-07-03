@@ -63,6 +63,8 @@ class GraphicalView:
         for item in const.ITEM_SET:
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
+            self.transparent_image[item] = self.pictures[item].convert_alpha()
+            self.transparent_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
         for player in const.PLAYER_IDS:
             picture = pg.image.load(const.PICTURES_PATH[player]).convert_alpha()
             self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
@@ -189,7 +191,7 @@ class GraphicalView:
             center = list(map(int, item.position))
             ul = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, ul))
+            objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, ul, item.vanish_time))
         for player in model.players:
             center = list(map(int, player.position))
             ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
@@ -211,10 +213,10 @@ class GraphicalView:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
 
         objects.sort(key=lambda x: (x[0], x[1]))
+        half_sec = model.timer // (const.FPS // 2)
         for obj in objects:
             if obj[1] == const.OBJECT_TYPE.PLAYER:
                 if obj[5]:
-                    half_sec = model.timer // (const.FPS // 2)
                     if half_sec % 2 == 0:
                         self.screen.blit(self.transparent_image[obj[2]], obj[3])
                     else:
@@ -233,7 +235,10 @@ class GraphicalView:
                 self.screen.blit(obj[2], (0, 0))
             elif obj[1] == const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle.
-                self.screen.blit(self.pictures[obj[2]], obj[3])
+                if half_sec % 2 == 0 or model.timer + 5*const.FPS < obj[4]:
+                    self.screen.blit(self.pictures[obj[2]], obj[3])
+                else:
+                    self.screen.blit(self.transparent_image[obj[2]], obj[3])
 
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()

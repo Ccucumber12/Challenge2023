@@ -72,7 +72,7 @@ class GameEngine:
             item_deletions = []
             for item in self.items:
                 item.tick()
-                if item.eaten:
+                if item.eaten or self.timer > item.vanish_time:
                     item_deletions.append(item)
             for item in item_deletions:
                 self.items.remove(item)
