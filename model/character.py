@@ -14,9 +14,10 @@ class Character:
     Parent class of Player, Ghost and all movable characters
     """
 
-    def __init__(self, position: pg.Vector2, speed: int):
+    def __init__(self, position: pg.Vector2, speed: int, radius):
         self.position = position
         self.speed = speed
+        self.radius = radius
 
         # This caches the first x cells in the calculated path
         self.saved_path = []
@@ -48,8 +49,10 @@ class Character:
             new_position = self.position + self.speed / const.FPS * direction
 
             # clamp
-            new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
-            new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
+            new_position.x = max(self.radius,
+                                 min(const.ARENA_SIZE[0] - self.radius, new_position.x))
+            new_position.y = max(self.radius,
+                                 min(const.ARENA_SIZE[1] - self.radius, new_position.y))
 
             model = get_game_engine()
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
@@ -172,7 +175,7 @@ class Player(Character):
         # temporary: gets random positioin for spawn point
         position = self.get_random_position(position)
         speed = const.PLAYER_SPEED
-        super().__init__(position, speed)
+        super().__init__(position, speed, const.PLAYER_RADIUS)
 
         self.dead = False
         self.invisible = False
@@ -281,11 +284,11 @@ class Player(Character):
 class Patronus(Character):
     def __init__(self, patronus_id: int, position: pg.Vector2, owner: Player):
         self.patronus_id = patronus_id
-        super().__init__(position, const.PATRONUS_SPEED)
+        super().__init__(position, const.PATRONUS_SPEED, const.PATRONUS_RADIUS)
 
         self.owner = owner
         self.chasing = self.choose_target()
-        
+
         self.score = 500
         self.invisible = False
         self.dead = False
@@ -339,7 +342,7 @@ class Ghost(Character):
         position = self.get_random_position(position)
 
         speed = const.GHOST_INIT_SPEED
-        super().__init__(position, speed)
+        super().__init__(position, speed, const.GHOST_RADIUS)
 
         # State as defined by Const.GHOST_STATE
         self.state = const.GHOST_STATE.CHASE
