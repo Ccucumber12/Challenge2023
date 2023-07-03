@@ -39,7 +39,8 @@ class Character:
             return
 
         # Normalize direction in place
-        direction.normalize_ip()
+        if (direction.length() > 1):
+            direction.normalize_ip()
 
         # If it hits an obstacle, try a smaller distance
         for attempt in range(3):
