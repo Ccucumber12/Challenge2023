@@ -171,6 +171,9 @@ class GraphicalView:
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        text_surface = font.render("Press [F1] to start ...", 1, pg.Color('gray88'))
+        text_center = (const.WINDOW_SIZE[0] / 2, 80)
+        self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
 

@@ -76,3 +76,6 @@ class EventSortinghat(BaseEvent):
 
     def __str__(self):
         return f'{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}'
+
+class EventMuteMusic(BaseEvent):
+    name = 'MuteMusic event'

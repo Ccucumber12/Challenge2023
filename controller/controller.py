@@ -2,7 +2,7 @@ import pygame as pg
 
 import const
 from event_manager.events import (EventEveryTick, EventInitialize,
-                                  EventPlayerMove, EventQuit, EventStateChange)
+                                  EventPlayerMove, EventQuit, EventStateChange, EventMuteMusic)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -34,6 +34,8 @@ class Controller:
             if event_pg.type == pg.QUIT:
                 ev_manager.post(EventQuit())
             if event_pg.type == pg.KEYDOWN:
+                if event_pg.key == const.MUTE_KEY:
+                    ev_manager.post(EventMuteMusic())
                 key_down_events.append(event_pg)
             # for orientating
             if event_pg.type == pg.MOUSEBUTTONDOWN:

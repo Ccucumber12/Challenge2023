@@ -198,3 +198,4 @@ PLAYER_KEYS = {
     pg.K_s: (0, 'down'),
     pg.K_d: (0, 'right'),
 }
+MUTE_KEY = pg.K_F1
