@@ -5,7 +5,7 @@ from math import ceil
 import pygame as pg
 
 import const
-from event_manager.events import *
+from event_manager.events import EventPetrify, EventSortinghat, EventGhostTeleport
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -39,8 +39,8 @@ class Character:
         if direction == pg.Vector2(0, 0):
             return
 
-        # Normalize direction in place
-        if (direction.length() < self.speed / const.FPS):
+        # Normalize direction in place if direction is longer than the max distance character can move
+        if (direction.length() > self.speed / const.FPS):
             direction.normalize_ip()
 
         # If it hits an obstacle, try a smaller distance
@@ -187,7 +187,7 @@ class Player(Character):
 
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventPetrify, self.handle_petrify)
-    
+
     def handle_petrify(self, event: EventPetrify):
         event.victim.set_effect(const.ITEM_SET.PETRIFICATION)
 

@@ -21,8 +21,7 @@ class PLAYER_IDS(IntEnum):
     PLAYER2 = 2
     PLAYER3 = 3
 
-PLAYER_INIT_POSITION = [pg.Vector2(200, 400), pg.Vector2(600, 400),
-                        pg.Vector2(200, 200), pg.Vector2(600, 200)]
+
 PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
 PLAYER_ADD_SCORE = [2, 3, 5, 5]
