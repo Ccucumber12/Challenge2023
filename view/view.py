@@ -192,18 +192,18 @@ class GraphicalView:
             objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, ul))
         for player in model.players:
             center = list(map(int, player.position))
-            ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS])]
+            ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
             coord = game_map.convert_coordinate(player.position)
             objects.append((coord[1], const.OBJECT_TYPE.PLAYER,
                            player.player_id, ul, player.effect))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
-            ul = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS])]
+            ul = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
             coord = game_map.convert_coordinate(ghost.position)
             objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, ul))
         for patronus in model.patronuses:
             center = list(map(int, patronus.position))
-            ul = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS])]
+            ul = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
             coord = game_map.convert_coordinate(patronus.position)
             objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, ul))
 
