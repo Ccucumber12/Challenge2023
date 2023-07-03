@@ -247,9 +247,9 @@ class Player(Character):
             pass
         self.effect = None
 
-    def set_effect(self, effect: const.ITEM_SET, effect_status: const.ITEM_STATUS):
+    def set_effect(self, effect: const.ITEM_SET):
         self.effect = effect
-        self.effect_timer = const.ITEM_DURATION[effect][effect_status]
+        self.effect_timer = const.ITEM_DURATION[effect]
         if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
             self.add_score(150)
             self.speed *= 1.5
