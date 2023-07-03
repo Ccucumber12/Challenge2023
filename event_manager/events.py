@@ -1,7 +1,7 @@
 import pygame as pg
 
-from event_manager.event_manager import BaseEvent
 import const
+from event_manager.event_manager import BaseEvent
 
 
 class EventInitialize(BaseEvent):
@@ -65,12 +65,13 @@ class EventCastPetrification(BaseEvent):
     def __str__(self):
         return f'{self.name} => {self.attacker.player_id} cast petrification against {self.victim.player_id}'
 
-class EventPetrified(BaseEvent):
-    name = 'Petrified event'
+class EventPetrify(BaseEvent):
+    name = 'Petrify event'
 
     def __init__(self, victim):
+        from model.character import Player
         super().__init__()
-        self.victim = victim
+        self.victim: Player = victim
     
     def __str__(self):
         return f'{self.name} => {self.victim.player_id} is petrified'
