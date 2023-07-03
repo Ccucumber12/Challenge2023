@@ -40,7 +40,7 @@ class Character:
             return
 
         # Normalize direction in place
-        if (direction.length() > 1):
+        if (direction.length() < self.speed / const.FPS):
             direction.normalize_ip()
 
         # If it hits an obstacle, try a smaller distance
@@ -66,7 +66,7 @@ class Character:
             self.position = new_position
             return
 
-    def pathfind(self, x, y):
+    def pathfind(self, x, y) -> pg.Vector2:
         """
         Pathfinding algorithm implementation.
         Take x and y as the destination, 
@@ -149,12 +149,12 @@ class Character:
             self.saved_path = [(path[i][0], path[i][1])
                                for i in range(1, min(len(path), const.CACHE_CELLS+1))]
         if len(self.saved_path) == 0:
-            return x, y
+            return pg.Vector2(x, y)
         r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
         dx = (x - self.position[0]) / r
         dy = (y - self.position[1]) / r
 
-        return Map.convert_cell((self.saved_path[0][0], self.saved_path[0][1]), dx, dy)
+        return pg.Vector2(Map.convert_cell((self.saved_path[0][0], self.saved_path[0][1]), dx, dy))
 
     def get_random_position(self, obj):
         """Finds a random position that does not collide with obstacles"""
@@ -313,8 +313,7 @@ class Patronus(Character):
     def chase(self):
         """Patronus will move toward its taget player."""
         # Uses Pathfind
-        self.move(pg.Vector2(
-            self.pathfind(self.chasing.position.x, self.chasing.position.y)) - self.position)
+        self.move(self.pathfind(self.chasing.position.x, self.chasing.position.y) - self.position)
 
     def iscaught(self) -> bool:
         """Return if the patronus is caught by one of the ghosts"""
@@ -413,8 +412,7 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move(pg.Vector2(
-            self.pathfind(self.prey.position.x, self.prey.position.y)) - self.position)
+        self.move(self.pathfind(self.prey.position.x, self.prey.position.y) - self.position)
 
     def wander_handler(self):
         model = get_game_engine()
@@ -426,8 +424,7 @@ class Ghost(Character):
     def wander(self):
         if self.wander_pos == None:
             self.wander_pos = self.get_random_position(self.wander_pos)
-        self.move(pg.Vector2(self.pathfind(self.wander_pos.x, self.wander_pos.y))
-                  - self.position)
+        self.move(self.pathfind(self.wander_pos.x, self.wander_pos.y) - self.position)
 
     def tick(self):
         """
