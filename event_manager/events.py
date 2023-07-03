@@ -54,6 +54,27 @@ class EventGhostMove(BaseEvent):
     def __str__(self):
         return f'{self.name} => ghost_id {self.ghost_id} move {self.direction}'
 
+class EventCastPetrification(BaseEvent):
+    name = 'Cast petrification event'
+
+    def __init__(self, attacker, victim):
+        super().__init__()
+        self.attacker = attacker
+        self.victim = victim
+    
+    def __str__(self):
+        return f'{self.name} => {self.attacker.player_id} cast petrification against {self.victim.player_id}'
+
+class EventPetrified(BaseEvent):
+    name = 'Petrified event'
+
+    def __init__(self, victim):
+        super().__init__()
+        self.victim = victim
+    
+    def __str__(self):
+        return f'{self.name} => {self.victim.player_id} is petrified'
+
 class EventGhostTeleport(BaseEvent):
     name = 'GhostTeleport event'
 
