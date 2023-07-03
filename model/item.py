@@ -25,8 +25,10 @@ class Item:
 
     def move_golden_snitch(self):
         model = get_game_engine()
+
         def mindis():
             return min((player.position - self.position).length() for player in model.players)
+
         def getweight(pos):
             ret = (pos - pg.Vector2(const.ARENA_SIZE[0]/2, const.ARENA_SIZE[1]/2)).length()*2
             dis = (pos - self.position).length()
@@ -40,19 +42,22 @@ class Item:
                     dot = -1
                 if vec1.length() < 200:
                     ret += dot * (20000 / min(150, abs(vec1.cross(vec2)) / dis))
-                    
+
             return ret
         if (self.golden_snitch_goal is None) or mindis() < 100:
-            pnts = [pg.Vector2(random.uniform(0, const.ARENA_SIZE[0]), random.uniform(0, const.ARENA_SIZE[1])) for i in range(50)] 
+            pnts = [pg.Vector2(random.uniform(0, const.ARENA_SIZE[0]),
+                               random.uniform(0, const.ARENA_SIZE[1])) for i in range(50)]
             weights = [getweight(pos) for pos in pnts]
             self.golden_snitch_goal = pnts[weights.index(min(weights))]
-    
-        #print("weight", getweight(self.golden_snitch_goal))
+
+        # print("weight", getweight(self.golden_snitch_goal))
         if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED / const.FPS:
             new_position = self.golden_snitch_goal
             self.golden_snitch_goal = None
         else:
-            new_position = self.position + (self.golden_snitch_goal - self.position).normalize() * const.GOLDEN_SNITCH_SPEED / const.FPS        
+            new_position = self.position + \
+                (self.golden_snitch_goal - self.position).normalize() * \
+                const.GOLDEN_SNITCH_SPEED / const.FPS
         # clamp
         new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
         new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
@@ -63,7 +68,7 @@ class Item:
             print('Portal', portal)
         # Update
         self.position = new_position
-        return 
+        return
 
     def tick(self):
         model = get_game_engine()
@@ -82,6 +87,7 @@ class Item:
                     print(f"{player.player_id} got effect: {self.type} ({self.status})")
         if self.type == const.ITEM_SET.GOLDEN_SNITCH:
             self.move_golden_snitch()
+
 
 class ItemGenerator:
     def __init__(self):
