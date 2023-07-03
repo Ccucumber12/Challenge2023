@@ -151,6 +151,11 @@ class Character:
         if len(self.saved_path) == 0:
             return pg.Vector2(x, y)
         r = (x - self.position[0]) ** 2 + (y - self.position[1]) ** 2
+
+        if r == 0:
+            self.saved_path = []
+            return x, y
+
         dx = (x - self.position[0]) / r
         dy = (y - self.position[1]) / r
 
