@@ -129,6 +129,9 @@ ARENA_SIZE = (1200, 800)
 SCORE_BOARD_SIZE = (282, 800)
 WINDOW_SIZE = (ARENA_SIZE[0]+SCORE_BOARD_SIZE[0], ARENA_SIZE[1])
 TITLE_SIZE = (1168, 800)
+FOG_SIZE = (1878, 800)
+FOG_TRANSPARENCY = 150
+FOG_SPEED = 150
 BACKGROUND_COLOR = pg.Color('black')
 CLOAK_TRANSPARENCY = 128 # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
 NEAR_VANISH_TRANSPARENCY = 64
@@ -148,6 +151,7 @@ class OBJECT_TYPE(IntEnum):
 class SCENE(Enum):
     TITLE = 0
     SCORE_BOARD = 1
+    FOG = 2
 
 class OTEHR_PICTURES(Enum):
     PATRONUS = 0
@@ -174,6 +178,7 @@ PICTURES_PATH = {
     GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
     SCENE.TITLE: "pictures/scenes/Title.png",
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
+    SCENE.FOG: "pictures/scenes/Fog.png",
     OTEHR_PICTURES.PATRONUS: "pictures/characters/shining_patronus.png",
     OTEHR_PICTURES.MAGIC_CIRCLE: "pictures/characters/ghosts/MagicCircle.png",
 }

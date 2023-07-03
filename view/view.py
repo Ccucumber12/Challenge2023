@@ -87,13 +87,16 @@ class GraphicalView:
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.SCORE_BOARD]).convert_alpha()
         self.pictures[const.SCENE.SCORE_BOARD] = crop(
             picture, const.ARENA_SIZE[0], const.ARENA_SIZE[1])
-        # print(self.pictures[Const.SCENE.SCORE_BOARD].get_width())
-        # print(self.pictures[Const.SCENE.SCORE_BOARD].get_height())
         picture = pg.image.load(const.PICTURES_PATH[const.SCENE.TITLE]).convert_alpha()
         self.pictures[const.SCENE.TITLE] = crop(
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
-        # print(self.pictures[Const.SCENE.TITLE].get_width())
-        # print(self.pictures[Const.SCENE.TITLE].get_height())
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.FOG]).convert_alpha()
+        picture.set_alpha(const.FOG_TRANSPARENCY)
+        self.pictures[const.SCENE.FOG] = crop(
+            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+        self.fog = Fog(self.screen, self.pictures[const.SCENE.FOG], const.FOG_SPEED)
+        # print(self.pictures[const.SCENE.FOG].get_width())
+        # print(self.pictures[const.SCENE.FOG].get_height())
 
         # Animation
         picture = pg.image.load(const.PICTURES_PATH[const.OTEHR_PICTURES.PATRONUS]).convert_alpha()
@@ -114,7 +117,11 @@ class GraphicalView:
         """
         This method is called when a new game is instantiated.
         """
-        pass
+        model = get_game_engine()
+        model.register_user_event(const.GOLDEN_SNITCH_APPEAR_TIME, self.last_stage_handler)
+    
+    def last_stage_handler(self):
+        self.fog.start = True
 
     def handle_every_tick(self, event):
         self.display_fps()
@@ -173,7 +180,7 @@ class GraphicalView:
         text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-        text_surface = font.render("Press [F1] to start ...", 1, pg.Color('gray88'))
+        text_surface = font.render("Press [F1] to mute/unmute music", 1, pg.Color('gray88'))
         text_center = (const.WINDOW_SIZE[0] / 2, 80)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
@@ -273,6 +280,9 @@ class GraphicalView:
                 (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
             self.sortinghat_animations.append((position, victim, index))
 
+        # Fog
+        self.fog.tick()
+
         # Scoreboard
         self.screen.blit(self.pictures[const.SCENE.SCORE_BOARD], (const.ARENA_SIZE[0], 0))
 
@@ -308,6 +318,28 @@ class GraphicalView:
 
         pg.display.flip()
 
+class Fog:
+    def __init__(self, screen, fog: pg.surface, speed):
+        self.start = False
+        self.picture = fog
+        self.position = pg.Vector2(0, const.ARENA_SIZE[1])
+        self.speed = speed
+        self.screen = screen
+        self.raising = True
+    
+    def tick(self):
+        if not self.start:
+            return
+        if self.raising:
+            self.position = self.position + pg.Vector2(0, -self.speed/const.FPS)
+            if self.position.y <= 0:
+                self.position.y = 0
+                self.raising = False
+        self.screen.blit(self.picture, self.position)
+        self.screen.blit(self.picture, self.position - pg.Vector2(const.FOG_SIZE[0], 0))
+        self.position = self.position + pg.Vector2(self.speed/const.FPS, 0)
+        if self.position.x > const.WINDOW_SIZE[0]:
+            self.position.x -= const.FOG_SIZE[0]
 
 class GatheringParticleEffect:
     """
