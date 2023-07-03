@@ -64,7 +64,11 @@ class Character:
             return
 
     def pathfind(self, x, y):
-        """Pathfinding algorithm implementation"""
+        """
+        Pathfinding algorithm implementation.
+        Take x and y as the destination, 
+        then return the first (x, y) that the character should go to.
+        """
         def reconstruct_path(parent, current):
             path = []
             while current is not None:
@@ -240,7 +244,7 @@ class Player(Character):
             pass
         self.effect = None
 
-    def get_effect(self, effect: const.ITEM_SET, effect_status: const.ITEM_STATUS):
+    def set_effect(self, effect: const.ITEM_SET, effect_status: const.ITEM_STATUS):
         self.effect = effect
         self.effect_timer = const.ITEM_DURATION[effect][effect_status]
         if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
