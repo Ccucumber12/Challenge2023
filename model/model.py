@@ -16,7 +16,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self):
+    def __init__(self, map_name):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -24,7 +24,7 @@ class GameEngine:
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map('maps/river')
+        self.map = load_map(map_name)
         self.timer = 0
 
     @property

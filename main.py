@@ -9,6 +9,7 @@ from model.model import GameEngine
 from view.view import GraphicalView
 from sound.sound import BackGroundMusic
 
+import argparse
 
 def main():
     # Initialization
@@ -23,10 +24,15 @@ def main():
         except AttributeError:
             pass # Windows XP doesn't support monitor scaling, so just do nothing.
 
+    # Argument parser
+    parser = argparse.ArgumentParser(prog='Challenge2023')
+    parser.add_argument('map')
+    args = parser.parse_args()
+
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     instances_manager.register_event_manager(ev_manager)
-    model = GameEngine()
+    model = GameEngine(args.map)
     instances_manager.register_game_engine(model)
     Controller()
     GraphicalView()
