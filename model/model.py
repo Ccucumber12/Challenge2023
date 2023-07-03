@@ -1,3 +1,5 @@
+import random
+
 import pygame as pg
 
 import const
@@ -40,14 +42,14 @@ class GameEngine:
         self.players: list[Player] = []
         for i in const.PLAYER_IDS:
             self.players.append(Player(i))
-        self.ghosts: list[Ghost] = []
-        for i in const.GHOST_IDS:
-            self.ghosts.append(Ghost(i, const.GHOST_INIT_TP_CD))
+        self.ghosts: list[Ghost] = [
+            Ghost(0, const.GHOST_INIT_TP_CD, const.GHOST_INIT_POSITION[const.GHOST_IDS.DEMENTOR])]
         self.patronuses: list[Patronus] = []
         self.items: set[Item] = set()
         self.timer = 0
         self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
+        self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -67,16 +69,6 @@ class GameEngine:
 
             if self.timer == const.GAME_LENGTH:
                 ev_manager.post(EventTimesUp())
-
-            # Check if a item is eaten
-            item_deletions = []
-            for item in self.items:
-                item.tick()
-                if item.eaten:
-                    item_deletions.append(item)
-            for item in item_deletions:
-                self.items.remove(item)
-                del item
 
             # Handle user events
             if self.timer in self.user_events:
@@ -138,12 +130,22 @@ class GameEngine:
         """
         for player in self.players:
             player.tick()
-        self.ghosts[0].tick()
+
+        for ghost in self.ghosts:
+            ghost.tick()
+
         for patronuse in self.patronuses:
             patronuse.tick()
             if patronuse.dead:
                 self.patronuses.remove(patronuse)
-                del patronuse
+
+        item_deletions = []
+        for item in self.items:
+            item.tick()
+            if item.eaten:
+                item_deletions.append(item)
+        for item in item_deletions:
+            self.items.remove(item)
 
     def update_endgame(self):
         """
@@ -151,6 +153,21 @@ class GameEngine:
         For example: scoreboard
         """
         pass
+
+    def create_ghost(self):
+        candidate = pg.Vector2(
+            random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
+            random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
+        while self.map.get_type(candidate) == const.MAP_OBSTACLE:
+            candidate = pg.Vector2(
+                random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
+                random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
+        new_ghost = Ghost(len(self.ghosts), const.GHOST_INIT_TP_CD, candidate)
+        self.ghosts.append(new_ghost)
+
+    def create_ghost_handler(self):
+        self.create_ghost()
+        self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
     def run(self):
         """

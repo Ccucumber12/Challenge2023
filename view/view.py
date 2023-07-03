@@ -1,12 +1,13 @@
-import random
-import os
 import math
+import os
+import random
 
 import pygame as pg
 
 import const
 from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
+
 
 class GraphicalView:
     """
@@ -226,7 +227,7 @@ class GraphicalView:
                 else:
                     self.screen.blit(self.pictures[obj[2]], obj[3])
             elif obj[1] == const.OBJECT_TYPE.GHOST:
-                self.screen.blit(self.pictures[obj[2]], obj[3])
+                self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], obj[3])
             elif obj[1] == const.OBJECT_TYPE.PATRONUS:
                 self.screen.blit(self.shining_patronus, obj[3])
             elif obj[1] == const.OBJECT_TYPE.MAP:

@@ -302,15 +302,13 @@ class Patronus(Character):
             return None
 
     def chase(self):
-        """
-        Ghost will move toward its prey.
-        """
+        """Patronus will move toward its taget player."""
         # Uses Pathfind
         self.move(pg.Vector2(
             self.pathfind(self.chasing.position.x, self.chasing.position.y)) - self.position)
 
     def iscaught(self) -> bool:
-        """Return if the player is caught by one of the ghosts"""
+        """Return if the patronus is caught by one of the ghosts"""
         model = get_game_engine()
         for ghost in model.ghosts:
             if self.get_distance(ghost) < (const.PATRONUS_RADIUS + const.GHOST_RADIUS):
@@ -334,10 +332,8 @@ class Patronus(Character):
 
 
 class Ghost(Character):
-    def __init__(self, ghost_id, teleport_cd):
-
+    def __init__(self, ghost_id: int, teleport_cd: int, position: pg.Vector2):
         self.ghost_id = ghost_id
-        position = const.GHOST_INIT_POSITION[ghost_id]  # is a pg.Vector2
 
         # temp
         position = self.get_random_position(position)
