@@ -195,7 +195,7 @@ class GraphicalView:
             ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
             coord = game_map.convert_coordinate(player.position)
             objects.append((coord[1], const.OBJECT_TYPE.PLAYER,
-                           player.player_id, ul, player.effect))
+                           player.player_id, ul, player.effect, player.dead))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
             ul = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
@@ -211,23 +211,29 @@ class GraphicalView:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
 
         objects.sort(key=lambda x: (x[0], x[1]))
-        for i in objects:
-            if i[1] == const.OBJECT_TYPE.PLAYER:
-                if i[4] == const.ITEM_SET.PETRIFICATION:
-                    self.screen.blit(self.grayscale_image[i[2]], i[3])
-                elif i[4] == const.ITEM_SET.CLOAK:
-                    self.screen.blit(self.transparent_image[i[2]], i[3])
+        for obj in objects:
+            if obj[1] == const.OBJECT_TYPE.PLAYER:
+                if obj[5]:
+                    half_sec = model.timer // (const.FPS // 2)
+                    if half_sec % 2 == 0:
+                        self.screen.blit(self.transparent_image[obj[2]], obj[3])
+                    else:
+                        self.screen.blit(self.pictures[obj[2]], obj[3])
+                elif obj[4] == const.ITEM_SET.PETRIFICATION:
+                    self.screen.blit(self.grayscale_image[obj[2]], obj[3])
+                elif obj[4] == const.ITEM_SET.CLOAK:
+                    self.screen.blit(self.transparent_image[obj[2]], obj[3])
                 else:
-                    self.screen.blit(self.pictures[i[2]], i[3])
-            elif i[1] == const.OBJECT_TYPE.GHOST:
-                self.screen.blit(self.pictures[i[2]], i[3])
-            elif i[1] == const.OBJECT_TYPE.PATRONUS:
-                self.screen.blit(self.shining_patronus, i[3])
-            elif i[1] == const.OBJECT_TYPE.MAP:
-                self.screen.blit(i[2], (0, 0))
-            elif i[1] == const.OBJECT_TYPE.ITEM:
+                    self.screen.blit(self.pictures[obj[2]], obj[3])
+            elif obj[1] == const.OBJECT_TYPE.GHOST:
+                self.screen.blit(self.pictures[obj[2]], obj[3])
+            elif obj[1] == const.OBJECT_TYPE.PATRONUS:
+                self.screen.blit(self.shining_patronus, obj[3])
+            elif obj[1] == const.OBJECT_TYPE.MAP:
+                self.screen.blit(obj[2], (0, 0))
+            elif obj[1] == const.OBJECT_TYPE.ITEM:
                 # It's acually is a rectangle.
-                self.screen.blit(self.pictures[i[2]], i[3])
+                self.screen.blit(self.pictures[obj[2]], obj[3])
 
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()
