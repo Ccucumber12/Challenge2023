@@ -104,8 +104,8 @@ class ItemGenerator:
         model = get_game_engine()
         for candidate in candidates:
             # discard points not leggel
-            if not (const.ITEM_WIDTH <= candidate.x <= const.ARENA_SIZE[0] - const.ITEM_WIDTH
-                    and const.ITEM_HEIGHT <= candidate.y <= const.ARENA_SIZE[1] - const.ITEM_HEIGHT) \
+            if not (const.ITEM_WIDTH < candidate.x < const.ARENA_SIZE[0] - const.ITEM_WIDTH
+                    and const.ITEM_HEIGHT < candidate.y < const.ARENA_SIZE[1] - const.ITEM_HEIGHT) \
                     and model.map.get_type(candidate) == const.MAP_OBSTACLE:
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]

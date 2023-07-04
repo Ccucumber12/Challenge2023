@@ -447,7 +447,6 @@ class Ghost(Character):
                     default=None)
 
                 if self.prey is None:
-                    print(f"Ghost {self.ghost_id} is chasing but no prey!")
                     break
             if self.teleport_available and self.prey is not None \
                     and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME / const.FPS:
