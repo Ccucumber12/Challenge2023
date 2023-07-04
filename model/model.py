@@ -72,7 +72,9 @@ class GameEngine:
                         player.add_score(const.PLAYER_ADD_SCORE[(self.timer // const.FPS) // 60])
 
             if self.timer == const.GAME_LENGTH:
-                ev_manager.post(EventTimesUp())
+                places = self.players.copy()
+                places.sort(key=lambda x: x.score, reverse=True)
+                ev_manager.post(EventTimesUp(places))
 
             # Check if a item is eaten
             item_deletions = []

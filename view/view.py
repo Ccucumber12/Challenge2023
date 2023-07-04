@@ -110,9 +110,9 @@ class GraphicalView:
         # print(self.pictures[const.SCENE.FOG].get_height())
 
         # Animation
-        picture = pg.image.load(const.PICTURES_PATH[const.OTEHR_PICTURES.PATRONUS]).convert_alpha()
+        picture = pg.image.load(const.PICTURES_PATH[const.OTHER_PICTURES.PATRONUS]).convert_alpha()
         self.shining_patronus = crop(picture, const.PATRONUS_RADIUS*2, const.PATRONUS_RADIUS*2, True)
-        picture = pg.image.load(const.PICTURES_PATH[const.OTEHR_PICTURES.MAGIC_CIRCLE]).convert_alpha()
+        picture = pg.image.load(const.PICTURES_PATH[const.OTHER_PICTURES.MAGIC_CIRCLE]).convert_alpha()
         self.magic_circle = crop(picture, const.MAGIC_CIRCLE_RADIUS*2, const.MAGIC_CIRCLE_RADIUS*2, True)
         self.magic_circle.set_alpha(127)
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
@@ -155,6 +155,7 @@ class GraphicalView:
         ev_manager.register_listener(EventGhostTeleport, self.add_ghost_teleport_chanting_animation)
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
+        ev_manager.register_listener(EventTimesUp, self.register_places)
 
     def display_fps(self):
         """
@@ -178,6 +179,9 @@ class GraphicalView:
         position = model.players[event.assailant.value].position
         victim = event.victim
         self.sortinghat_animations.append((position, victim, 0))
+    
+    def register_places(self, event: EventTimesUp):
+        self.places = event.places
     
     def get_ul(self, center: list, size: list):
         """
@@ -353,6 +357,13 @@ class GraphicalView:
         text_surface = font.render("Game Over", 1, pg.Color('black'))
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        for place in range(3):
+            ul = [x - y for x, y in zip(const.PODIUM_POSITION[place], [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
+            self.screen.blit(self.pictures[self.places[place].player_id], ul)
+            font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
+            text_surface = font.render(str(self.places[place].score), 1, pg.Color('black'))
+            text_center = const.FINAL_SCORE_POSITION[place]
+            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
 

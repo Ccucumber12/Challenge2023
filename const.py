@@ -119,7 +119,7 @@ PETRIFICATION_ANIMATION_COLOR = pg.Color(169, 169, 169)
 PETRIFICATION_ANIMATION_THICKNESS = 10
 PETRIFICATION_ANIMATION_PARTICLE_RADIUS = 3
 
-# viewF
+# view
 WINDOW_CAPTION = 'Challenge 2023'
 ARENA_SIZE = (1200, 800)
 SCORE_BOARD_SIZE = (282, 800)
@@ -151,7 +151,7 @@ class SCENE(Enum):
     FOG = 2
     ENDGAME = 3
 
-class OTEHR_PICTURES(Enum):
+class OTHER_PICTURES(Enum):
     PATRONUS = 0
     MAGIC_CIRCLE = 1
 
@@ -183,10 +183,13 @@ PICTURES_PATH = {
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
     SCENE.FOG: "pictures/scenes/Fog.png",
     SCENE.ENDGAME: "pictures/scenes/Ending.png",
-    OTEHR_PICTURES.PATRONUS: "pictures/characters/shining_patronus.png",
-    OTEHR_PICTURES.MAGIC_CIRCLE: "pictures/characters/ghosts/MagicCircle.png",
+    OTHER_PICTURES.PATRONUS: "pictures/characters/shining_patronus.png",
+    OTHER_PICTURES.MAGIC_CIRCLE: "pictures/characters/ghosts/MagicCircle.png",
 }
 FONT_PATH = "fonts"
+# end game
+PODIUM_POSITION = [(WINDOW_SIZE[0]/2, 330), (WINDOW_SIZE[0]/2-247, 470), (WINDOW_SIZE[0]/2+260, 496)]
+FINAL_SCORE_POSITION = [(x, y-2*PLAYER_RADIUS-30) for (x, y) in PODIUM_POSITION]
 
 # sound
 MUSIC_PATH = {

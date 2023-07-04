@@ -30,6 +30,10 @@ class EventEveryTick(BaseEvent):
 class EventTimesUp(BaseEvent):
     name = "Time's Up event"
 
+    def __init__(self, places):
+        super().__init__
+        self.places = places
+
 
 class EventPlayerMove(BaseEvent):
     name = 'PlayerMove event'
