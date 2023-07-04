@@ -1,3 +1,4 @@
+import argparse
 import sys
 
 import pygame as pg
@@ -6,10 +7,9 @@ import instances_manager
 from controller.controller import Controller
 from event_manager.event_manager import EventManager
 from model.model import GameEngine
-from view.view import GraphicalView
 from sound.sound import BackGroundMusic
+from view.view import GraphicalView
 
-import argparse
 
 def main():
     # Initialization

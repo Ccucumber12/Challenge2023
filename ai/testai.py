@@ -1,5 +1,6 @@
-from api.api import *
 from pygame import Vector2
+
+from api.api import *
 
 
 class TeamAI(AI):

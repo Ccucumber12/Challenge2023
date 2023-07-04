@@ -1,8 +1,8 @@
 import pygame as pg
 
 import const
-from event_manager.events import (EventEveryTick, EventInitialize,
-                                  EventPlayerMove, EventQuit, EventStateChange, EventMuteMusic)
+from event_manager.events import (EventEveryTick, EventInitialize, EventMuteMusic, EventPlayerMove,
+                                  EventQuit, EventStateChange)
 from instances_manager import get_event_manager, get_game_engine
 
 

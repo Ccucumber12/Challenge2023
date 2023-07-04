@@ -1,14 +1,11 @@
-import math
 import os
-import random
 
 import pygame as pg
 
 import const
 from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
-from view.particle import GatheringParticleEffect
-from view.particle import CastMagicParticleEffect
+from view.particle import CastMagicParticleEffect, GatheringParticleEffect
 
 
 class GraphicalView:

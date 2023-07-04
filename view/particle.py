@@ -1,9 +1,10 @@
-import pygame as pg
 import random
-import math
+
+import pygame as pg
 
 import const
 from utl import random_fluctuation
+
 
 class GatheringParticleEffect:
     """

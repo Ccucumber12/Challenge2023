@@ -10,7 +10,7 @@ from instances_manager import get_event_manager, get_game_engine
 
 
 class Item:
-    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET, item_width, 
+    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET, item_width,
                  item_height):
         self.item_id = item_id
         self.type = item_type
@@ -104,8 +104,8 @@ class ItemGenerator:
         model = get_game_engine()
         for candidate in candidates:
             # discard points not leggel
-            if not (1 <= candidate.x <= const.ARENA_SIZE[0]
-                    and 1 <= candidate.y <= const.ARENA_SIZE[1]) \
+            if not (const.ITEM_WIDTH <= candidate.x <= const.ARENA_SIZE[0] - const.ITEM_WIDTH
+                    and const.ITEM_HEIGHT <= candidate.y <= const.ARENA_SIZE[1] - const.ITEM_HEIGHT) \
                     and model.map.get_type(candidate) == const.MAP_OBSTACLE:
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]

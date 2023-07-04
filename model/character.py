@@ -5,7 +5,7 @@ from math import ceil
 import pygame as pg
 
 import const
-from event_manager.events import EventPetrify, EventSortinghat, EventGhostTeleport
+from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat
 from instances_manager import get_event_manager, get_game_engine
 
 
