@@ -5,6 +5,7 @@ from math import ceil
 import pygame as pg
 
 import const
+import utl
 from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat
 from instances_manager import get_event_manager, get_game_engine
 
@@ -127,8 +128,7 @@ class Character:
                             current[0], current[1], tentative_g)
                         dis[neighbor[0]][neighbor[1]] = tentative_g
                         neighbor_h = heuristic(neighbor, target)
-                        heapq.heappush(open_list, (tentative_g +
-                                                   neighbor_h, tentative_g, neighbor))
+                        heapq.heappush(open_list, (tentative_g + neighbor_h, tentative_g, neighbor))
             return []
 
         Map = get_game_engine().map
@@ -161,14 +161,6 @@ class Character:
 
         return pg.Vector2(Map.convert_cell((self.saved_path[0][0], self.saved_path[0][1]), dx, dy))
 
-    def get_random_position(self, obj):
-        """Finds a random position that does not collide with obstacles"""
-        Map = get_game_engine().map
-        while obj == None or Map.get_type(obj) == const.MAP_OBSTACLE:
-            obj = pg.Vector2(random.randint(0, const.ARENA_SIZE[0]),
-                             random.randint(0, const.ARENA_SIZE[1]))
-        return obj
-
 
 class Player(Character):
     def __init__(self, player_id: int):
@@ -178,7 +170,6 @@ class Player(Character):
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
 
         # temporary: gets random positioin for spawn point
-        position = self.get_random_position(position)
         speed = const.PLAYER_SPEED
         super().__init__(position, speed, const.PLAYER_RADIUS)
 
@@ -348,9 +339,6 @@ class Ghost(Character):
     def __init__(self, ghost_id: int, teleport_cd: int, position: pg.Vector2):
         self.ghost_id = ghost_id
 
-        # temp
-        position = self.get_random_position(position)
-
         speed = const.GHOST_INIT_SPEED
         super().__init__(position, speed, const.GHOST_RADIUS)
 
@@ -366,7 +354,7 @@ class Ghost(Character):
 
         # Wander and chase config
         self.wander_time = const.GHOST_WANDER_TIME
-        self.wander_pos = None
+        self.wander_pos: pg.Vector2 = utl.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
 
     def move(self, direction: pg.Vector2):
@@ -423,13 +411,13 @@ class Ghost(Character):
     def wander_handler(self):
         model = get_game_engine()
         self.state = const.GHOST_STATE.WANDER
-        self.wander_pos = None
+        self.wander_pos = utl.get_random_pos(const.GHOST_RADIUS)
         model.register_user_event(int(self.wander_time), self.chase_handler)
         self.wander_time = max(0.5 * const.FPS, self.wander_time - 0.5 * const.FPS)
 
     def wander(self):
-        if self.wander_pos == None:
-            self.wander_pos = self.get_random_position(self.wander_pos)
+        if self.position.distance_to(self.wander_pos) < const.GHOST_RADIUS:
+            self.wander_pos = utl.get_random_pos(const.GHOST_RADIUS)
         self.move(self.pathfind(self.wander_pos.x, self.wander_pos.y) - self.position)
 
     def tick(self):
