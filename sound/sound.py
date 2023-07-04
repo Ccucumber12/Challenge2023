@@ -8,8 +8,8 @@ class BackGroundMusic:
     def __init__(self):
         """
         This function is called when the BackGroundMusic is created.
-        For more specific objects related to a game instance
-            , they should be initialized in BackGroundMusic.initialize()
+        For more specific objects related to a game instance,
+        they should be initialized in BackGroundMusic.initialize()
         """
         self.register_listeners()
         pg.mixer.init()
