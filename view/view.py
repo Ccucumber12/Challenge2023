@@ -102,6 +102,9 @@ class GraphicalView:
         picture.set_alpha(const.FOG_TRANSPARENCY)
         self.pictures[const.SCENE.FOG] = crop(
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+        picture = pg.image.load(const.PICTURES_PATH[const.SCENE.ENDGAME]).convert_alpha()
+        self.pictures[const.SCENE.ENDGAME] = crop(
+            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         self.fog = Fog(self.screen, self.pictures[const.SCENE.FOG], const.FOG_SPEED)
         # print(self.pictures[const.SCENE.FOG].get_width())
         # print(self.pictures[const.SCENE.FOG].get_height())
@@ -343,11 +346,11 @@ class GraphicalView:
     def render_endgame(self):
         # draw background
         self.screen.blit(self.pictures[const.SCENE.ENDGAME],
-                         ((const.WINDOW_SIZE[0] - const.TITLE_SIZE[0]) / 2, 0))
+                         ((const.WINDOW_SIZE[0] - const.ENDGAME_SIZE[0]) / 2, 0))
 
         # draw text
         font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-        text_surface = font.render("Game Over", 1, pg.Color('gray88'))
+        text_surface = font.render("Game Over", 1, pg.Color('black'))
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
