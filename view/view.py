@@ -342,7 +342,14 @@ class GraphicalView:
 
     def render_endgame(self):
         # draw background
-        self.screen.fill(const.BACKGROUND_COLOR)
+        self.screen.blit(self.pictures[const.SCENE.ENDGAME],
+                         ((const.WINDOW_SIZE[0] - const.TITLE_SIZE[0]) / 2, 0))
+
+        # draw text
+        font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
+        text_surface = font.render("Game Over", 1, pg.Color('gray88'))
+        text_center = (const.WINDOW_SIZE[0] / 2, 40)
+        self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
 

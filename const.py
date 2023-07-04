@@ -148,6 +148,7 @@ class SCENE(Enum):
     TITLE = 0
     SCORE_BOARD = 1
     FOG = 2
+    ENDGAME = 3
 
 class OTEHR_PICTURES(Enum):
     PATRONUS = 0
@@ -180,6 +181,7 @@ PICTURES_PATH = {
     SCENE.TITLE: "pictures/scenes/Title.png",
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
     SCENE.FOG: "pictures/scenes/Fog.png",
+    SCENE.ENDGAME: "pictures/scenes/Ending.png",
     OTEHR_PICTURES.PATRONUS: "pictures/characters/shining_patronus.png",
     OTEHR_PICTURES.MAGIC_CIRCLE: "pictures/characters/ghosts/MagicCircle.png",
 }
