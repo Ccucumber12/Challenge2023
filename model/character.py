@@ -414,6 +414,7 @@ class Ghost(Character):
         Ghost will move toward its prey.
         """
         if self.prey is None:
+            self.wander()
             return
 
         # Uses Pathfind
