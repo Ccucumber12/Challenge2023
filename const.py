@@ -161,16 +161,21 @@ NAME_ROW = [238, 365, 490, 620]
 NAME_POSITION = [(140 + ARENA_SIZE[0], y) for y in NAME_ROW]
 SCORE_ROW = [287, 414, 540, 670]
 SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCORE_ROW]
+class PLAYER_SKINS(Enum):
+    NORMAL = 0
+    SORTINGHAT = 1
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "pictures/items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",
     ITEM_SET.PATRONUS: "pictures/items/Patronus.png",
     ITEM_SET.PETRIFICATION: "pictures/items/Petrification.png",
     ITEM_SET.SORTINGHAT: "pictures/items/SortingHat.png",
-    PLAYER_IDS.PLAYER0: "pictures/characters/players/Player0.png",
-    PLAYER_IDS.PLAYER1: "pictures/characters/players/Player1.png",
-    PLAYER_IDS.PLAYER2: "pictures/characters/players/Player2.png",
-    PLAYER_IDS.PLAYER3: "pictures/characters/players/Player3.png",
+    PLAYER_IDS.PLAYER0: ["pictures/characters/players", "Player0.png"],
+    PLAYER_IDS.PLAYER1: ["pictures/characters/players", "Player1.png"],
+    PLAYER_IDS.PLAYER2: ["pictures/characters/players", "Player2.png"],
+    PLAYER_IDS.PLAYER3: ["pictures/characters/players", "Player3.png"],
+    PLAYER_SKINS.NORMAL: "normal",
+    PLAYER_SKINS.SORTINGHAT: "sortinghat",
     GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
     SCENE.TITLE: "pictures/scenes/Title.png",
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",

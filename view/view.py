@@ -41,6 +41,7 @@ class GraphicalView:
         self.pictures = {}
         self.grayscale_image = {}
         self.transparent_image = {}
+        self.wearing_sortinghat_images = {}
         self.sortinghat_animation_pictures = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
@@ -70,13 +71,19 @@ class GraphicalView:
             self.transparent_image[item] = self.pictures[item].convert_alpha()
             self.transparent_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
         for player in const.PLAYER_IDS:
-            picture = pg.image.load(const.PICTURES_PATH[player]).convert_alpha()
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player][0], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+                                                 const.PICTURES_PATH[player][1])).convert_alpha()
             self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
             # grayscale
             self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
             # transparent
             self.transparent_image[player] = self.pictures[player].convert_alpha()
             self.transparent_image[player].set_alpha(const.CLOAK_TRANSPARENCY)
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player][0], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
+                                                 const.PICTURES_PATH[player][1])).convert_alpha()
+            self.wearing_sortinghat_images[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
@@ -242,6 +249,8 @@ class GraphicalView:
                     self.screen.blit(self.grayscale_image[obj[2]], obj[3])
                 elif obj[4] == const.ITEM_SET.CLOAK:
                     self.screen.blit(self.transparent_image[obj[2]], obj[3])
+                elif obj[4] == const.ITEM_SET.SORTINGHAT:
+                    self.screen.blit(self.wearing_sortinghat_images[obj[2]], obj[3])
                 else:
                     self.screen.blit(self.pictures[obj[2]], obj[3])
             elif obj[1] == const.OBJECT_TYPE.GHOST:
