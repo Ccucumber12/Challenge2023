@@ -3,7 +3,7 @@ import random
 import pygame as pg
 
 import const
-from utl import random_fluctuation
+import utl
 
 
 class GatheringParticleEffect:
@@ -64,7 +64,7 @@ class CastMagicParticleEffect:
                 remain_particles.append(particle)
         self.particles = remain_particles
 
-        for _ in range(int(random_fluctuation(self.thickness))):
+        for _ in range(int(utl.random_fluctuation(self.thickness))):
             self.particles.append(Particle(self.current_position, self.color, const.PETRIFICATION_ANIMATION_PARTICLE_RADIUS))
         self.current_position += (self.victim.position - self.current_position).normalize() * self.speed
         return (self.current_position - self.victim.position).length() <= 5
@@ -84,7 +84,7 @@ class Particle:
             color_random_range = 50
             self.color = pg.Color(color)
             for i in range(3):
-                self.color[i] += max(0, min(255, random.randint(-color_random_range, color_random_range)))
+                self.color[i] += utl.clamp(random.randint(-color_random_range, color_random_range), 0, 255)
         self.radius = radius * ((random.random() - 0.5) * 0.2 + 1)
 
     def update(self):

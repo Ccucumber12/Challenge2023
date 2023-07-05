@@ -60,8 +60,8 @@ class Item:
                 (self.golden_snitch_goal - self.position).normalize() * \
                 const.GOLDEN_SNITCH_SPEED / const.FPS
         # clamp
-        new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
-        new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
+        new_position.x = utl.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
+        new_position.y = utl.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
 
         # Update
         self.position = new_position

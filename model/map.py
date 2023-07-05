@@ -6,6 +6,7 @@ import re
 import pygame as pg
 
 import const
+import utl
 
 
 class Map:
@@ -18,19 +19,19 @@ class Map:
         self.spawn = spawn
         self.map_dir = map_dir
 
-    def convert_coordinate(self, position):
+    def convert_coordinate(self, position: tuple | pg.Vector2) -> tuple:
         """
         Return the coordinate based on self.size of position.
         position is a coordinate based on const.ARENA_SIZE.
         """
-        x = max(0, min(self.size[0] - 1, int(position[0] * self.size[0] / const.ARENA_SIZE[0])))
-        y = max(0, min(self.size[1] - 1, int(position[1] * self.size[1] / const.ARENA_SIZE[1])))
+        x = utl.clamp(int(position[0] * self.size[0] / const.ARENA_SIZE[0]), 0, self.size[0] - 1)
+        y = utl.clamp(int(position[1] * self.size[1] / const.ARENA_SIZE[1]), 0, self.size[1] - 1)
         return x, y
 
-    def convert_cell(self, position) -> pg.Vector2:
-        # dx, dy denote the specific part of the cell that should be traveled to
-        x = max(0, min(const.ARENA_SIZE[0] - 1, position[0] * const.ARENA_SIZE[0] / self.size[0]))
-        y = max(0, min(const.ARENA_SIZE[1] - 1, position[1] * const.ARENA_SIZE[1] / self.size[1]))
+    def convert_cell(self, position: tuple | pg.Vector2) -> pg.Vector2:
+        """Similar to convert_coordinate(), but is the reverse version."""
+        x = utl.clamp(position[0] * const.ARENA_SIZE[0] / self.size[0], 0, const.ARENA_SIZE[0] - 1)
+        y = utl.clamp(position[1] * const.ARENA_SIZE[1] / self.size[1], 0, const.ARENA_SIZE[1] - 1)
         return pg.Vector2(x, y)
 
     def get_type(self, position: pg.Vector2) -> int:
