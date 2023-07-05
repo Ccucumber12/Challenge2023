@@ -155,7 +155,7 @@ class GameEngine:
 
         for patronuse in self.patronuses:
             patronuse.tick()
-            if patronuse.dead:
+            if patronuse.dead or self.timer > patronuse.death_time:
                 self.patronuses.remove(patronuse)
 
         item_deletions = []

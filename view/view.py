@@ -225,7 +225,7 @@ class GraphicalView:
             ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
             coord = game_map.convert_coordinate(player.position)
             objects.append((coord[1], const.OBJECT_TYPE.PLAYER,
-                           player.player_id, ul, player.effect, player.dead))
+                           player.player_id, ul, player.effect, player.effect_timer))
         for ghost in model.ghosts:
             center = list(map(int, ghost.position))
             ul = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
@@ -235,20 +235,18 @@ class GraphicalView:
             center = list(map(int, patronus.position))
             ul = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
             coord = game_map.convert_coordinate(patronus.position)
-            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, ul))
+            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, ul, patronus.death_time))
 
         for row, image in self.background_images:
             objects.append((row, const.OBJECT_TYPE.MAP, image))
 
         objects.sort(key=lambda x: (x[0], x[1]))
         half_sec = model.timer // (const.FPS // 2)
+        quater_sec = model.timer // (const.FPS // 4)
         for obj in objects:
             if obj[1] == const.OBJECT_TYPE.PLAYER:
-                if obj[5]:
-                    if half_sec % 2 == 0:
-                        self.screen.blit(self.transparent_image[obj[2]], obj[3])
-                    else:
-                        self.screen.blit(self.pictures[obj[2]], obj[3])
+                if obj[5] < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
+                    self.screen.blit(self.pictures[obj[2]], obj[3])
                 elif obj[4] == const.ITEM_SET.PETRIFICATION:
                     self.screen.blit(self.grayscale_image[obj[2]], obj[3])
                 elif obj[4] == const.ITEM_SET.CLOAK:
@@ -260,7 +258,8 @@ class GraphicalView:
             elif obj[1] == const.OBJECT_TYPE.GHOST:
                 self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], obj[3])
             elif obj[1] == const.OBJECT_TYPE.PATRONUS:
-                self.screen.blit(self.shining_patronus, obj[3])
+                if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= obj[4]:
+                    self.screen.blit(self.shining_patronus, obj[3])
             elif obj[1] == const.OBJECT_TYPE.MAP:
                 self.screen.blit(obj[2], (0, 0))
             elif obj[1] == const.OBJECT_TYPE.ITEM:

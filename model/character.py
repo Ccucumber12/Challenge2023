@@ -294,6 +294,7 @@ class Patronus(Character):
         self.score = 500
         self.invisible = False
         self.dead = False
+        self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.ITEM_SET.PATRONUS]
         print(
             f"A patronus belong to {owner.player_id} was gernerated at {position}!")
 
