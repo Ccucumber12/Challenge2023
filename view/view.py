@@ -218,14 +218,22 @@ class GraphicalView:
         elif cur_state == const.STATE_ENDGAME:
             self.render_endgame()
 
-    def handle_player_move(self, event:EventPlayerMove):
+    def handle_player_move(self, event: EventPlayerMove):
+        move_direction = event.direction
         direction = const.CHARACTER_DIRECTION.DOWN
-        if event.direction == 'up':
-            direction = const.CHARACTER_DIRECTION.UP
-        if event.direction == 'left':
+        if move_direction.length() == 0:
+            return
+        down = move_direction.dot((0, 1))
+        up = move_direction.dot((0, -1))
+        left = move_direction.dot((-1, 0))
+        right = move_direction.dot((1, 0))
+        mx = max(down, up, left, right)
+        if left == mx:
             direction = const.CHARACTER_DIRECTION.LEFT
-        if event.direction == 'right':
+        elif right == mx:
             direction = const.CHARACTER_DIRECTION.RIGHT
+        elif up == mx:
+            direction = const.CHARACTER_DIRECTION.UP
         self.character_direction[event.player_id] = direction
 
     def register_listeners(self):

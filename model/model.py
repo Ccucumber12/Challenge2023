@@ -120,7 +120,8 @@ class GameEngine:
         self.running = False
 
     def handle_move(self, event: EventPlayerMove):
-        self.players[event.player_id].move_direction(event.direction)
+        player = self.players[event.player_id]
+        player.move(event.direction)
 
     def handle_times_up(self, event):
         get_event_manager().post(EventStateChange(const.STATE_ENDGAME))

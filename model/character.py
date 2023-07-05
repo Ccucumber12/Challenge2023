@@ -41,13 +41,14 @@ class Character:
             return
 
         # Normalize direction in place if direction is longer than the max distance character can move
-        if (direction.length() > self.speed / const.FPS):
+        if direction.length() > self.speed / const.FPS:
             direction.normalize_ip()
+            direction *= self.speed / const.FPS
 
         # If it hits an obstacle, try a smaller distance
         for attempt in range(3):
             # Calculate new position
-            new_position = self.position + self.speed / const.FPS * direction
+            new_position = self.position + direction
 
             # clamp
             new_position.x = max(self.radius,
@@ -226,17 +227,10 @@ class Player(Character):
         print(f"{self.player_id} respawned!")
         self.dead = False
 
-    def move_direction(self, direction: str):
-        """
-        Move the player along the direction by its speed.
-        Will automatically clip the position so no need to worry out-of-bound moving.
-        """
-        # Modify position of player
+    def move(self, direction: pg.Vector2):
         if self.effect == const.ITEM_SET.PETRIFICATION:
             return
-        x = 1 if direction == 'right' else -1 if direction == 'left' else 0
-        y = 1 if direction == 'down' else -1 if direction == 'up' else 0
-        self.move(pg.Vector2(x, y))
+        super().move(direction)
 
     def add_score(self, points: int):
         self.score += points
