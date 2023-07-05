@@ -446,7 +446,7 @@ class GraphicalView:
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
         for place in range(3):
             ul = [x - y for x, y in zip(const.PODIUM_POSITION[place], [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
-            self.screen.blit(self.pictures[self.places[place].player_id], ul)
+            self.screen.blit(self.character_image[self.places[place].player_id][const.CHARACTER_DIRECTION.DOWN], ul)
             font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
             text_surface = font.render(str(self.places[place].score), 1, pg.Color('black'))
             text_center = const.FINAL_SCORE_POSITION[place]
