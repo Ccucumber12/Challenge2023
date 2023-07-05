@@ -18,3 +18,12 @@ def get_random_pos(r: int) -> pg.Vector2:
     """Return a legal random position for a character of radius r."""
     return pg.Vector2(random.randint(r, const.ARENA_SIZE[0] - r),
                       random.randint(r, const.ARENA_SIZE[1] - r))
+
+
+def clamp(v, lo, hi):
+    if v < lo:
+        return lo
+    elif v > hi:
+        return hi
+    else:
+        return v
