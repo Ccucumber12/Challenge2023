@@ -318,28 +318,35 @@ class GraphicalView:
                 #         self.screen.blit(self.transparent_player_image[obj[2]], obj[3])
                 #     else:
                 #         self.screen.blit(self.pictures[obj[2]], obj[3])
+                ul = [x - y for x, y in zip(obj.position, [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
                 if effect == const.ITEM_SET.PETRIFICATION:
-                    self.screen.blit(self.petrified_player_image[obj.image_index][direction], obj.position)
+                    self.screen.blit(self.petrified_player_image[obj.image_index][direction], ul)
                 elif effect == const.ITEM_SET.CLOAK:
-                    self.screen.blit(self.transparent_player_image[obj.image_index][direction], obj.position)
+                    self.screen.blit(self.transparent_player_image[obj.image_index][direction], ul)
                 elif effect == const.ITEM_SET.SORTINGHAT:
-                    self.screen.blit(self.wearing_sortinghat_image[obj.image_index][direction], obj.position)
+                    width = self.wearing_sortinghat_image[obj.image_index][direction].get_width()
+                    height = self.wearing_sortinghat_image[obj.image_index][direction].get_height()
+                    ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+                    self.screen.blit(self.wearing_sortinghat_image[obj.image_index][direction], ul)
                 else:
-                    self.screen.blit(self.character_image[obj.image_index][direction], obj.position)
+                    self.screen.blit(self.character_image[obj.image_index][direction], ul)
             elif obj.object_type == const.OBJECT_TYPE.GHOST:
-                self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], obj.position)
+                ul = [x - y for x, y in zip(obj.position, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
+                self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], ul)
             elif obj.object_type == const.OBJECT_TYPE.PATRONUS:
-                self.screen.blit(self.shining_patronus, obj.position)
+                ul = [x - y for x, y in zip(obj.position, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
+                self.screen.blit(self.shining_patronus, ul)
             elif obj.object_type == const.OBJECT_TYPE.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
             elif obj.object_type == const.OBJECT_TYPE.ITEM:
+                ul = [x - y for x, y in zip(obj.position, [const.ITEM_WIDTH, const.ITEM_HEIGHT])]
                 # It's acually is a rectangle.
                 vanish_time = obj.detail[0]
                 # if half_sec % 2 == 0 or model.timer + 5*const.FPS < vanish_time:
                 #     self.screen.blit(self.pictures[obj.image_index], obj.position)
                 # else:
                 #     self.screen.blit(self.transparent_player_image[Object[2]], Object[3])
-                self.screen.blit(self.pictures[obj.image_index], obj.position)
+                self.screen.blit(self.pictures[obj.image_index], ul)
 
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()
