@@ -166,7 +166,7 @@ SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCOR
 class PLAYER_SKINS(Enum):
     NORMAL = 0
     SORTINGHAT = 1
-class CHARACTER_DIRECTION:
+class CHARACTER_DIRECTION(Enum):
     UP = 0
     LEFT = 1
     DOWN = 2
