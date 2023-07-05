@@ -1,16 +1,20 @@
 {
-  "width": 100,
+  "width": 150,
   "height": 100,
   "spawn": [
     "30,30", "30,70", "70,30", "50,50"
   ],
   "images": {
-    "disposal.png": -1,
-    "bridge.png": 25,
-    "log.png": 16,
-    "grass.png": 52,
-    "tree.png": 18,
-    "stone.png": 80
+    "background.png": -2,
+    "bridge.png": -1,
+    "bridge1.png": 18,
+    "bridge2.png": 29,
+    "log.png": 14,
+    "grass.png": 41,
+    "tree.png": 12,
+    "stone3.png": 53,
+    "stone2.png": 66,
+    "stone.png": -1
   },
   "portals": []
 }

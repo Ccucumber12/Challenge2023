@@ -51,10 +51,8 @@ class Character:
             new_position = self.position + direction
 
             # clamp
-            new_position.x = max(self.radius,
-                                 min(const.ARENA_SIZE[0] - self.radius, new_position.x))
-            new_position.y = max(self.radius,
-                                 min(const.ARENA_SIZE[1] - self.radius, new_position.y))
+            new_position.x = utl.clamp(new_position.x, 0, const.ARENA_SIZE[0])
+            new_position.y = utl.clamp(new_position.y, 0, const.ARENA_SIZE[1])
 
             model = get_game_engine()
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
