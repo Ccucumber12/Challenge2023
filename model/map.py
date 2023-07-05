@@ -20,19 +20,18 @@ class Map:
 
     def convert_coordinate(self, position):
         """
-        For detection of obstacles
+        Return the coordinate based on self.size of position.
+        position is a coordinate based on const.ARENA_SIZE.
         """
         x = max(0, min(self.size[0] - 1, int(position[0] * self.size[0] / const.ARENA_SIZE[0])))
         y = max(0, min(self.size[1] - 1, int(position[1] * self.size[1] / const.ARENA_SIZE[1])))
         return x, y
 
-    def convert_cell(self, cell, dx, dy):
+    def convert_cell(self, position) -> pg.Vector2:
         # dx, dy denote the specific part of the cell that should be traveled to
-        x = max(0, min(const.ARENA_SIZE[0],
-                       (cell[0] + 0.5 * (1 + dx)) * const.ARENA_SIZE[0] / self.size[0]))
-        y = max(0, min(const.ARENA_SIZE[1],
-                       (cell[1] + 0.5 * (1 + dy)) * const.ARENA_SIZE[1] / self.size[1]))
-        return x, y
+        x = max(0, min(const.ARENA_SIZE[0] - 1, position[0] * const.ARENA_SIZE[0] / self.size[0]))
+        y = max(0, min(const.ARENA_SIZE[1] - 1, position[1] * const.ARENA_SIZE[1] / self.size[1]))
+        return pg.Vector2(x, y)
 
     def get_type(self, position: pg.Vector2) -> int:
         x, y = self.convert_coordinate(position)
@@ -60,9 +59,9 @@ def load_map(map_dir):
         data = json.load(f)
     images = data['images']
 
-    size = list(map(int, [data['width'], data['height']]))
-    spawn = [list(map(int, i.split(','))) for i in data['spawn']]
-    portals = [list(map(int, re.split('[, ]', i))) for i in data['portals']]
+    size = tuple(map(int, [data['width'], data['height']]))
+    spawn = [tuple(map(int, i.split(','))) for i in data['spawn']]
+    portals = [tuple(map(int, re.split('[, ]', i))) for i in data['portals']]
 
     with open(map_file) as f:
         rows = csv.reader(f)

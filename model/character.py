@@ -160,7 +160,8 @@ class Character:
         dx = (x - self.position[0]) / r
         dy = (y - self.position[1]) / r
 
-        return pg.Vector2(Map.convert_cell((self.saved_path[0][0], self.saved_path[0][1]), dx, dy))
+        return pg.Vector2(Map.convert_cell(
+            (self.saved_path[0][0] + 0.5 * (1 + dx), self.saved_path[0][1] + 0.5 * (1 + dy))))
 
 
 class Player(Character):
@@ -231,6 +232,12 @@ class Player(Character):
         if self.effect == const.ITEM_SET.PETRIFICATION:
             return
         super().move(direction)
+
+        model = get_game_engine()
+        portal = model.map.get_portal(self.position)
+        if portal is not None:
+            self.position = model.map.convert_cell(portal)
+            print(f"Player {self.player_id} used a portal!")
 
     def add_score(self, points: int):
         self.score += points

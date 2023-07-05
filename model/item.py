@@ -63,13 +63,15 @@ class Item:
         new_position.x = max(0, min(const.ARENA_SIZE[0], new_position.x))
         new_position.y = max(0, min(const.ARENA_SIZE[1], new_position.y))
 
-        # Todo: Portal
-        portal = model.map.get_portal(new_position)
-        if portal is not None:
-            print('Portal', portal)
         # Update
         self.position = new_position
-        return
+
+        # Todo: Portal
+        portal = model.map.get_portal(self.position)
+        if portal is not None:
+            self.position = model.map.convert_cell(portal)
+            print(f"Golden snitch used portal!")
+
 
     def tick(self):
         model = get_game_engine()
@@ -129,8 +131,10 @@ class ItemGenerator:
 
         # generate candidates of position
         rand_times = 15
-        candidates_x = random.sample(range(1, const.ARENA_SIZE[0]), rand_times)
-        candidates_y = random.sample(range(1, const.ARENA_SIZE[1]), rand_times)
+        candidates_x = random.sample(
+            range(const.ITEM_WIDTH // 2, const.ARENA_SIZE[0] - 1 - const.ITEM_WIDTH // 2), rand_times)
+        candidates_y = random.sample(
+            range(const.ITEM_HEIGHT // 2, const.ARENA_SIZE[1] - 1 - const.ITEM_HEIGHT // 2), rand_times)
         candidates = [pg.Vector2(x, y) for x, y in zip(candidates_x, candidates_y)]
         model = get_game_engine()
         items_position = [item.position for item in model.items]
