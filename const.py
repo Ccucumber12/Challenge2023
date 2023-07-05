@@ -205,22 +205,22 @@ MUSIC_PATH = {
 
 # controller
 PLAYER_KEYS = {
-    pg.K_UP: (PLAYER_IDS.PLAYER3, 'up'),
-    pg.K_LEFT: (PLAYER_IDS.PLAYER3, 'left'),
-    pg.K_DOWN: (PLAYER_IDS.PLAYER3, 'down'),
-    pg.K_RIGHT: (PLAYER_IDS.PLAYER3, 'right'),
-    pg.K_i: (PLAYER_IDS.PLAYER2, 'up'),
-    pg.K_j: (PLAYER_IDS.PLAYER2, 'left'),
-    pg.K_k: (PLAYER_IDS.PLAYER2, 'down'),
-    pg.K_l: (PLAYER_IDS.PLAYER2, 'right'),
-    pg.K_t: (PLAYER_IDS.PLAYER1, 'up'),
-    pg.K_f: (PLAYER_IDS.PLAYER1, 'left'),
-    pg.K_g: (PLAYER_IDS.PLAYER1, 'down'),
-    pg.K_h: (PLAYER_IDS.PLAYER1, 'right'),
-    pg.K_w: (PLAYER_IDS.PLAYER0, 'up'),
-    pg.K_a: (PLAYER_IDS.PLAYER0, 'left'),
-    pg.K_s: (PLAYER_IDS.PLAYER0, 'down'),
-    pg.K_d: (PLAYER_IDS.PLAYER0, 'right'),
+    pg.K_UP: (PLAYER_IDS.PLAYER3, pg.Vector2(0, -1)),
+    pg.K_DOWN: (PLAYER_IDS.PLAYER3, pg.Vector2(0, 1)),
+    pg.K_LEFT: (PLAYER_IDS.PLAYER3, pg.Vector2(-1, 0)),
+    pg.K_RIGHT: (PLAYER_IDS.PLAYER3, pg.Vector2(1, 0)),
+    pg.K_i: (PLAYER_IDS.PLAYER2, pg.Vector2(0, -1)),
+    pg.K_k: (PLAYER_IDS.PLAYER2, pg.Vector2(0, 1)),
+    pg.K_j: (PLAYER_IDS.PLAYER2, pg.Vector2(-1, 0)),
+    pg.K_l: (PLAYER_IDS.PLAYER2, pg.Vector2(1, 0)),
+    pg.K_t: (PLAYER_IDS.PLAYER1, pg.Vector2(0, -1)),
+    pg.K_g: (PLAYER_IDS.PLAYER1, pg.Vector2(0, 1)),
+    pg.K_f: (PLAYER_IDS.PLAYER1, pg.Vector2(-1, 0)),
+    pg.K_h: (PLAYER_IDS.PLAYER1, pg.Vector2(1, 0)),
+    pg.K_w: (PLAYER_IDS.PLAYER0, pg.Vector2(0, -1)),
+    pg.K_s: (PLAYER_IDS.PLAYER0, pg.Vector2(0, 1)),
+    pg.K_a: (PLAYER_IDS.PLAYER0, pg.Vector2(-1, 0)),
+    pg.K_d: (PLAYER_IDS.PLAYER0, pg.Vector2(1, 0)),
 }
 MUTE_KEY = pg.K_F1
 

@@ -5,6 +5,7 @@ from pygame import Vector2
 
 import instances_manager
 from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper
+from event_manager.events import EventPlayerMove
 
 
 class HelperImpl(Helper):
@@ -140,4 +141,5 @@ def call_ai(player_id):
     destination = __ai[player_id].player_tick()
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
-    player.move(pg.Vector2(player.pathfind(*destination)) - player.position)
+    event_manager = instances_manager.get_event_manager()
+    event_manager.post(EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))

@@ -1,6 +1,7 @@
 import pygame as pg
 
 import const
+import instances_manager
 from event_manager.event_manager import BaseEvent
 
 
@@ -38,9 +39,12 @@ class EventTimesUp(BaseEvent):
 class EventPlayerMove(BaseEvent):
     name = 'PlayerMove event'
 
-    def __init__(self, player_id: int, direction):
+    def __init__(self, player_id: int, direction: pg.Vector2, full_length: bool = False):
         super().__init__()
         self.player_id = player_id
+        if full_length:
+            player = instances_manager.get_game_engine().players[player_id]
+            direction = direction.normalize() * player.speed / const.FPS
         self.direction = direction
 
     def __str__(self):
@@ -58,6 +62,7 @@ class EventGhostMove(BaseEvent):
     def __str__(self):
         return f'{self.name} => ghost_id {self.ghost_id} move {self.direction}'
 
+
 class EventCastPetrification(BaseEvent):
     name = 'Cast petrification event'
 
@@ -65,9 +70,10 @@ class EventCastPetrification(BaseEvent):
         super().__init__()
         self.attacker = attacker
         self.victim = victim
-    
+
     def __str__(self):
         return f'{self.name} => {self.attacker.player_id} cast petrification against {self.victim.player_id}'
+
 
 class EventPetrify(BaseEvent):
     name = 'Petrify event'
@@ -76,9 +82,10 @@ class EventPetrify(BaseEvent):
         from model.character import Player
         super().__init__()
         self.victim: Player = victim
-    
+
     def __str__(self):
         return f'{self.name} => {self.victim.player_id} is petrified'
+
 
 class EventGhostTeleport(BaseEvent):
     name = 'GhostTeleport event'
@@ -92,6 +99,7 @@ class EventGhostTeleport(BaseEvent):
     def __str__(self):
         return f'{self.name} => ghost_id {self.ghost_id} teleport from {self.position} to {self.destination}'
 
+
 class EventSortinghat(BaseEvent):
     name = 'Sortinghat event'
 
@@ -102,6 +110,7 @@ class EventSortinghat(BaseEvent):
 
     def __str__(self):
         return f'{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}'
+
 
 class EventMuteMusic(BaseEvent):
     name = 'MuteMusic event'

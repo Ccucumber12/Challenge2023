@@ -70,10 +70,11 @@ class Controller:
         model = get_game_engine()
         keys = pg.key.get_pressed()
         for k, v in const.PLAYER_KEYS.items():
+            # v: (player id, direction)
             if model.ai[v[0]] != 'manual':
                 continue
             if keys[k]:
-                ev_manager.post(EventPlayerMove(*v))
+                ev_manager.post(EventPlayerMove(v[0], v[1], full_length=True))
         # FOR TEST:
         # if keys[pg.K_b]:
         #     model = get_game_engine()
