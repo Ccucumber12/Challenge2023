@@ -166,16 +166,21 @@ SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCOR
 class PLAYER_SKINS(Enum):
     NORMAL = 0
     SORTINGHAT = 1
+class CHARACTER_DIRECTION:
+    UP = 0
+    LEFT = 1
+    DOWN = 2
+    RIGHT = 3
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "pictures/items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",
     ITEM_SET.PATRONUS: "pictures/items/Patronus.png",
     ITEM_SET.PETRIFICATION: "pictures/items/Petrification.png",
     ITEM_SET.SORTINGHAT: "pictures/items/SortingHat.png",
-    PLAYER_IDS.PLAYER0: ["pictures/characters/players", "Player0.png"],
-    PLAYER_IDS.PLAYER1: ["pictures/characters/players", "Player1.png"],
-    PLAYER_IDS.PLAYER2: ["pictures/characters/players", "Player2.png"],
-    PLAYER_IDS.PLAYER3: ["pictures/characters/players", "Player3.png"],
+    PLAYER_IDS.PLAYER0: "pictures/characters/players/player0",
+    PLAYER_IDS.PLAYER1: "pictures/characters/players/player1",
+    PLAYER_IDS.PLAYER2: "pictures/characters/players/player2",
+    PLAYER_IDS.PLAYER3: "pictures/characters/players/player3",
     PLAYER_SKINS.NORMAL: "normal",
     PLAYER_SKINS.SORTINGHAT: "sortinghat",
     GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
@@ -199,22 +204,22 @@ MUSIC_PATH = {
 
 # controller
 PLAYER_KEYS = {
-    pg.K_UP: (3, 'up'),
-    pg.K_LEFT: (3, 'left'),
-    pg.K_DOWN: (3, 'down'),
-    pg.K_RIGHT: (3, 'right'),
-    pg.K_i: (2, 'up'),
-    pg.K_j: (2, 'left'),
-    pg.K_k: (2, 'down'),
-    pg.K_l: (2, 'right'),
-    pg.K_t: (1, 'up'),
-    pg.K_f: (1, 'left'),
-    pg.K_g: (1, 'down'),
-    pg.K_h: (1, 'right'),
-    pg.K_w: (0, 'up'),
-    pg.K_a: (0, 'left'),
-    pg.K_s: (0, 'down'),
-    pg.K_d: (0, 'right'),
+    pg.K_UP: (PLAYER_IDS.PLAYER3, 'up'),
+    pg.K_LEFT: (PLAYER_IDS.PLAYER3, 'left'),
+    pg.K_DOWN: (PLAYER_IDS.PLAYER3, 'down'),
+    pg.K_RIGHT: (PLAYER_IDS.PLAYER3, 'right'),
+    pg.K_i: (PLAYER_IDS.PLAYER2, 'up'),
+    pg.K_j: (PLAYER_IDS.PLAYER2, 'left'),
+    pg.K_k: (PLAYER_IDS.PLAYER2, 'down'),
+    pg.K_l: (PLAYER_IDS.PLAYER2, 'right'),
+    pg.K_t: (PLAYER_IDS.PLAYER1, 'up'),
+    pg.K_f: (PLAYER_IDS.PLAYER1, 'left'),
+    pg.K_g: (PLAYER_IDS.PLAYER1, 'down'),
+    pg.K_h: (PLAYER_IDS.PLAYER1, 'right'),
+    pg.K_w: (PLAYER_IDS.PLAYER0, 'up'),
+    pg.K_a: (PLAYER_IDS.PLAYER0, 'left'),
+    pg.K_s: (PLAYER_IDS.PLAYER0, 'down'),
+    pg.K_d: (PLAYER_IDS.PLAYER0, 'right'),
 }
 MUTE_KEY = pg.K_F1
 
