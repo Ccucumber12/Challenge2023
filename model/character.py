@@ -440,7 +440,7 @@ class Ghost(Character):
                 # Choose prey by closest person alive
 
                 # Include patronuses as possible prey
-                prey_candidates = ([x for x in model.players if not x.dead and not x.invisible]
+                prey_candidates = ([x for x in model.players if not x.dead and not x.invisible and not x.invincible]
                                    + model.patronuses)
                 self.prey = min(
                     prey_candidates,
