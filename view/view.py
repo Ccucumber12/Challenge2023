@@ -7,6 +7,13 @@ from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 from view.particle import CastMagicParticleEffect, GatheringParticleEffect
 
+class Object():
+    def __init__(self, y, object_type: const.OBJECT_TYPE, position: pg.Vector2, image_index, detail: tuple):
+        self.y = y
+        self.object_type = object_type
+        self.position = position
+        self.image_index = image_index
+        self.detail = detail
 
 class GraphicalView:
     """
@@ -29,6 +36,11 @@ class GraphicalView:
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
 
+        # characters' directions
+        self.character_direction = {}
+        for player in const.PLAYER_IDS:
+            self.character_direction[player] = const.CHARACTER_DIRECTION.DOWN
+
         # animations
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
         self.petrification_animation: list[CastMagicParticleEffect] = []
@@ -36,10 +48,11 @@ class GraphicalView:
 
         # scale the pictures to proper size
         self.pictures = {}
-        self.grayscale_image = {}
-        self.transparent_image = {}
-        self.wearing_sortinghat_images = {}
-        self.sortinghat_animation_pictures = []
+        self.character_image = {}
+        self.petrified_player_image = {}
+        self.transparent_player_image = {}
+        self.wearing_sortinghat_image = {}
+        self.sortinghat_animation_picture = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
 
@@ -65,22 +78,71 @@ class GraphicalView:
         for item in const.ITEM_SET:
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
-            self.transparent_image[item] = self.pictures[item].convert_alpha()
-            self.transparent_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
+            self.transparent_player_image[item] = self.pictures[item].convert_alpha()
+            self.transparent_player_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
         for player in const.PLAYER_IDS:
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player][0], 
+            # normal
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
                                                  const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
-                                                 const.PICTURES_PATH[player][1])).convert_alpha()
-            self.pictures[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
+                                                 "front.png")).convert_alpha()
+            self.character_image[player] = {}
+            self.character_image[player][const.CHARACTER_DIRECTION.DOWN] =\
+                  crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+                                                 "left.png")).convert_alpha()
+            self.character_image[player][const.CHARACTER_DIRECTION.LEFT] =\
+                  crop(picture, const.WINDOW_SIZE[0], 
+                       self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+                                                 "rear.png")).convert_alpha()
+            self.character_image[player][const.CHARACTER_DIRECTION.UP] =\
+                  crop(picture, const.WINDOW_SIZE[0], 
+                       self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+                                                 "right.png")).convert_alpha()
+            self.character_image[player][const.CHARACTER_DIRECTION.RIGHT] =\
+                  crop(picture, const.WINDOW_SIZE[0], 
+                       self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+
             # grayscale
-            self.grayscale_image[player] = pg.transform.grayscale(self.pictures[player])
+            self.petrified_player_image[player] = {}
+            for direction in const.CHARACTER_DIRECTION:
+                self.petrified_player_image[player][direction] = pg.transform.grayscale(self.character_image[player][direction])
             # transparent
-            self.transparent_image[player] = self.pictures[player].convert_alpha()
-            self.transparent_image[player].set_alpha(const.CLOAK_TRANSPARENCY)
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player][0], 
+            self.transparent_player_image[player] = {}
+            for direction in const.CHARACTER_DIRECTION:
+                self.transparent_player_image[player][direction] =\
+                      self.character_image[player][direction].convert_alpha()
+                self.transparent_player_image[player][direction].set_alpha(const.CLOAK_TRANSPARENCY)
+            # sortinghat
+            self.wearing_sortinghat_image[player] = {}
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
                                                  const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
-                                                 const.PICTURES_PATH[player][1])).convert_alpha()
-            self.wearing_sortinghat_images[player] = crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
+                                                 "front.png")).convert_alpha()
+            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN] =\
+                  crop(picture, self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_width(), 
+                       const.PLAYER_RADIUS*5)
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
+                                                 "left.png")).convert_alpha()
+            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.LEFT] =\
+                  crop(picture, const.WINDOW_SIZE[0], 
+                       self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
+                                                 "rear.png")).convert_alpha()
+            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.UP] =\
+                  crop(picture, const.WINDOW_SIZE[0], 
+                       self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
+                                                 "right.png")).convert_alpha()
+            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.RIGHT] =\
+                  crop(picture, const.WINDOW_SIZE[0], 
+                       self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
@@ -116,13 +178,13 @@ class GraphicalView:
         self.magic_circle = crop(picture, const.MAGIC_CIRCLE_RADIUS*2, const.MAGIC_CIRCLE_RADIUS*2, True)
         self.magic_circle.set_alpha(127)
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
-        self.sortinghat_animation_pictures.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+        self.sortinghat_animation_picture.append(crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
 
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
-            self.sortinghat_animation_pictures.append(
-                pg.transform.rotate(self.sortinghat_animation_pictures[0], angle))
+            self.sortinghat_animation_picture.append(
+                pg.transform.rotate(self.sortinghat_animation_picture[0], angle))
 
     def initialize(self, event):
         """
@@ -148,6 +210,16 @@ class GraphicalView:
         elif cur_state == const.STATE_ENDGAME:
             self.render_endgame()
 
+    def handle_player_move(self, event:EventPlayerMove):
+        direction = const.CHARACTER_DIRECTION.DOWN
+        if event.direction == 'up':
+            direction = const.CHARACTER_DIRECTION.UP
+        if event.direction == 'left':
+            direction = const.CHARACTER_DIRECTION.LEFT
+        if event.direction == 'right':
+            direction = const.CHARACTER_DIRECTION.RIGHT
+        self.character_direction[event.player_id] = direction
+
     def register_listeners(self):
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
@@ -156,6 +228,7 @@ class GraphicalView:
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
         ev_manager.register_listener(EventTimesUp, self.register_places)
+        ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
 
     def display_fps(self):
         """
@@ -214,60 +287,75 @@ class GraphicalView:
 
         # draw players
         game_map = model.map
-        objects = []
+        objects: list[Object] = []
         for item in model.items:
-            center = list(map(int, item.position))
-            ul = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
             coord = game_map.convert_coordinate(item.position)
-            objects.append((coord[1], const.OBJECT_TYPE.ITEM, item.type, ul, item.vanish_time))
+            detail = (item.vanish_time, )
+            objects.append(Object(coord[1], const.OBJECT_TYPE.ITEM, item.position, item.type, detail))
         for player in model.players:
-            center = list(map(int, player.position))
-            ul = [x - y for x, y in zip(center, [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
             coord = game_map.convert_coordinate(player.position)
-            objects.append((coord[1], const.OBJECT_TYPE.PLAYER,
-                           player.player_id, ul, player.effect, player.effect_timer))
+            detail = (player.effect, player.dead, player.effect_timer)
+            objects.append(Object(coord[1], const.OBJECT_TYPE.PLAYER, player.position, player.player_id, detail))
         for ghost in model.ghosts:
-            center = list(map(int, ghost.position))
-            ul = [x - y for x, y in zip(center, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
             coord = game_map.convert_coordinate(ghost.position)
-            objects.append((coord[1], const.OBJECT_TYPE.GHOST, ghost.ghost_id, ul))
+            objects.append(Object(coord[1], const.OBJECT_TYPE.GHOST, ghost.position, ghost.ghost_id, tuple()))
         for patronus in model.patronuses:
-            center = list(map(int, patronus.position))
-            ul = [x - y for x, y in zip(center, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
             coord = game_map.convert_coordinate(patronus.position)
-            objects.append((coord[1], const.OBJECT_TYPE.PATRONUS, patronus.patronus_id, ul, patronus.death_time))
+            detail = (patronus.death_time, )
+            objects.append(Object(coord[1], const.OBJECT_TYPE.PATRONUS, patronus.position, None, detail))
 
         for row, image in self.background_images:
-            objects.append((row, const.OBJECT_TYPE.MAP, image))
+            objects.append(Object(row, const.OBJECT_TYPE.MAP, pg.Vector2(0, 0), None, (image, )))
 
-        objects.sort(key=lambda x: (x[0], x[1]))
+        objects.sort(key=lambda x: x.y)
         half_sec = model.timer // (const.FPS // 2)
         quater_sec = model.timer // (const.FPS // 4)
         for obj in objects:
-            if obj[1] == const.OBJECT_TYPE.PLAYER:
-                if obj[5] < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
-                    self.screen.blit(self.pictures[obj[2]], obj[3])
-                elif obj[4] == const.ITEM_SET.PETRIFICATION:
-                    self.screen.blit(self.grayscale_image[obj[2]], obj[3])
-                elif obj[4] == const.ITEM_SET.CLOAK:
-                    self.screen.blit(self.transparent_image[obj[2]], obj[3])
-                elif obj[4] == const.ITEM_SET.SORTINGHAT:
-                    self.screen.blit(self.wearing_sortinghat_images[obj[2]], obj[3])
+            if obj.object_type == const.OBJECT_TYPE.PLAYER:
+                direction = self.character_direction[obj.image_index]
+                effect = obj.detail[0]
+                dead = obj.detail[1]
+                effect_timer = obj.detail[2]
+                # if dead:
+                #     if half_sec % 2 == 0:
+                #         self.screen.blit(self.transparent_player_image[obj[2]], obj[3])
+                #     else:
+                #         self.screen.blit(self.pictures[obj[2]], obj[3])
+                width = self.character_image[obj.image_index][direction].get_width()
+                height = self.character_image[obj.image_index][direction].get_height()
+                ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+                if effect_timer < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
+                    self.screen.blit(self.character_image[obj.image_index][direction], ul)
+                elif effect == const.ITEM_SET.PETRIFICATION:
+                    self.screen.blit(self.petrified_player_image[obj.image_index][direction], ul)
+                elif effect == const.ITEM_SET.CLOAK:
+                    self.screen.blit(self.transparent_player_image[obj.image_index][direction], ul)
+                elif effect == const.ITEM_SET.SORTINGHAT:
+                    width = self.wearing_sortinghat_image[obj.image_index][direction].get_width()
+                    height = self.wearing_sortinghat_image[obj.image_index][direction].get_height()
+                    ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+                    self.screen.blit(self.wearing_sortinghat_image[obj.image_index][direction], ul)
                 else:
-                    self.screen.blit(self.pictures[obj[2]], obj[3])
-            elif obj[1] == const.OBJECT_TYPE.GHOST:
-                self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], obj[3])
-            elif obj[1] == const.OBJECT_TYPE.PATRONUS:
-                if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= obj[4]:
-                    self.screen.blit(self.shining_patronus, obj[3])
-            elif obj[1] == const.OBJECT_TYPE.MAP:
-                self.screen.blit(obj[2], (0, 0))
-            elif obj[1] == const.OBJECT_TYPE.ITEM:
+                    self.screen.blit(self.character_image[obj.image_index][direction], ul)
+            elif obj.object_type == const.OBJECT_TYPE.GHOST:
+                ul = [x - y for x, y in zip(obj.position, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
+                self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], ul)
+            elif obj.object_type == const.OBJECT_TYPE.PATRONUS:
+                effect_timer = obj.detail[0]
+                if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:
+                    ul = [x - y for x, y in zip(obj.position, [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
+                    self.screen.blit(self.shining_patronus, ul)
+            elif obj.object_type == const.OBJECT_TYPE.MAP:
+                self.screen.blit(obj.detail[0], obj.position)
+            elif obj.object_type == const.OBJECT_TYPE.ITEM:
+                ul = [x - y for x, y in zip(obj.position, [const.ITEM_WIDTH, const.ITEM_HEIGHT])]
                 # It's acually is a rectangle.
-                if half_sec % 2 == 0 or model.timer + 5*const.FPS < obj[4]:
-                    self.screen.blit(self.pictures[obj[2]], obj[3])
-                else:
-                    self.screen.blit(self.transparent_image[obj[2]], obj[3])
+                vanish_time = obj.detail[0]
+                # if half_sec % 2 == 0 or model.timer + 5*const.FPS < vanish_time:
+                #     self.screen.blit(self.pictures[obj.image_index], obj.position)
+                # else:
+                #     self.screen.blit(self.transparent_player_image[Object[2]], Object[3])
+                self.screen.blit(self.pictures[obj.image_index], ul)
 
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()
@@ -306,9 +394,9 @@ class GraphicalView:
             if (destination-position).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
                 # maybe here can add some special effect
                 continue
-            self.screen.blit(self.sortinghat_animation_pictures[index], position)
+            self.screen.blit(self.sortinghat_animation_picture[index], position)
             index += 1
-            if index == len(self.sortinghat_animation_pictures):
+            if index == len(self.sortinghat_animation_picture):
                 index = 0
             position = position + \
                 (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
