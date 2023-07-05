@@ -15,7 +15,7 @@ GAME_LENGTH = 180 * FPS
 class PLAYER_IDS(IntEnum):
     def __str__(self):
         return f"{self.name}"
-    
+
     PLAYER0 = 0
     PLAYER1 = 1
     PLAYER2 = 2
@@ -131,7 +131,7 @@ FOG_SIZE = (1878, 800)
 FOG_TRANSPARENCY = 150
 FOG_SPEED = 150
 BACKGROUND_COLOR = pg.Color('black')
-CLOAK_TRANSPARENCY = 128 # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
+CLOAK_TRANSPARENCY = 128  # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
 NEAR_VANISH_TRANSPARENCY = 64
 SORTINGHAT_ANIMATION_SPEED = 500
 SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
@@ -164,14 +164,17 @@ NAME_ROW = [238, 365, 490, 620]
 NAME_POSITION = [(140 + ARENA_SIZE[0], y) for y in NAME_ROW]
 SCORE_ROW = [287, 414, 540, 670]
 SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCORE_ROW]
+
 class PLAYER_SKINS(Enum):
     NORMAL = 0
     SORTINGHAT = 1
+
 class CHARACTER_DIRECTION(Enum):
     UP = 0
     LEFT = 1
     DOWN = 2
     RIGHT = 3
+
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "pictures/items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",
@@ -194,7 +197,8 @@ PICTURES_PATH = {
 }
 FONT_PATH = "fonts"
 # end game
-PODIUM_POSITION = [(WINDOW_SIZE[0]/2, 330), (WINDOW_SIZE[0]/2-247, 470), (WINDOW_SIZE[0]/2+260, 496)]
+PODIUM_POSITION = [(WINDOW_SIZE[0]/2, 330), (WINDOW_SIZE[0] /
+                                             2-247, 470), (WINDOW_SIZE[0]/2+260, 496)]
 FINAL_SCORE_POSITION = [(x, y-2*PLAYER_RADIUS-30) for (x, y) in PODIUM_POSITION]
 
 # sound
@@ -205,22 +209,14 @@ MUSIC_PATH = {
 
 # controller
 PLAYER_KEYS = {
-    pg.K_UP: (PLAYER_IDS.PLAYER3, pg.Vector2(0, -1)),
-    pg.K_DOWN: (PLAYER_IDS.PLAYER3, pg.Vector2(0, 1)),
-    pg.K_LEFT: (PLAYER_IDS.PLAYER3, pg.Vector2(-1, 0)),
-    pg.K_RIGHT: (PLAYER_IDS.PLAYER3, pg.Vector2(1, 0)),
-    pg.K_i: (PLAYER_IDS.PLAYER2, pg.Vector2(0, -1)),
-    pg.K_k: (PLAYER_IDS.PLAYER2, pg.Vector2(0, 1)),
-    pg.K_j: (PLAYER_IDS.PLAYER2, pg.Vector2(-1, 0)),
-    pg.K_l: (PLAYER_IDS.PLAYER2, pg.Vector2(1, 0)),
-    pg.K_t: (PLAYER_IDS.PLAYER1, pg.Vector2(0, -1)),
-    pg.K_g: (PLAYER_IDS.PLAYER1, pg.Vector2(0, 1)),
-    pg.K_f: (PLAYER_IDS.PLAYER1, pg.Vector2(-1, 0)),
-    pg.K_h: (PLAYER_IDS.PLAYER1, pg.Vector2(1, 0)),
-    pg.K_w: (PLAYER_IDS.PLAYER0, pg.Vector2(0, -1)),
-    pg.K_s: (PLAYER_IDS.PLAYER0, pg.Vector2(0, 1)),
-    pg.K_a: (PLAYER_IDS.PLAYER0, pg.Vector2(-1, 0)),
-    pg.K_d: (PLAYER_IDS.PLAYER0, pg.Vector2(1, 0)),
+    PLAYER_IDS.PLAYER0: {pg.K_w: pg.Vector2(0, -1), pg.K_s: pg.Vector2(0, 1),
+                         pg.K_a: pg.Vector2(-1, 0), pg.K_d: pg.Vector2(1, 0)},
+    PLAYER_IDS.PLAYER1: {pg.K_t: pg.Vector2(0, -1), pg.K_g: pg.Vector2(0, 1),
+                         pg.K_f: pg.Vector2(-1, 0), pg.K_h: pg.Vector2(1, 0)},
+    PLAYER_IDS.PLAYER2: {pg.K_i: pg.Vector2(0, -1), pg.K_k: pg.Vector2(0, 1),
+                         pg.K_j: pg.Vector2(-1, 0), pg.K_l: pg.Vector2(1, 0)},
+    PLAYER_IDS.PLAYER3: {pg.K_UP: pg.Vector2(0, -1), pg.K_DOWN: pg.Vector2(0, 1),
+                         pg.K_LEFT: pg.Vector2(-1, 0), pg.K_RIGHT: pg.Vector2(1, 0)}
 }
 MUTE_KEY = pg.K_F1
 

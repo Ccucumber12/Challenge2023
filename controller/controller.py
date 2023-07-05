@@ -69,16 +69,15 @@ class Controller:
         ev_manager = get_event_manager()
         model = get_game_engine()
         keys = pg.key.get_pressed()
-        for k, v in const.PLAYER_KEYS.items():
-            # v: (player id, direction)
-            if model.ai[v[0]] != 'manual':
+        for player_id, key_val in const.PLAYER_KEYS.items():
+            if model.ai[player_id] != 'manual':
                 continue
-            if keys[k]:
-                ev_manager.post(EventPlayerMove(v[0], v[1], full_length=True))
-        # FOR TEST:
-        # if keys[pg.K_b]:
-        #     model = get_game_engine()
-        #     model.test()
+            direction = pg.Vector2(0, 0)
+            for k, v in key_val.items():
+                if keys[k]:
+                    direction += v
+            if direction.length() != 0:
+                ev_manager.post(EventPlayerMove(player_id, direction, full_length=True))
 
     def ctrl_stop(self, key_down_events):
         pass
