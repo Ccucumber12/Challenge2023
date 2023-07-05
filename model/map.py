@@ -67,7 +67,7 @@ def load_map(map_dir):
     with open(map_file) as f:
         rows = csv.reader(f)
 
-        map_list = [[0] * size[0] for _ in range(0, size[1])]
+        map_list = [[0] * size[1] for _ in range(0, size[0])]
 
         y = 0
         for row in rows:

@@ -11,10 +11,10 @@ import numpy as np
 
 def gen_map_file_from_image(img_path, width, height, threshold=0.8, distance=10):
     img = cv2.imread(img_path, cv2.IMREAD_COLOR)
-    image_width = img.shape[0]
-    image_height = img.shape[1]
+    image_width = img.shape[1]
+    image_height = img.shape[0]
 
-    map_list = [[0 for j in range(width)] for i in range(height)]
+    map_list = [[0 for j in range(height)] for i in range(width)]
     for x in range(width):
         for y in range(height):
             obstacle = 0
@@ -24,7 +24,7 @@ def gen_map_file_from_image(img_path, width, height, threshold=0.8, distance=10)
                 for j in range(int(image_height / height * y), int(image_height / height * (y + 1))):
                     total += 1
                     # OpenCV uses BGR
-                    b, g, r = [int(v) for v in img[i][j]]
+                    b, g, r = [int(v) for v in img[j][i]]
                     if b + g + (255 - r) <= distance:
                         obstacle += 1
                     elif (255 - b) + g + r <= distance:
@@ -36,7 +36,11 @@ def gen_map_file_from_image(img_path, width, height, threshold=0.8, distance=10)
             else:
                 map_list[x][y] = 0
 
-    for i in map_list:
+    transpose = [[0 for j in range(width)] for i in range(height)]
+    for i in range(int(width)):
+        for j in range(int(height)):
+            transpose[j][i] = map_list[i][j]
+    for i in transpose:
         print(','.join([str(j) for j in i]))
 
 
@@ -56,7 +60,7 @@ if len(sys.argv) == 4:
 elif len(sys.argv) == 5:
     gen_map_file_from_image(path, width, height, float(sys.argv[4]))
 elif len(sys.argv) == 6:
-    gen_map_file_from_image(path, width, height, int(sys.argv[5]))
+    gen_map_file_from_image(path, width, height, float(sys.argv[4]), int(sys.argv[5]))
 else:
     print_help()
     exit(0)
