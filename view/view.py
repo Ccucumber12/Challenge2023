@@ -235,7 +235,6 @@ class GraphicalView:
             self.render_endgame()
         kill_animation_end_list = []
         for kill_animation in self.ghost_kill_animations:
-            print(kill_animation)
             if model.timer > kill_animation[4]:
                 kill_animation_end_list.append(kill_animation)
         for kill_animation in kill_animation_end_list:
