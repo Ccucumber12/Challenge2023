@@ -168,18 +168,16 @@ class Character:
 
 class Player(Character):
     def __init__(self, player_id: int):
-        self.player_id = player_id
         model = get_game_engine()
-
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
-        speed = const.PLAYER_SPEED
-        super().__init__(position, speed, const.PLAYER_RADIUS)
+        super().__init__(position, const.PLAYER_SPEED, const.PLAYER_RADIUS)
 
+        self.player_id = player_id
         self.dead = False
         self.respawn_timer = 0
         self.score = 0
         self.effect_timer = 0
-        self.effect = None
+        self.effect: const.EFFECT_TYPE | None = None
         self.golden_snitch = False
 
         ev_manager = get_event_manager()
@@ -193,13 +191,13 @@ class Player(Character):
         return speed
 
     def is_invisible(self):
-        return self.effect == const.ITEM_SET.CLOAK
+        return self.effect == const.EFFECT_TYPE.CLOAK
 
     def is_invincible(self):
-        return self.effect == const.ITEM_SET.REMOVED_SORTINGHAT
+        return self.effect == const.EFFECT_TYPE.REMOVED_SORTINGHAT
 
     def handle_petrify(self, event: EventPetrify):
-        event.victim.set_effect(const.ITEM_SET.PETRIFICATION)
+        event.victim.set_effect(const.EFFECT_TYPE.PETRIFICATION)
 
     def iscaught(self):
         model = get_game_engine()
@@ -220,7 +218,7 @@ class Player(Character):
         """
         print(f"{self.player_id} was caught!")
         model = get_game_engine()
-        if self.effect == const.ITEM_SET.SORTINGHAT:
+        if self.effect == const.EFFECT_TYPE.SORTINGHAT:
             self.remove_effect()
             others = [x for x in const.PLAYER_IDS 
                       if x != self.player_id and not model.players[x.value].dead]
@@ -231,7 +229,7 @@ class Player(Character):
                 for second in range(start_second, start_second + 5):
                     minute = second // 60
                     model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
-            self.set_effect(const.ITEM_SET.REMOVED_SORTINGHAT)
+            self.set_effect(const.EFFECT_TYPE.REMOVED_SORTINGHAT)
             return
         elif not self.dead:
             self.dead = True
@@ -243,7 +241,7 @@ class Player(Character):
         self.dead = False
 
     def move(self, direction: pg.Vector2):
-        if self.effect == const.ITEM_SET.PETRIFICATION:
+        if self.effect == const.EFFECT_TYPE.PETRIFICATION:
             return
         super().move(direction)
 
@@ -260,13 +258,15 @@ class Player(Character):
         self.effect_timer = 0
         self.effect = None
 
-    def set_effect(self, effect: const.ITEM_SET):
+    def set_golden_snitch_effect(self):
+        self.add_score(150)
+        self.golden_snitch = True
+
+
+    def set_effect(self, effect: const.EFFECT_TYPE):
         self.effect = effect
         self.effect_timer = const.ITEM_DURATION[effect]
-        if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
-            self.add_score(150)
-            self.golden_snitch = True
-        elif self.effect == const.ITEM_SET.PATRONUS:
+        if self.effect == const.EFFECT_TYPE.PATRONUS:
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, self))
             for ghost in model.ghosts:
@@ -301,7 +301,7 @@ class Patronus(Character):
 
         self.score = 500
         self.dead = False
-        self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.ITEM_SET.PATRONUS]
+        self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.EFFECT_TYPE.PATRONUS]
         print(
             f"A patronus belong to {owner.player_id} was gernerated at {position}!")
 
@@ -317,7 +317,7 @@ class Patronus(Character):
     def chase(self):
         """Patronus will move toward its taget player."""
         # Uses Pathfind
-        self.move(self.pathfind(self.chasing.position.x, self.chasing.position.y) - self.position)
+        self.move(self.pathfind(*self.chasing.position) - self.position)
 
     def iscaught(self) -> bool:
         """Return if the patronus is caught by one of the ghosts"""
@@ -423,7 +423,7 @@ class Ghost(Character):
             return
 
         # Uses Pathfind
-        self.move(self.pathfind(self.prey.position.x, self.prey.position.y) - self.position)
+        self.move(self.pathfind(*self.prey.position) - self.position)
 
     def wander_handler(self):
         model = get_game_engine()
@@ -435,7 +435,7 @@ class Ghost(Character):
     def wander(self):
         if self.position.distance_to(self.wander_pos) < const.GHOST_RADIUS:
             self.wander_pos = util.get_random_pos(const.GHOST_RADIUS)
-        self.move(self.pathfind(self.wander_pos.x, self.wander_pos.y) - self.position)
+        self.move(self.pathfind(*self.wander_pos) - self.position)
 
     def choose_prey(self):
         model = get_game_engine()

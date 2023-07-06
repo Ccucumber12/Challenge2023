@@ -70,16 +70,20 @@ class Item:
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
-                if self.type == const.ITEM_SET.PETRIFICATION:
-                    others = [x for x in model.players
-                              if x != player and not model.players[x.player_id.value].dead]
+                if self.type == const.ITEM_SET.GOLDEN_SNITCH:
+                    player.set_golden_snitch_effect()
+                elif self.type == const.ITEM_SET.PETRIFICATION:
+                    others = [x for x in model.players if x != player and not x.dead]
                     if len(others) == 0:
                         continue
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
                     print(f'{player.player_id} cast petrification against {victim.player_id}')
                 else:
-                    player.set_effect(self.type)
+                    for i in const.EFFECT_TYPE:
+                        if i.name == self.type.name:
+                            player.set_effect(i)
+                            break
                     print(f"{player.player_id} got effect: {self.type}!")
         if self.type == const.ITEM_SET.GOLDEN_SNITCH:
             self.move_golden_snitch()

@@ -1,4 +1,4 @@
-from enum import Enum, IntEnum
+from enum import Enum, IntEnum, auto
 
 import pygame as pg
 
@@ -81,22 +81,28 @@ STATE_ENDGAME = 4
 class ITEM_SET(Enum):
     def __str__(self):
         return f"{self.name}"
-    GOLDEN_SNITCH = 0
-    CLOAK = 1
-    PATRONUS = 2
-    PETRIFICATION = 3
-    SORTINGHAT = 4
-    REMOVED_SORTINGHAT = 5
+    
+    GOLDEN_SNITCH = auto()
+    CLOAK = auto()
+    PATRONUS = auto()
+    PETRIFICATION = auto()
+    SORTINGHAT = auto()
 
-ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4, 0]  # should correspond to ITEM_SET
+class EFFECT_TYPE(Enum):
+    CLOAK = auto()
+    PATRONUS = auto()
+    PETRIFICATION = auto()
+    SORTINGHAT = auto()
+    REMOVED_SORTINGHAT = auto()
+
+ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond to ITEM_SET
 # The probability of golden snitch should be set to ZERO.
 ITEM_DURATION = {
-    ITEM_SET.GOLDEN_SNITCH: 1,
-    ITEM_SET.CLOAK: 5 * FPS,
-    ITEM_SET.PATRONUS: 15 * FPS,
-    ITEM_SET.PETRIFICATION: 3 * FPS,
-    ITEM_SET.SORTINGHAT: 10 * FPS,
-    ITEM_SET.REMOVED_SORTINGHAT: 5 * FPS
+    EFFECT_TYPE.PATRONUS: 15 * FPS,
+    EFFECT_TYPE.CLOAK: 5 * FPS,
+    EFFECT_TYPE.PETRIFICATION: 3 * FPS,
+    EFFECT_TYPE.SORTINGHAT: 10 * FPS,
+    EFFECT_TYPE.REMOVED_SORTINGHAT: 5 * FPS
 }
 ITEM_LOSE_EFFECT_HINT_TIME = 2*FPS
 ITEM_LIFETIME = {
@@ -111,7 +117,7 @@ MAX_ITEM_NUMBER = 10
 ITEM_RADIUS = 25
 SORTINGHAT_INVINCIBLE_TIME = 5 * FPS
 GOLDEN_SNITCH_APPEAR_TIME = 30 * FPS
-GOLDEN_SNITCH_SPEED = 250 / FPS
+GOLDEN_SNITCH_SPEED = 5 / FPS
 
 PETRIFICATION_ANIMATION_SPEED = 10
 PETRIFICATION_ANIMATION_COLOR = pg.Color(169, 169, 169)

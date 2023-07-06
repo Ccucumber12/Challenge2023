@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import pygame as pg
 
 import const
@@ -81,8 +80,6 @@ class GraphicalView:
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
         for item in const.ITEM_SET:
-            if item == const.ITEM_SET.REMOVED_SORTINGHAT:
-                continue
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_RADIUS*2, const.ITEM_RADIUS*2, True)
             self.transparent_player_image[item] = self.pictures[item].convert_alpha()
@@ -342,9 +339,7 @@ class GraphicalView:
             # ul means upper left
             if obj.object_type == const.OBJECT_TYPE.PLAYER:
                 direction = self.character_direction[obj.image_index]
-                effect = obj.detail[0]
-                dead = obj.detail[1]
-                effect_timer = obj.detail[2]
+                effect, dead, effect_timer = obj.detail
                 # if dead:
                 #     if half_sec % 2 == 0:
                 #         self.screen.blit(self.transparent_player_image[obj[2]], obj[3])
@@ -355,11 +350,11 @@ class GraphicalView:
                 ul = [x - y for x, y in zip(obj.position, [width/2, height])]
                 if effect_timer < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
                     self.screen.blit(self.character_image[obj.image_index][direction], ul)
-                elif effect == const.ITEM_SET.PETRIFICATION:
+                elif effect == const.EFFECT_TYPE.PETRIFICATION:
                     self.screen.blit(self.petrified_player_image[obj.image_index][direction], ul)
-                elif effect == const.ITEM_SET.CLOAK:
+                elif effect == const.EFFECT_TYPE.CLOAK:
                     self.screen.blit(self.transparent_player_image[obj.image_index][direction], ul)
-                elif effect == const.ITEM_SET.SORTINGHAT:
+                elif effect == const.EFFECT_TYPE.SORTINGHAT:
                     width = self.wearing_sortinghat_image[obj.image_index][direction].get_width()
                     height = self.wearing_sortinghat_image[obj.image_index][direction].get_height()
                     ul = [x - y for x, y in zip(obj.position, [width/2, height])]
