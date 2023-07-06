@@ -41,9 +41,8 @@ class Character:
             return
 
         # Normalize direction in place if direction is longer than the max distance character can move
-        if direction.length() > self.speed / const.FPS:
-            direction.normalize_ip()
-            direction *= self.speed / const.FPS
+        if direction.length() > self.speed:
+            direction = self.speed * direction.normalize()
 
         # If it hits an obstacle, try a smaller distance
         for attempt in range(3):
@@ -58,10 +57,7 @@ class Character:
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
                 direction /= 2
                 continue
-            # Todo: Portal
-            portal = model.map.get_portal(new_position)
-            if portal is not None:
-                print('Portal', portal)
+            
             # Update
             self.position = new_position
             return
@@ -325,7 +321,6 @@ class Patronus(Character):
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        model = get_game_engine()
         if self.chasing == None or self.chasing.dead:
             self.chasing = self.choose_target()
         if self.chasing != None:
@@ -393,9 +388,9 @@ class Ghost(Character):
         self.state = const.GHOST_STATE.CHASE
         self.chase_time = const.GHOST_CHASE_TIME
         model.register_user_event(const.GHOST_CHASE_TIME, self.wander_handler)
-        self.speed = min(const.GHOST_MAX_SPEED, self.speed + self.chase_time / const.FPS)
+        # Temporary: the speed of ghost will increase by 0.2 coordinate/tick for each wandering period
+        self.speed = min(const.GHOST_MAX_SPEED, self.speed + 0.2)
         print(f"Ghost speed updated to {self.speed}")
-        self.chase_time += 2 * const.FPS
 
     def chase(self):
         """
@@ -452,7 +447,7 @@ class Ghost(Character):
                 if self.prey is None:
                     break
             if (self.teleport_available and self.prey is not None 
-                and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME / const.FPS):
+                and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME):
                 print(f"Teleporting to {self.prey.position}")
                 self.teleport(self.prey.position)
                 return

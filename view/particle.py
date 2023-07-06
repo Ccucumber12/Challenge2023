@@ -72,9 +72,9 @@ class CastMagicParticleEffect:
 
 class Particle:
     def __init__(self, position: pg.Vector2, color: pg.Color = None, radius: float = 5):
-        self.speed = random.randint(50, 300)
+        self.speed = random.randint(50, 300) / const.FPS
         self.displacement = pg.Vector2.from_polar((
-            random.choice([1, -1]) * random.uniform(2 * self.speed / const.FPS, 40),
+            random.choice([1, -1]) * random.uniform(2 * self.speed, 40),
             random.random() * 360))
         self.destination = position
         self.position: pg.Vector2 = position + self.displacement
@@ -88,9 +88,9 @@ class Particle:
         self.radius = radius * ((random.random() - 0.5) * 0.2 + 1)
 
     def update(self):
-        self.position = self.position - self.displacement.normalize() * self.speed / const.FPS
+        self.position = self.position - self.displacement.normalize() * self.speed
 
     def arrive(self) -> bool:
-        if (self.destination - self.position).length() < 2 * self.speed / const.FPS:
+        if (self.destination - self.position).length() < 2 * self.speed:
             return True
         return False

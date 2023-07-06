@@ -30,8 +30,8 @@ class Item:
         def mindis():
             return min((player.position - self.position).length() for player in model.players)
 
-        def getweight(pos):
-            ret = (pos - pg.Vector2(const.ARENA_SIZE[0]/2, const.ARENA_SIZE[1]/2)).length()*2
+        def getweight(pos: pg.Vector2):
+            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[1] / 2)).length() * 2
             dis = (pos - self.position).length()
             for player in model.players:
                 vec1 = player.position - self.position
@@ -52,11 +52,12 @@ class Item:
             self.golden_snitch_goal = pnts[weights.index(min(weights))]
 
         # print("weight", getweight(self.golden_snitch_goal))
-        if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED / const.FPS:
+        if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED:
             new_position = self.golden_snitch_goal
             self.golden_snitch_goal = None
         else:
-            new_position = (self.position + (self.golden_snitch_goal - self.position).normalize() * const.GOLDEN_SNITCH_SPEED / const.FPS)
+            new_position = (self.position + 
+            (self.golden_snitch_goal - self.position).normalize() * const.GOLDEN_SNITCH_SPEED)
         # clamp
         new_position.x = utl.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
         new_position.y = utl.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
@@ -102,7 +103,7 @@ class ItemGenerator:
             # discard points not leggel
             if not (const.ITEM_WIDTH < candidate.x < const.ARENA_SIZE[0] - const.ITEM_WIDTH
                     and const.ITEM_HEIGHT < candidate.y < const.ARENA_SIZE[1] - const.ITEM_HEIGHT) \
-                    and model.map.get_type(candidate) == const.MAP_OBSTACLE:
+                    or model.map.get_type(candidate) == const.MAP_OBSTACLE:
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]
             for obj in objects:

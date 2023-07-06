@@ -84,14 +84,13 @@ class GameEngine:
                     item_deletions.append(item)
             for item in item_deletions:
                 self.items.remove(item)
-                del item
 
             # Handle user events
             if self.timer in self.user_events:
                 events = self.user_events[self.timer]
                 for event in events:
                     event()
-                del self.user_events[self.timer]
+                self.user_events.pop(self.timer)
 
             for i in range(0, 4):
                 api_impl.call_ai(i)

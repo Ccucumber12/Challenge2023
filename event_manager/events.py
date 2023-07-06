@@ -44,7 +44,7 @@ class EventPlayerMove(BaseEvent):
         self.player_id = player_id
         if full_length:
             player = instances_manager.get_game_engine().players[player_id]
-            direction = direction.normalize() * player.speed / const.FPS
+            direction = direction.normalize() * player.speed
         self.direction = direction
 
     def __str__(self):

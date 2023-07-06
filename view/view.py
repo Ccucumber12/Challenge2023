@@ -499,12 +499,12 @@ class Fog:
         if not self.start:
             return
         if self.raising:
-            self.position = self.position + pg.Vector2(0, -self.speed/const.FPS)
+            self.position = self.position + pg.Vector2(0, -self.speed)
             if self.position.y <= 0:
                 self.position.y = 0
                 self.raising = False
         self.screen.blit(self.picture, self.position)
         self.screen.blit(self.picture, self.position - pg.Vector2(const.FOG_SIZE[0], 0))
-        self.position = self.position + pg.Vector2(self.speed/const.FPS, 0)
+        self.position = self.position + pg.Vector2(self.speed, 0)
         if self.position.x > const.WINDOW_SIZE[0]:
             self.position.x -= const.FOG_SIZE[0]
