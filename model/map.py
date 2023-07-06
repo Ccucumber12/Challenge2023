@@ -1,7 +1,6 @@
 import csv
 import json
 import os
-import re
 
 import pygame as pg
 
@@ -62,12 +61,10 @@ def load_map(map_dir):
         data = json.load(f)
     images = data['images']
 
-    size = tuple(map(int, [data['width'], data['height']]))
-    spawn = [tuple(map(int, i.split(','))) for i in data['spawn']]
-    portals = [tuple(map(int, re.split('[, ]', i))) for i in data['portals']]
-    print(data)
-    ghost_spawn = tuple(map(int, data['ghost_spawn'].split(',')))
-    print(ghost_spawn)
+    size = (data['width'], data['height'])
+    spawn = [tuple(i) for i in data['spawn']]
+    portals = [tuple(tuple(j) for j in i) for i in data['portals']]
+    ghost_spawn = tuple(data['ghost_spawn'])
 
     with open(map_file) as f:
         rows = csv.reader(f)

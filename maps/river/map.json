@@ -2,7 +2,7 @@
   "width": 150,
   "height": 100,
   "spawn": [
-    "30,30", "30,70", "70,30", "50,50"
+    [30, 30], [30, 80], [120, 30], [120, 80]
   ],
   "images": {
     "background.png": -2,
@@ -17,5 +17,5 @@
     "stone.png": -1
   },
   "portals": [],
-  "ghost_spawn": "75,50"
+  "ghost_spawn": [75, 50]
 }
