@@ -16,5 +16,6 @@
     "stone2.png": 66,
     "stone.png": -1
   },
-  "portals": []
+  "portals": [],
+  "ghost_spawn": "75,50"
 }

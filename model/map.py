@@ -11,12 +11,13 @@ import utl
 
 class Map:
 
-    def __init__(self, size, map_list, portals, images, spawn, map_dir):
+    def __init__(self, size, map_list, portals, images, spawn, ghost_spawn_point, map_dir):
         self.size = size
         self.map = map_list
         self.images = images
         self.portals = portals
         self.spawn = spawn
+        self.ghost_spawn_point = ghost_spawn_point
         self.map_dir = map_dir
 
     def convert_coordinate(self, position: tuple | pg.Vector2) -> tuple:
@@ -47,10 +48,11 @@ class Map:
 
     def get_spawn_point(self, num):
         x, y = self.spawn[num]
-        x = (x + 0.5) * const.ARENA_SIZE[0] / self.size[0]
-        y = (y + 0.5) * const.ARENA_SIZE[1] / self.size[1]
-        return x, y
-
+        return self.convert_cell((x, y))
+    
+    def get_ghost_spawn_point(self):
+        x, y = self.ghost_spawn_point
+        return self.convert_cell((x, y))
 
 def load_map(map_dir):
     json_file = os.path.join(map_dir, 'map.json')
@@ -63,6 +65,9 @@ def load_map(map_dir):
     size = tuple(map(int, [data['width'], data['height']]))
     spawn = [tuple(map(int, i.split(','))) for i in data['spawn']]
     portals = [tuple(map(int, re.split('[, ]', i))) for i in data['portals']]
+    print(data)
+    ghost_spawn = tuple(map(int, data['ghost_spawn'].split(',')))
+    print(ghost_spawn)
 
     with open(map_file) as f:
         rows = csv.reader(f)
@@ -87,4 +92,4 @@ def load_map(map_dir):
     print(new_map_list)
     map_list = new_map_list
     """
-    return Map(size, map_list, portals, images, spawn, map_dir)
+    return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir)

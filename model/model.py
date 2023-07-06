@@ -45,7 +45,7 @@ class GameEngine:
         for i in const.PLAYER_IDS:
             self.players.append(Player(i))
         self.ghosts: list[Ghost] = [
-            Ghost(0, const.GHOST_INIT_TP_CD, const.GHOST_INIT_POSITION[const.GHOST_IDS.DEMENTOR])]
+            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
         self.patronuses: list[Patronus] = []
         self.items: set[Item] = set()
         self.timer = 0

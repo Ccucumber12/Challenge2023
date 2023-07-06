@@ -42,9 +42,6 @@ DIRECTION_TO_VEC2 = {
     'down': pg.Vector2(0, 1),
     'right': pg.Vector2(1, 0),
 }
-GHOST_INIT_POSITION = {
-    GHOST_IDS.DEMENTOR: pg.Vector2(400, 400)
-}
 GHOST_RADIUS = 30
 GHOST_INIT_SPEED = 100 / FPS
 GHOST_MAX_SPEED = 180 / FPS
