@@ -168,6 +168,7 @@ SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCOR
 class PLAYER_SKINS(Enum):
     NORMAL = 0
     SORTINGHAT = 1
+    SHINING = 2
 
 class CHARACTER_DIRECTION(Enum):
     UP = 0
@@ -187,6 +188,7 @@ PICTURES_PATH = {
     PLAYER_IDS.PLAYER3: "pictures/characters/players/player3",
     PLAYER_SKINS.NORMAL: "normal",
     PLAYER_SKINS.SORTINGHAT: "sortinghat",
+    PLAYER_SKINS.SHINING: "shining",
     GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
     SCENE.TITLE: "pictures/scenes/Title.png",
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
