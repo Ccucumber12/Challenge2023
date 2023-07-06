@@ -4,7 +4,7 @@ import pygame as pg
 from pygame import Vector2
 
 import instances_manager
-from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper
+from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey
 from event_manager.events import EventPlayerMove
 
 
@@ -28,18 +28,42 @@ class HelperImpl(Helper):
                           i.dead,
                           i.speed,
                           i.score,
-                          None if i.effect is None else ItemType.get_by_name(i.effect.name))
+                          None if i.effect is None else ItemType.get_by_name(i.effect.name),
+                          i.effect_timer)
                    for i in model.players]
         return players
 
     def get_ghosts(self) -> list[Ghost]:
         model = instances_manager.get_game_engine()
-        ghosts = [Ghost(i.ghost_id,
-                        i.position,
-                        0,  # TODO
-                        i.teleport_distination)
-                  for i in model.ghosts]
+        ghosts = []
+        for i in model.ghosts:
+            destination = i.teleport_distination if i.teleport_chanting else None
+            after = i.teleport_after if i.teleport_chanting else None
+            cooldown = i.teleport_cooldown_remain
+            ghost = Ghost(i.ghost_id,
+                          i.position,
+                          i.speed,
+                          destination,
+                          after,
+                          cooldown)
+            ghosts.append(ghost)
         return ghosts
+
+    def get_patronuses(self) -> list[Patronus]:
+        model = instances_manager.get_game_engine()
+        patronuses = [Patronus(i.patronus_id,
+                               i.position,
+                               i.owner.player_id)
+                      for i in model.patronuses]
+        return patronuses
+
+    def get_portkeys(self) -> list[Portkey]:
+        model = instances_manager.get_game_engine()
+        map_obj = model.map
+        portkeys = [Portkey(map_obj.convert_cell((i[0], i[1])),
+                            map_obj.convert_cell((i[2], i[3])))
+                    for i in map_obj.portals]
+        return portkeys
 
     def get_nearest_ghost(self) -> Ghost:
         ghosts = self.get_ghosts()
@@ -72,38 +96,6 @@ class HelperImpl(Helper):
                 dis = self.distance_to(i.position)
                 nearest = i
         return nearest
-
-    def get_farthest_ghost(self) -> Ghost:
-        ghosts = self.get_ghosts()
-        farthest = None
-        dis = float('nan')
-        for i in ghosts:
-            if farthest is None or self.distance_to(i.position) > dis:
-                dis = self.distance_to(i.position)
-                farthest = i
-        return farthest
-
-    def get_farthest_item(self) -> Item:
-        items = self.get_items()
-        farthest = None
-        dis = float('nan')
-        for i in items:
-            if farthest is None or self.distance_to(i.position) > dis:
-                dis = self.distance_to(i.position)
-                farthest = i
-        return farthest
-
-    def get_farthest_player(self) -> Player:
-        players = self.get_players()
-        farthest = None
-        dis = float('nan')
-        for i in players:
-            if i.id == self._current_player:
-                continue
-            if farthest is None or self.distance_to(i.position) < dis:
-                dis = self.distance_to(i.position)
-                farthest = i
-        return farthest
 
     def get_ground_type(self, position: Vector2) -> GroundType:
         model = instances_manager.get_game_engine()

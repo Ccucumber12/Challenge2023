@@ -9,6 +9,7 @@ class AI:
 
 
 class GroundType(Enum):
+
     @staticmethod
     def get_by_num(num):
         if num == 0:
@@ -38,6 +39,7 @@ class ItemType(Enum):
     PATRONUS = auto()
     PETRIFICATION = auto()
     SORTINGHAT = auto()
+    REMOVED_SORTINGHAT = auto()
 
 
 class Item:
@@ -60,13 +62,14 @@ class Item:
 
 
 class Player:
-    def __init__(self, _id, _position, _dead, _speed, _score, _effect):
+    def __init__(self, _id, _position, _dead, _speed, _score, _effect, _effect_remain):
         self.__id = _id
         self.__position = _position
         self.__dead = _dead
         self.__speed = _speed
         self.__score = _score
         self.__effect = _effect
+        self.__effect_remain = _effect_remain
 
     @property
     def id(self) -> int:
@@ -92,13 +95,19 @@ class Player:
     def effect(self) -> ItemType:
         return self.__effect
 
+    @property
+    def effect_remain(self) -> int:
+        return self.__effect_remain
+
 
 class Ghost:
-    def __init__(self, _id, _position, _teleport_remain, _teleport_destination):
+    def __init__(self, _id, _position, _speed, _teleport_destination, _teleport_after, _teleport_cooldown_remain):
         self.__id = _id
         self.__position = _position
-        self.__teleport_remain = _teleport_remain
+        self.__speed = _speed
         self.__teleport_destination = _teleport_destination
+        self.__teleport_after = _teleport_after
+        self.__teleport_cooldown_remain = _teleport_cooldown_remain
 
     @property
     def id(self) -> int:
@@ -109,12 +118,53 @@ class Ghost:
         return self.__position
 
     @property
-    def teleport_remain(self) -> int:
-        return self.__teleport_remain
+    def speed(self) -> float:
+        return self.__speed
 
     @property
     def teleport_destination(self) -> Vector2:
         return self.__teleport_destination
+
+    @property
+    def teleport_after(self) -> int:
+        return self.__teleport_after
+
+    @property
+    def teleport_cooldown_remain(self) -> int:
+        return self.__teleport_cooldown_remain
+
+
+class Patronus:
+    def __init__(self, _id, _position, _owner):
+        self.__id = _id
+        self.__position = _position
+        self.__owner = _owner
+
+    @property
+    def id(self) -> int:
+        return self.__id
+
+    @property
+    def position(self) -> int:
+        return self.__position
+
+    @property
+    def owner(self) -> int:
+        return self.__owner
+
+
+class Portkey:
+    def __init__(self, _position, _to):
+        self.__position = _position
+        self.__to = _to
+
+    @property
+    def position(self):
+        return self.__position
+
+    @property
+    def to(self):
+        return self.__to
 
 
 class Helper:
@@ -127,6 +177,12 @@ class Helper:
     def get_ghosts(self) -> list[Ghost]:
         pass
 
+    def get_patronuses(self) -> list[Patronus]:
+        pass
+
+    def get_portkeys(self) -> list[Portkey]:
+        pass
+
     def get_nearest_ghost(self) -> Ghost:
         pass
 
@@ -134,15 +190,6 @@ class Helper:
         pass
 
     def get_nearest_player(self) -> Player:
-        pass
-
-    def get_farthest_ghost(self) -> Ghost:
-        pass
-
-    def get_farthest_item(self) -> Item:
-        pass
-
-    def get_farthest_player(self) -> Player:
         pass
 
     def get_ground_type(self, position: Vector2) -> GroundType:
@@ -178,6 +225,14 @@ def get_ghosts() -> list[Ghost]:
     return _helper.get_ghosts()
 
 
+def get_patronuses() -> list[Patronus]:
+    return _helper.get_patronuses()
+
+
+def get_portkeys() -> list[Portkey]:
+    return _helper.get_portkeys()
+
+
 def get_nearest_ghost() -> Ghost:
     return _helper.get_nearest_ghost()
 
@@ -188,18 +243,6 @@ def get_nearest_item() -> Item:
 
 def get_nearest_player() -> Player:
     return _helper.get_nearest_player()
-
-
-def get_farthest_ghost() -> Ghost:
-    return _helper.get_farthest_ghost()
-
-
-def get_farthest_item() -> Item:
-    return _helper.get_farthest_item()
-
-
-def get_farthest_player() -> Player:
-    return _helper.get_farthest_player()
 
 
 def get_ground_type(position: Vector2) -> GroundType:
