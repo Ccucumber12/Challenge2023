@@ -134,6 +134,7 @@ class Character:
                                        (tentative_g + neighbor_h, tentative_g, neighbor))
             return []
 
+
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
@@ -146,6 +147,8 @@ class Character:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
+        if grid[end[0]][end[1]] == const.MAP_OBSTACLE:
+            return x, y
 
         if len(self.saved_path) == 0:
             path = a_star(grid, start, end)
