@@ -4,6 +4,7 @@ import const
 from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 
+
 class BackGroundMusic:
     def __init__(self):
         """

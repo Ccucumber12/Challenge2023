@@ -3,7 +3,7 @@ import random
 import pygame as pg
 
 import const
-import utl
+import util
 
 
 class GatheringParticleEffect:
@@ -45,14 +45,14 @@ class CastMagicParticleEffect:
     Create a shooting particle effect inside a segment. 
     """
 
-    def __init__(self, attacker, victim, speed: int, color: pg.Color = None, thickness = 5) -> None:
+    def __init__(self, attacker, victim, speed: int, color: pg.Color = None, thickness=5) -> None:
         self.current_position = pg.Vector2(attacker.position)
         self.victim = victim
         self.speed = speed
         self.color = color
         self.thickness = thickness
         self.particles = []
-    
+
     def tick(self) -> bool:
         """
         Return true if magic hit victim.
@@ -64,9 +64,11 @@ class CastMagicParticleEffect:
                 remain_particles.append(particle)
         self.particles = remain_particles
 
-        for _ in range(int(utl.random_fluctuation(self.thickness))):
-            self.particles.append(Particle(self.current_position, self.color, const.PETRIFICATION_ANIMATION_PARTICLE_RADIUS))
-        self.current_position += (self.victim.position - self.current_position).normalize() * self.speed
+        for _ in range(int(util.random_fluctuation(self.thickness))):
+            self.particles.append(Particle(self.current_position, self.color,
+                                           const.PETRIFICATION_ANIMATION_PARTICLE_RADIUS))
+        self.current_position += (self.victim.position
+                                  - self.current_position).normalize() * self.speed
         return (self.current_position - self.victim.position).length() <= 5
 
 
@@ -79,12 +81,15 @@ class Particle:
         self.destination = position
         self.position: pg.Vector2 = position + self.displacement
         if color == None:
-            self.color = (random.randint(50, 255), random.randint(50, 255), random.randint(50, 255))
+            self.color = (random.randint(50, 255), 
+                          random.randint(50, 255), 
+                          random.randint(50, 255))
         else:
             color_random_range = 50
             self.color = pg.Color(color)
             for i in range(3):
-                self.color[i] += utl.clamp(random.randint(-color_random_range, color_random_range), 0, 255)
+                self.color[i] += util.clamp(
+                    random.randint(-color_random_range, color_random_range), 0, 255)
         self.radius = radius * ((random.random() - 0.5) * 0.2 + 1)
 
     def update(self):

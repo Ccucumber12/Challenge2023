@@ -4,7 +4,7 @@ import numpy as np
 import pygame as pg
 
 import const
-import utl
+import util
 from event_manager.events import EventCastPetrification
 from instances_manager import get_event_manager, get_game_engine
 
@@ -53,25 +53,26 @@ class Item:
             new_position = self.golden_snitch_goal
             self.golden_snitch_goal = None
         else:
-            new_position = (self.position + 
-            (self.golden_snitch_goal - self.position).normalize() * const.GOLDEN_SNITCH_SPEED)
+            new_position = (self.position
+                            + ((self.golden_snitch_goal - self.position).normalize()
+                               * const.GOLDEN_SNITCH_SPEED))
         # clamp
-        new_position.x = utl.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
-        new_position.y = utl.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
+        new_position.x = util.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
+        new_position.y = util.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
 
         # Update
         self.position = new_position
 
-
     def tick(self):
         model = get_game_engine()
         for player in model.players:
-            if (utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
+            if (util.overlaped(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
                 if self.type == const.ITEM_SET.PETRIFICATION:
-                    others = [x for x in model.players if x != player and not model.players[x.player_id.value].dead]
+                    others = [x for x in model.players
+                              if x != player and not model.players[x.player_id.value].dead]
                     if len(others) == 0:
                         continue
                     victim = random.choice(others)

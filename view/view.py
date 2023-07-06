@@ -10,7 +10,7 @@ from view.particle import CastMagicParticleEffect, GatheringParticleEffect
 
 
 class Object():
-    def __init__(self, y, object_type: const.OBJECT_TYPE, position: pg.Vector2, 
+    def __init__(self, y, object_type: const.OBJECT_TYPE, position: pg.Vector2,
                  image_index, detail: tuple):
         self.y = y
         self.object_type = object_type
@@ -89,29 +89,29 @@ class GraphicalView:
             self.transparent_player_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
         for player in const.PLAYER_IDS:
             # normal
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL],
                                                  "front.png")).convert_alpha()
             self.character_image[player] = {}
             self.character_image[player][const.CHARACTER_DIRECTION.DOWN] =\
                 crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL],
                                                  "left.png")).convert_alpha()
             self.character_image[player][const.CHARACTER_DIRECTION.LEFT] =\
-                crop(picture, const.WINDOW_SIZE[0], 
+                crop(picture, const.WINDOW_SIZE[0],
                      self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL],
                                                  "rear.png")).convert_alpha()
             self.character_image[player][const.CHARACTER_DIRECTION.UP] =\
-                crop(picture, const.WINDOW_SIZE[0], 
+                crop(picture, const.WINDOW_SIZE[0],
                      self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL], 
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL],
                                                  "right.png")).convert_alpha()
             self.character_image[player][const.CHARACTER_DIRECTION.RIGHT] =\
-                crop(picture, const.WINDOW_SIZE[0], 
+                crop(picture, const.WINDOW_SIZE[0],
                      self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
 
             # grayscale
@@ -123,33 +123,36 @@ class GraphicalView:
             self.transparent_player_image[player] = {}
             for direction in const.CHARACTER_DIRECTION:
                 self.transparent_player_image[player][direction] =\
-                      self.character_image[player][direction].convert_alpha()
-                self.transparent_player_image[player][direction].set_alpha(const.CLOAK_TRANSPARENCY)
+                    self.character_image[player][direction].convert_alpha()
+                self.transparent_player_image[player][direction].set_alpha(
+                    const.CLOAK_TRANSPARENCY)
+
             def load_player_skin(player, imgdic: dict, skin: const.PLAYER_SKINS):
                 imgdic[player] = {}
-                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                     const.PICTURES_PATH[skin], 
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
                                                      "front.png")).convert_alpha()
                 imgdic[player][const.CHARACTER_DIRECTION.DOWN] = crop(
-                    picture, self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_width(), 
+                    picture, self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_width(
+                    ),
                     const.PLAYER_RADIUS*5)
-                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                     const.PICTURES_PATH[skin], 
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
                                                      "left.png")).convert_alpha()
                 imgdic[player][const.CHARACTER_DIRECTION.LEFT] =\
-                    crop(picture, const.WINDOW_SIZE[0], 
+                    crop(picture, const.WINDOW_SIZE[0],
                          imgdic[player][const.CHARACTER_DIRECTION.DOWN].get_height())
-                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                     const.PICTURES_PATH[skin], 
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
                                                      "rear.png")).convert_alpha()
                 imgdic[player][const.CHARACTER_DIRECTION.UP] =\
-                    crop(picture, const.WINDOW_SIZE[0], 
+                    crop(picture, const.WINDOW_SIZE[0],
                          imgdic[player][const.CHARACTER_DIRECTION.DOWN].get_height())
-                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                     const.PICTURES_PATH[skin], 
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
                                                      "right.png")).convert_alpha()
                 imgdic[player][const.CHARACTER_DIRECTION.RIGHT] =\
-                    crop(picture, const.WINDOW_SIZE[0], 
+                    crop(picture, const.WINDOW_SIZE[0],
                          imgdic[player][const.CHARACTER_DIRECTION.DOWN].get_height())
 
             # sortinghat
@@ -161,7 +164,6 @@ class GraphicalView:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
 
-        
         self.background_images = []
         for i in model.map.images:
             loaded_image = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
@@ -197,7 +199,7 @@ class GraphicalView:
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
         self.sortinghat_animation_picture.append(
             crop(picture, const.ITEM_RADIUS, const.ITEM_RADIUS))
-        
+
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
@@ -210,7 +212,7 @@ class GraphicalView:
         """
         model = get_game_engine()
         model.register_user_event(const.GOLDEN_SNITCH_APPEAR_TIME, self.last_stage_handler)
-    
+
     def last_stage_handler(self):
         self.fog.start = True
 
@@ -250,7 +252,8 @@ class GraphicalView:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
-        ev_manager.register_listener(EventGhostTeleport, self.add_ghost_teleport_chanting_animation)
+        ev_manager.register_listener(EventGhostTeleport,
+                                     self.add_ghost_teleport_chanting_animation)
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
         ev_manager.register_listener(EventTimesUp, self.register_places)
@@ -262,25 +265,25 @@ class GraphicalView:
         """
         model = get_game_engine()
         pg.display.set_caption(f'{const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
-    
+
     def add_ghost_teleport_chanting_animation(self, event):
         model = get_game_engine()
         self.ghost_teleport_chanting_animations.append((
-            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer, 
+            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer,
                                     const.GHOST_CHANTING_COLOR), event.destination))
-    
+
     def add_cast_petrification_animation(self, event):
         self.petrification_animation.append((
-            CastMagicParticleEffect(event.attacker, event.victim, const.PETRIFICATION_ANIMATION_SPEED, 
-            const.PETRIFICATION_ANIMATION_COLOR, const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
-        
+            CastMagicParticleEffect(event.attacker, event.victim, const.PETRIFICATION_ANIMATION_SPEED,
+                                    const.PETRIFICATION_ANIMATION_COLOR,
+                                    const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
         position = model.players[event.assailant.value].position
         victim = event.victim
         self.sortinghat_animations.append((position, victim, 0))
-    
+
     def register_places(self, event: EventTimesUp):
         self.places = event.places
 
@@ -312,7 +315,8 @@ class GraphicalView:
         for item in model.items:
             coord = game_map.convert_coordinate(item.position)
             detail = (item.vanish_time, )
-            objects.append(Object(coord[1], const.OBJECT_TYPE.ITEM, item.position, item.type, detail))
+            objects.append(Object(coord[1], const.OBJECT_TYPE.ITEM,
+                           item.position, item.type, detail))
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
             detail = (player.effect, player.dead, player.effect_timer)
@@ -325,7 +329,8 @@ class GraphicalView:
         for patronus in model.patronuses:
             coord = game_map.convert_coordinate(patronus.position)
             detail = (patronus.death_time, )
-            objects.append(Object(coord[1], const.OBJECT_TYPE.PATRONUS, patronus.position, None, detail))
+            objects.append(Object(coord[1], const.OBJECT_TYPE.PATRONUS,
+                                  patronus.position, None, detail))
 
         for row, image in self.background_images:
             objects.append(Object(row, const.OBJECT_TYPE.MAP, pg.Vector2(0, 0), None, (image, )))
@@ -362,18 +367,20 @@ class GraphicalView:
                 else:
                     self.screen.blit(self.character_image[obj.image_index][direction], ul)
             elif obj.object_type == const.OBJECT_TYPE.GHOST:
-                ul = [x - y for x, y in zip(obj.position, [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
+                ul = [x - y for x, y in zip(obj.position,
+                                            [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
                 self.screen.blit(self.pictures[const.GHOST_IDS.DEMENTOR], ul)
             elif obj.object_type == const.OBJECT_TYPE.PATRONUS:
                 effect_timer = obj.detail[0]
                 if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:
-                    ul = [x - y for x, y in zip(obj.position, 
+                    ul = [x - y for x, y in zip(obj.position,
                                                 [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
                     self.screen.blit(self.shining_patronus, ul)
             elif obj.object_type == const.OBJECT_TYPE.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
             elif obj.object_type == const.OBJECT_TYPE.ITEM:
-                ul = [x - y for x, y in zip(obj.position, [const.ITEM_RADIUS, const.ITEM_RADIUS*2])]
+                ul = [x - y for x, y in zip(obj.position,
+                                            [const.ITEM_RADIUS, const.ITEM_RADIUS*2])]
                 # It's acually is a rectangle.
                 vanish_time = obj.detail[0]
                 # if half_sec % 2 == 0 or model.timer + 5*const.FPS < vanish_time:
@@ -393,10 +400,10 @@ class GraphicalView:
             for particle in effect.particles:
                 pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
             effect.tick()
-            ul = [x - y for x, y in zip(destination, 
+            ul = [x - y for x, y in zip(destination,
                                         [const.MAGIC_CIRCLE_RADIUS, const.MAGIC_CIRCLE_RADIUS])]
             self.screen.blit(self.magic_circle, ul)
-        
+
         # Cast petrification animation
         animations = self.petrification_animation.copy()
         for animation in animations:
@@ -471,7 +478,7 @@ class GraphicalView:
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
         for place in range(3):
-            ul = [x - y for x, y in zip(const.PODIUM_POSITION[place], 
+            ul = [x - y for x, y in zip(const.PODIUM_POSITION[place],
                                         [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
             self.screen.blit(
                 self.character_image[self.places[place].player_id][const.CHARACTER_DIRECTION.DOWN], ul)
@@ -482,6 +489,7 @@ class GraphicalView:
 
         pg.display.flip()
 
+
 class Fog:
     def __init__(self, screen, fog: pg.surface, speed):
         self.start = False
@@ -490,7 +498,7 @@ class Fog:
         self.speed = speed
         self.screen = screen
         self.raising = True
-    
+
     def tick(self):
         if not self.start:
             return

@@ -22,7 +22,7 @@ def main():
         try:
             ctypes.windll.user32.SetProcessDPIAware()
         except AttributeError:
-            pass # Windows XP doesn't support monitor scaling, so just do nothing.
+            pass  # Windows XP doesn't support monitor scaling, so just do nothing.
 
     # Argument parser
     parser = argparse.ArgumentParser(prog='Challenge2023')

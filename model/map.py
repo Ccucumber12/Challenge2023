@@ -5,7 +5,7 @@ import os
 import pygame as pg
 
 import const
-import utl
+import util
 
 
 class Map:
@@ -24,14 +24,14 @@ class Map:
         Return the coordinate based on self.size of position.
         position is a coordinate based on const.ARENA_SIZE.
         """
-        x = utl.clamp(int(position[0] * self.size[0] / const.ARENA_SIZE[0]), 0, self.size[0] - 1)
-        y = utl.clamp(int(position[1] * self.size[1] / const.ARENA_SIZE[1]), 0, self.size[1] - 1)
+        x = util.clamp(int(position[0] * self.size[0] / const.ARENA_SIZE[0]), 0, self.size[0] - 1)
+        y = util.clamp(int(position[1] * self.size[1] / const.ARENA_SIZE[1]), 0, self.size[1] - 1)
         return x, y
 
     def convert_cell(self, position: tuple | pg.Vector2) -> pg.Vector2:
         """Similar to convert_coordinate(), but is the reverse version."""
-        x = utl.clamp(position[0] * const.ARENA_SIZE[0] / self.size[0], 0, const.ARENA_SIZE[0] - 1)
-        y = utl.clamp(position[1] * const.ARENA_SIZE[1] / self.size[1], 0, const.ARENA_SIZE[1] - 1)
+        x = util.clamp(position[0] * const.ARENA_SIZE[0] / self.size[0], 0, const.ARENA_SIZE[0] - 1)
+        y = util.clamp(position[1] * const.ARENA_SIZE[1] / self.size[1], 0, const.ARENA_SIZE[1] - 1)
         return pg.Vector2(x, y)
 
     def get_type(self, position: pg.Vector2) -> int:
@@ -48,10 +48,11 @@ class Map:
     def get_spawn_point(self, num):
         x, y = self.spawn[num]
         return self.convert_cell((x, y))
-    
+
     def get_ghost_spawn_point(self):
         x, y = self.ghost_spawn_point
         return self.convert_cell((x, y))
+
 
 def load_map(map_dir):
     json_file = os.path.join(map_dir, 'map.json')

@@ -6,7 +6,7 @@ import pygame as pg
 
 import const
 import instances_manager
-import utl
+import util
 from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat
 from instances_manager import get_event_manager, get_game_engine
 
@@ -57,14 +57,14 @@ class Character:
             new_position = self.position + direction
 
             # clamp
-            new_position.x = utl.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
-            new_position.y = utl.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
+            new_position.x = util.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
+            new_position.y = util.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
 
             model = get_game_engine()
             if model.map.get_type(new_position) == const.MAP_OBSTACLE:
                 direction /= 2
                 continue
-            
+
             # Update
             self.position = new_position
             return
@@ -130,7 +130,8 @@ class Character:
                             current[0], current[1], tentative_g)
                         dis[neighbor[0]][neighbor[1]] = tentative_g
                         neighbor_h = heuristic(neighbor, target)
-                        heapq.heappush(open_list, (tentative_g + neighbor_h, tentative_g, neighbor))
+                        heapq.heappush(open_list, 
+                                       (tentative_g + neighbor_h, tentative_g, neighbor))
             return []
 
         Map = get_game_engine().map
@@ -221,7 +222,8 @@ class Player(Character):
         model = get_game_engine()
         if self.effect == const.ITEM_SET.SORTINGHAT:
             self.remove_effect()
-            others = [x for x in const.PLAYER_IDS if x != self.player_id and not model.players[x.value].dead]
+            others = [x for x in const.PLAYER_IDS 
+                      if x != self.player_id and not model.players[x.value].dead]
             if len(others) > 0:
                 victim = random.choice(others)
                 get_event_manager().post(EventSortinghat(self.player_id, victim))
@@ -357,7 +359,7 @@ class Ghost(Character):
 
         # Wander and chase config
         self.wander_time = const.GHOST_WANDER_TIME
-        self.wander_pos: pg.Vector2 = utl.get_random_pos(const.GHOST_RADIUS)
+        self.wander_pos: pg.Vector2 = util.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
 
     @property
@@ -426,13 +428,13 @@ class Ghost(Character):
     def wander_handler(self):
         model = get_game_engine()
         self.state = const.GHOST_STATE.WANDER
-        self.wander_pos = utl.get_random_pos(const.GHOST_RADIUS)
+        self.wander_pos = util.get_random_pos(const.GHOST_RADIUS)
         model.register_user_event(int(self.wander_time), self.chase_handler)
         self.wander_time = max(0.5 * const.FPS, self.wander_time - 0.5 * const.FPS)
 
     def wander(self):
         if self.position.distance_to(self.wander_pos) < const.GHOST_RADIUS:
-            self.wander_pos = utl.get_random_pos(const.GHOST_RADIUS)
+            self.wander_pos = util.get_random_pos(const.GHOST_RADIUS)
         self.move(self.pathfind(self.wander_pos.x, self.wander_pos.y) - self.position)
 
     def choose_prey(self):
@@ -466,8 +468,8 @@ class Ghost(Character):
 
                 if self.prey is None:
                     break
-            if (self.teleport_available and self.prey is not None 
-                and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME):
+            if (self.teleport_available and self.prey is not None
+                    and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME):
                 print(f"Teleporting to {self.prey.position}")
                 self.teleport(self.prey.position)
                 return
