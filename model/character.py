@@ -23,6 +23,12 @@ class Character:
         # This caches the first x cells in the calculated path
         self.saved_path = []
 
+    def is_invisible(self):
+        return False
+
+    def is_invincible(self):
+        return False
+
     # might be discard since there is a built-in pg.Vector2.distance_to()
     def get_distance(self, character):
         """gets euclidean distance between self and character"""
@@ -170,18 +176,29 @@ class Player(Character):
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
         speed = const.PLAYER_SPEED
         super().__init__(position, speed, const.PLAYER_RADIUS)
-
-        self.base_speed = const.PATRONUS_SPEED
+        
         self.dead = False
-        self.invisible = False
-        self.invincible = 0  # will be invicible until timer > invincible.
         self.respawn_timer = 0
         self.score = 0
         self.effect_timer = 0
         self.effect = None
+        self.golden_snitch = False
 
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventPetrify, self.handle_petrify)
+
+    @property
+    def base_speed(self):
+        speed = const.PLAYER_SPEED
+        if self.golden_snitch:
+            speed *= 1.5
+        return speed
+
+    def is_invisible(self):
+        return self.effect == const.ITEM_SET.CLOAK
+
+    def is_invincible(self):
+        return self.effect == const.ITEM_SET.REMOVED_SORTINGHAT
 
     def handle_petrify(self, event: EventPetrify):
         event.victim.set_effect(const.ITEM_SET.PETRIFICATION)
@@ -189,7 +206,7 @@ class Player(Character):
     def iscaught(self):
         model = get_game_engine()
         """Return if the player is caught by one of the ghosts"""
-        if self.dead or self.invincible >= model.timer:
+        if self.dead or self.is_invincible():
             # If the player has sortinghat and is invincible, the effect of sortinghat won't triggered.
             # Even if the player is invisible, the ghost can still catch him.
             return False
@@ -215,7 +232,7 @@ class Player(Character):
                 for second in range(start_second, start_second + 5):
                     minute = second // 60
                     model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
-            self.invincible = model.timer + const.SORTINGHAT_INVINCIBLE_TIME
+            self.set_effect(const.ITEM_SET.REMOVED_SORTINGHAT)
             return
         elif not self.dead:
             self.dead = True
@@ -242,10 +259,6 @@ class Player(Character):
 
     def remove_effect(self):
         self.effect_timer = 0
-        if self.effect == const.ITEM_SET.CLOAK:
-            self.invisible = False
-        elif self.effect == const.ITEM_SET.PATRONUS:
-            pass
         self.effect = None
 
     def set_effect(self, effect: const.ITEM_SET):
@@ -253,9 +266,7 @@ class Player(Character):
         self.effect_timer = const.ITEM_DURATION[effect]
         if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
             self.add_score(150)
-            self.base_speed *= 1.5
-        elif self.effect == const.ITEM_SET.CLOAK:
-            self.invisible = True
+            self.golden_snitch = True
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, self))
@@ -263,10 +274,6 @@ class Player(Character):
                 while ghost.prey == self:
                     ghost.choose_prey()
             # The parameters passed is not properly assigned yet
-        elif self.effect == const.ITEM_SET.PETRIFICATION:
-            # One can't move when it's effect is pertification.
-            # It will be implemented in function move_direction.
-            pass
 
     def tick(self):
         """
@@ -294,8 +301,6 @@ class Patronus(Character):
         self.chasing = self.choose_target()
 
         self.score = 500
-        self.invisible = False
-        self.invincible = False
         self.dead = False
         self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.ITEM_SET.PATRONUS]
         print(
@@ -423,7 +428,7 @@ class Ghost(Character):
     def choose_prey(self):
         model = get_game_engine()
         prey_candidates = (
-            [x for x in model.players if not x.dead and not x.invisible and not x.invincible] 
+            [x for x in model.players if not x.dead and not x.is_invisible() and not x.is_invincible()]
             + model.patronuses)
         self.prey = min(
             prey_candidates,
@@ -445,8 +450,8 @@ class Ghost(Character):
         elif self.state == const.GHOST_STATE.CHASE:
             if self.teleport_chanting:
                 return
-            while (self.prey is None or self.prey.dead == True or self.prey.invisible 
-                   or self.prey.invincible):
+            while (self.prey is None or self.prey.dead or self.prey.is_invisible()
+                   or self.prey.is_invincible()):
                 self.choose_prey()
 
                 if self.prey is None:
