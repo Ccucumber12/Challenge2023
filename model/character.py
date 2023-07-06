@@ -180,7 +180,7 @@ class Player(Character):
         self.respawn_timer = 0
         self.score = 0
         self.effect_timer = 0
-        self.effect: const.EFFECT_TYPE | None = None
+        self.effect: const.EffectType | None = None
         self.golden_snitch = False
 
         ev_manager = get_event_manager()
@@ -194,13 +194,13 @@ class Player(Character):
         return speed
 
     def is_invisible(self):
-        return self.effect == const.EFFECT_TYPE.CLOAK
+        return self.effect == const.EffectType.CLOAK
 
     def is_invincible(self):
-        return self.effect == const.EFFECT_TYPE.REMOVED_SORTINGHAT
+        return self.effect == const.EffectType.REMOVED_SORTINGHAT
 
     def handle_petrify(self, event: EventPetrify):
-        event.victim.set_effect(const.EFFECT_TYPE.PETRIFICATION)
+        event.victim.set_effect(const.EffectType.PETRIFICATION)
 
     def iscaught(self):
         model = get_game_engine()
@@ -221,9 +221,9 @@ class Player(Character):
         """
         print(f"{self.player_id} was caught!")
         model = get_game_engine()
-        if self.effect == const.EFFECT_TYPE.SORTINGHAT:
+        if self.effect == const.EffectType.SORTINGHAT:
             self.remove_effect()
-            others = [x for x in const.PLAYER_IDS 
+            others = [x for x in const.PlayerIds
                       if x != self.player_id and not model.players[x.value].dead]
             if len(others) > 0:
                 victim = random.choice(others)
@@ -232,7 +232,7 @@ class Player(Character):
                 for second in range(start_second, start_second + 5):
                     minute = second // 60
                     model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
-            self.set_effect(const.EFFECT_TYPE.REMOVED_SORTINGHAT)
+            self.set_effect(const.EffectType.REMOVED_SORTINGHAT)
             return
         elif not self.dead:
             self.dead = True
@@ -244,7 +244,7 @@ class Player(Character):
         self.dead = False
 
     def move(self, direction: pg.Vector2):
-        if self.effect == const.EFFECT_TYPE.PETRIFICATION:
+        if self.effect == const.EffectType.PETRIFICATION:
             return
         super().move(direction)
 
@@ -266,10 +266,10 @@ class Player(Character):
         self.golden_snitch = True
 
 
-    def set_effect(self, effect: const.EFFECT_TYPE):
+    def set_effect(self, effect: const.EffectType):
         self.effect = effect
         self.effect_timer = const.ITEM_DURATION[effect]
-        if self.effect == const.EFFECT_TYPE.PATRONUS:
+        if self.effect == const.EffectType.PATRONUS:
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, self))
             for ghost in model.ghosts:
@@ -304,7 +304,7 @@ class Patronus(Character):
 
         self.score = 500
         self.dead = False
-        self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.EFFECT_TYPE.PATRONUS]
+        self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.EffectType.PATRONUS]
         print(
             f"A patronus belong to {owner.player_id} was gernerated at {position}!")
 
@@ -349,7 +349,7 @@ class Ghost(Character):
         super().__init__(position, speed, const.GHOST_RADIUS)
 
         # State as defined by Const.GHOST_STATE
-        self.state = const.GHOST_STATE.CHASE
+        self.state = const.GhostState.CHASE
 
         # teleport
         self.teleport_available = True
@@ -410,7 +410,7 @@ class Ghost(Character):
 
     def chase_handler(self):
         model = get_game_engine()
-        self.state = const.GHOST_STATE.CHASE
+        self.state = const.GhostState.CHASE
         self.chase_time = const.GHOST_CHASE_TIME
         model.register_user_event(const.GHOST_CHASE_TIME, self.wander_handler)
         # Temporary: the speed of ghost will increase by 0.2 coordinate/tick for each wandering period
@@ -430,7 +430,7 @@ class Ghost(Character):
 
     def wander_handler(self):
         model = get_game_engine()
-        self.state = const.GHOST_STATE.WANDER
+        self.state = const.GhostState.WANDER
         self.wander_pos = util.get_random_pos(const.GHOST_RADIUS)
         model.register_user_event(int(self.wander_time), self.chase_handler)
         self.wander_time = max(0.5 * const.FPS, self.wander_time - 0.5 * const.FPS)
@@ -460,9 +460,9 @@ class Ghost(Character):
         if model.timer == 1:
             self.chase_handler()
 
-        if self.state == const.GHOST_STATE.WANDER:
+        if self.state == const.GhostState.WANDER:
             self.wander()
-        elif self.state == const.GHOST_STATE.CHASE:
+        elif self.state == const.GhostState.CHASE:
             if self.teleport_chanting:
                 return
             while (self.prey is None or self.prey.dead or self.prey.is_invisible()

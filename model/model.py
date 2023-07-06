@@ -42,7 +42,7 @@ class GameEngine:
         self.clock = pg.time.Clock()
         self._state = const.STATE_MENU
         self.players: list[Player] = []
-        for i in const.PLAYER_IDS:
+        for i in const.PlayerIds:
             self.players.append(Player(i))
         self.ghosts: list[Ghost] = [
             Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]

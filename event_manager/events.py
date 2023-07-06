@@ -103,7 +103,7 @@ class EventGhostTeleport(BaseEvent):
 class EventSortinghat(BaseEvent):
     name = 'Sortinghat event'
 
-    def __init__(self, assailant: const.PLAYER_IDS, victim: const.PLAYER_IDS):
+    def __init__(self, assailant: const.PlayerIds, victim: const.PlayerIds):
         super().__init__()
         self.assailant = assailant
         self.victim = victim

@@ -10,7 +10,7 @@ from instances_manager import get_event_manager, get_game_engine
 
 
 class Item:
-    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET):
+    def __init__(self, position: pg.Vector2, item_id, item_type: const.ItemType):
         self.item_id = item_id
         self.type = item_type
         self.position = position
@@ -70,9 +70,9 @@ class Item:
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
-                if self.type == const.ITEM_SET.GOLDEN_SNITCH:
+                if self.type == const.ItemType.GOLDEN_SNITCH:
                     player.set_golden_snitch_effect()
-                elif self.type == const.ITEM_SET.PETRIFICATION:
+                elif self.type == const.ItemType.PETRIFICATION:
                     others = [x for x in model.players if x != player and not x.dead]
                     if len(others) == 0:
                         continue
@@ -80,12 +80,12 @@ class Item:
                     get_event_manager().post(EventCastPetrification(player, victim))
                     print(f'{player.player_id} cast petrification against {victim.player_id}')
                 else:
-                    for i in const.EFFECT_TYPE:
+                    for i in const.EffectType:
                         if i.name == self.type.name:
                             player.set_effect(i)
                             break
                     print(f"{player.player_id} got effect: {self.type}!")
-        if self.type == const.ITEM_SET.GOLDEN_SNITCH:
+        if self.type == const.ItemType.GOLDEN_SNITCH:
             self.move_golden_snitch()
 
 
@@ -124,7 +124,7 @@ class ItemGenerator:
         """
         # determining the type of generated item
         generate_type = random.choices(
-            list(const.ITEM_SET), weights=const.ITEM_GENERATE_PROBABILITY)[0]
+            list(const.ItemType), weights=const.ITEM_GENERATE_PROBABILITY)[0]
 
         # generate candidates of position
         rand_times = 15
@@ -180,7 +180,7 @@ class ItemGenerator:
         players_position = [player.position for player in model.players]
         best = self.choose_location(candidates, players_position)
 
-        generate_item = Item(best, self.id_counter, const.ITEM_SET.GOLDEN_SNITCH)
+        generate_item = Item(best, self.id_counter, const.ItemType.GOLDEN_SNITCH)
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
         # print(f"Golden snitch generated at {best}!")
