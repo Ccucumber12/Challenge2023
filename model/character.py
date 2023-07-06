@@ -208,13 +208,14 @@ class Player(Character):
         model = get_game_engine()
         if self.effect == const.ITEM_SET.SORTINGHAT:
             self.remove_effect()
-            others = [x for x in const.PLAYER_IDS if x != self.player_id]
-            victim = random.choice(others)
-            get_event_manager().post(EventSortinghat(self.player_id, victim))
-            start_second = ceil(model.timer / const.FPS)
-            for second in range(start_second, start_second + 5):
-                minute = second // 60
-                model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
+            others = [x for x in const.PLAYER_IDS if x != self.player_id and not model.players[x.value].dead]
+            if len(others) > 0:
+                victim = random.choice(others)
+                get_event_manager().post(EventSortinghat(self.player_id, victim))
+                start_second = ceil(model.timer / const.FPS)
+                for second in range(start_second, start_second + 5):
+                    minute = second // 60
+                    model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
             self.invincible = model.timer + const.SORTINGHAT_INVINCIBLE_TIME
             return
         elif not self.dead:

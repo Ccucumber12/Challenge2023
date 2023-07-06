@@ -81,7 +81,9 @@ class Item:
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
                 if self.type == const.ITEM_SET.PETRIFICATION:
-                    others = [x for x in model.players if x != player]
+                    others = [x for x in model.players if x != player and not model.players[x.player_id.value].dead]
+                    if len(others) == 0:
+                        continue
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
                     print(f'{player.player_id} cast petrification against {victim.player_id}')
