@@ -56,6 +56,7 @@ class GraphicalView:
         self.petrified_player_image = {}
         self.transparent_player_image = {}
         self.wearing_sortinghat_image = {}
+        self.shining_player_image = {}
         self.sortinghat_animation_picture = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
@@ -122,32 +123,38 @@ class GraphicalView:
                 self.transparent_player_image[player][direction] =\
                       self.character_image[player][direction].convert_alpha()
                 self.transparent_player_image[player][direction].set_alpha(const.CLOAK_TRANSPARENCY)
+            def load_player_skin(player, imgdic: dict, skin: const.PLAYER_SKINS):
+                imgdic[player] = {}
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                     const.PICTURES_PATH[skin], 
+                                                     "front.png")).convert_alpha()
+                imgdic[player][const.CHARACTER_DIRECTION.DOWN] = crop(
+                    picture, self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_width(), 
+                    const.PLAYER_RADIUS*5)
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                     const.PICTURES_PATH[skin], 
+                                                     "left.png")).convert_alpha()
+                imgdic[player][const.CHARACTER_DIRECTION.LEFT] =\
+                    crop(picture, const.WINDOW_SIZE[0], 
+                         imgdic[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                     const.PICTURES_PATH[skin], 
+                                                     "rear.png")).convert_alpha()
+                imgdic[player][const.CHARACTER_DIRECTION.UP] =\
+                    crop(picture, const.WINDOW_SIZE[0], 
+                         imgdic[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
+                                                     const.PICTURES_PATH[skin], 
+                                                     "right.png")).convert_alpha()
+                imgdic[player][const.CHARACTER_DIRECTION.RIGHT] =\
+                    crop(picture, const.WINDOW_SIZE[0], 
+                         imgdic[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+
             # sortinghat
-            self.wearing_sortinghat_image[player] = {}
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
-                                                 "front.png")).convert_alpha()
-            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN] = crop(
-                picture, self.character_image[player][const.CHARACTER_DIRECTION.DOWN].get_width(), 
-                const.PLAYER_RADIUS*5)
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
-                                                 "left.png")).convert_alpha()
-            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.LEFT] =\
-                crop(picture, const.WINDOW_SIZE[0], 
-                     self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
-                                                 "rear.png")).convert_alpha()
-            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.UP] =\
-                crop(picture, const.WINDOW_SIZE[0], 
-                     self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
-            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player], 
-                                                 const.PICTURES_PATH[const.PLAYER_SKINS.SORTINGHAT], 
-                                                 "right.png")).convert_alpha()
-            self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.RIGHT] =\
-                crop(picture, const.WINDOW_SIZE[0], 
-                     self.wearing_sortinghat_image[player][const.CHARACTER_DIRECTION.DOWN].get_height())
+            load_player_skin(player, self.wearing_sortinghat_image, const.PLAYER_SKINS.SORTINGHAT)
+            # shining player
+            load_player_skin(player, self.shining_player_image, const.PLAYER_SKINS.SHINING)
+
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
