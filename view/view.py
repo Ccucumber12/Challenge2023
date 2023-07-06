@@ -82,7 +82,7 @@ class GraphicalView:
             return cropped_image
         for item in const.ITEM_SET:
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
-            self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
+            self.pictures[item] = crop(picture, const.ITEM_RADIUS*2, const.ITEM_RADIUS*2, True)
             self.transparent_player_image[item] = self.pictures[item].convert_alpha()
             self.transparent_player_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
         for player in const.PLAYER_IDS:
@@ -194,7 +194,7 @@ class GraphicalView:
         self.magic_circle.set_alpha(127)
         picture = pg.image.load(const.PICTURES_PATH[const.ITEM_SET.SORTINGHAT]).convert_alpha()
         self.sortinghat_animation_picture.append(
-            crop(picture, 0.5*const.ITEM_WIDTH, 0.5*const.ITEM_HEIGHT))
+            crop(picture, const.ITEM_RADIUS, const.ITEM_RADIUS))
         
         angle = 0
         while angle < 360:
@@ -281,13 +281,6 @@ class GraphicalView:
     
     def register_places(self, event: EventTimesUp):
         self.places = event.places
-    
-    def get_ul(self, center: list, size: list):
-        """
-        get the upper left of a image.
-        """
-        ul = [x - y for x, y in zip(center, [const.ITEM_WIDTH/2, const.ITEM_HEIGHT/2])]
-        return ul
 
     def render_menu(self):
         # draw background
@@ -339,6 +332,7 @@ class GraphicalView:
         half_sec = model.timer // (const.FPS // 2)
         quater_sec = model.timer // (const.FPS // 4)
         for obj in objects:
+            # ul means upper left
             if obj.object_type == const.OBJECT_TYPE.PLAYER:
                 direction = self.character_direction[obj.image_index]
                 effect = obj.detail[0]
@@ -377,7 +371,7 @@ class GraphicalView:
             elif obj.object_type == const.OBJECT_TYPE.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
             elif obj.object_type == const.OBJECT_TYPE.ITEM:
-                ul = [x - y for x, y in zip(obj.position, [const.ITEM_WIDTH, const.ITEM_HEIGHT])]
+                ul = [x - y for x, y in zip(obj.position, [const.ITEM_RADIUS, const.ITEM_RADIUS*2])]
                 # It's acually is a rectangle.
                 vanish_time = obj.detail[0]
                 # if half_sec % 2 == 0 or model.timer + 5*const.FPS < vanish_time:
