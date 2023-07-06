@@ -365,7 +365,7 @@ class GraphicalView:
                     height = self.wearing_sortinghat_image[obj.image_index][direction].get_height()
                     ul = [x - y for x, y in zip(obj.position, [width/2, height])]
                     self.screen.blit(self.wearing_sortinghat_image[obj.image_index][direction], ul)
-                elif effect == const.ITEM_SET.REMOVED_SORTINGHAT:
+                elif effect == const.EFFECT_TYPE.REMOVED_SORTINGHAT:
                     width = self.shining_player_image[obj.image_index][direction].get_width()
                     height = (self.character_image[obj.image_index][direction].get_height() + 
                               self.shining_player_image[obj.image_index][direction].get_height()) / 2
