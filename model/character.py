@@ -260,6 +260,9 @@ class Player(Character):
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, self))
+            for ghost in model.ghosts:
+                while ghost.prey == self:
+                    ghost.choose_prey()
             # The parameters passed is not properly assigned yet
         elif self.effect == const.ITEM_SET.PETRIFICATION:
             # One can't move when it's effect is pertification.
@@ -418,6 +421,16 @@ class Ghost(Character):
             self.wander_pos = utl.get_random_pos(const.GHOST_RADIUS)
         self.move(self.pathfind(self.wander_pos.x, self.wander_pos.y) - self.position)
 
+    def choose_prey(self):
+        model = get_game_engine()
+        prey_candidates = (
+            [x for x in model.players if not x.dead and not x.invisible and not x.invincible] 
+            + model.patronuses)
+        self.prey = min(
+            prey_candidates,
+            key=lambda x: self.get_distance(x) - x.score + random.random(),
+            default=None)
+
     def tick(self):
         """
         AI of ghost.
@@ -435,20 +448,12 @@ class Ghost(Character):
                 return
             while (self.prey is None or self.prey.dead == True or self.prey.invisible 
                    or self.prey.invincible):
-                # Choose prey by closest person alive
-
-                # Include patronuses as possible prey
-                prey_candidates = ([x for x in model.players if not x.dead and not x.invisible and not x.invincible]
-                                   + model.patronuses)
-                self.prey = min(
-                    prey_candidates,
-                    key=lambda x: self.get_distance(x) - x.score + random.random(),
-                    default=None)
+                self.choose_prey()
 
                 if self.prey is None:
                     break
-            if self.teleport_available and self.prey is not None \
-                    and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME / const.FPS:
+            if (self.teleport_available and self.prey is not None 
+                and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME / const.FPS):
                 print(f"Teleporting to {self.prey.position}")
                 self.teleport(self.prey.position)
                 return
