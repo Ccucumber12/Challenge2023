@@ -39,6 +39,20 @@ class ItemType(Enum):
     PATRONUS = auto()
     PETRIFICATION = auto()
     SORTINGHAT = auto()
+
+
+class EffectType(Enum):
+    @staticmethod
+    def get_by_name(s):
+        for i in ItemType:
+            if i.name == s:
+                return i
+        return None
+
+    CLOAK = auto()
+    PATRONUS = auto()
+    PETRIFICATION = auto()
+    SORTINGHAT = auto()
     REMOVED_SORTINGHAT = auto()
 
 
@@ -92,7 +106,7 @@ class Player:
         return self.__score
 
     @property
-    def effect(self) -> ItemType:
+    def effect(self) -> EffectType:
         return self.__effect
 
     @property
