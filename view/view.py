@@ -86,10 +86,10 @@ class GraphicalView:
             self.transparent_player_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
         for player in const.PLAYER_IDS:
             # normal
+            self.character_image[player] = {}
             picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
                                                  const.PICTURES_PATH[const.PLAYER_SKINS.NORMAL],
                                                  "front.png")).convert_alpha()
-            self.character_image[player] = {}
             self.character_image[player][const.CHARACTER_DIRECTION.DOWN] =\
                 crop(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
             picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
@@ -155,7 +155,13 @@ class GraphicalView:
             # sortinghat
             load_player_skin(player, self.wearing_sortinghat_image, const.PLAYER_SKINS.SORTINGHAT)
             # shining player
-            load_player_skin(player, self.shining_player_image, const.PLAYER_SKINS.SHINING)
+            self.shining_player_image[player] = {}
+            for direction in const.CHARACTER_DIRECTION:
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[const.PLAYER_SKINS.SHINING],
+                                                     const.PICTURES_PATH[direction])).convert_alpha()
+                self.shining_player_image[player][direction] =\
+                    crop(picture, *const.SHINING_PLAYER_SIZE[direction], True)
 
         for ghost in const.GHOST_IDS:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
@@ -359,6 +365,12 @@ class GraphicalView:
                     height = self.wearing_sortinghat_image[obj.image_index][direction].get_height()
                     ul = [x - y for x, y in zip(obj.position, [width/2, height])]
                     self.screen.blit(self.wearing_sortinghat_image[obj.image_index][direction], ul)
+                elif effect == const.ITEM_SET.REMOVED_SORTINGHAT:
+                    width = self.shining_player_image[obj.image_index][direction].get_width()
+                    height = (self.character_image[obj.image_index][direction].get_height() + 
+                              self.shining_player_image[obj.image_index][direction].get_height()) / 2
+                    ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+                    self.screen.blit(self.shining_player_image[obj.image_index][direction], ul)
                 else:
                     self.screen.blit(self.character_image[obj.image_index][direction], ul)
             elif obj.object_type == const.OBJECT_TYPE.GHOST:

@@ -180,6 +180,13 @@ class CHARACTER_DIRECTION(Enum):
     DOWN = 2
     RIGHT = 3
 
+SHINING_PLAYER_SIZE = {
+    CHARACTER_DIRECTION.UP: (78, 78), 
+    CHARACTER_DIRECTION.LEFT: (64, 64), 
+    CHARACTER_DIRECTION.DOWN: (73, 73), 
+    CHARACTER_DIRECTION.RIGHT: (64, 64), 
+}
+
 PICTURES_PATH = {
     ITEM_SET.CLOAK: "pictures/items/Cloak.png",
     ITEM_SET.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",
@@ -193,6 +200,10 @@ PICTURES_PATH = {
     PLAYER_SKINS.NORMAL: "normal",
     PLAYER_SKINS.SORTINGHAT: "sortinghat",
     PLAYER_SKINS.SHINING: "shining",
+    CHARACTER_DIRECTION.UP: "rear.png", 
+    CHARACTER_DIRECTION.LEFT: "left.png", 
+    CHARACTER_DIRECTION.DOWN: "front.png", 
+    CHARACTER_DIRECTION.RIGHT: "right.png", 
     GHOST_IDS.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
     SCENE.TITLE: "pictures/scenes/Title.png",
     SCENE.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
