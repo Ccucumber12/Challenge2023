@@ -81,6 +81,8 @@ class GraphicalView:
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
         for item in const.ITEM_SET:
+            if item == const.ITEM_SET.REMOVED_SORTINGHAT:
+                continue
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_WIDTH, const.ITEM_HEIGHT, True)
             self.transparent_player_image[item] = self.pictures[item].convert_alpha()
