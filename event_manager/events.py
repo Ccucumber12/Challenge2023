@@ -112,5 +112,15 @@ class EventSortinghat(BaseEvent):
         return f'{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}'
 
 
+class EventGhostKill(BaseEvent):
+    name = 'GhostKill event'
+
+    def __init__(self, ghost_id, victim_position: pg.Vector2, victim_id = 'Patronus', victim_effect = None):
+        super().__init__()
+        self.ghost_id = ghost_id
+        self.victim_id = victim_id
+        self.destination = victim_position
+        self.victim_effect = victim_effect
+
 class EventMuteMusic(BaseEvent):
     name = 'MuteMusic event'

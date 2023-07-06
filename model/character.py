@@ -7,7 +7,7 @@ import pygame as pg
 import const
 import instances_manager
 import util
-from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat
+from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat, EventGhostKill
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -211,10 +211,10 @@ class Player(Character):
             return False
         for ghost in model.ghosts:
             if self.get_distance(ghost) < (const.PLAYER_RADIUS + const.GHOST_RADIUS):
-                return True
+                return ghost # Not a good method but it's the easiest I can think of now
         return False
 
-    def caught(self):
+    def caught(self, catcher):
         """
         Caught by the ghost.
         Kill player
@@ -222,6 +222,8 @@ class Player(Character):
         print(f"{self.player_id} was caught!")
         model = get_game_engine()
         if self.effect == const.EffectType.SORTINGHAT:
+            catcher.freeze(self.position)
+            get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.player_id, self.effect))
             self.remove_effect()
             others = [x for x in const.PlayerIds
                       if x != self.player_id and not model.players[x.value].dead]
@@ -235,6 +237,8 @@ class Player(Character):
             self.set_effect(const.EffectType.REMOVED_SORTINGHAT)
             return
         elif not self.dead:
+            catcher.freeze(self.position)
+            get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.effect))
             self.dead = True
             self.remove_effect()
             model.register_user_event(const.PLAYER_RESPAWN_TIME, self.respawn_handler)
@@ -290,8 +294,9 @@ class Player(Character):
             self.effect_timer -= 1
         else:
             self.remove_effect()
-        if self.iscaught():
-            self.caught()
+        catcher = self.iscaught()
+        if catcher:
+            self.caught(catcher)
 
 
 class Patronus(Character):
@@ -327,6 +332,8 @@ class Patronus(Character):
         model = get_game_engine()
         for ghost in model.ghosts:
             if self.get_distance(ghost) < (const.PATRONUS_RADIUS + const.GHOST_RADIUS):
+                get_event_manager().post(EventGhostKill(ghost.ghost_id, self.position))
+                ghost.freeze(self.position)
                 return True
         return False
 
@@ -364,6 +371,7 @@ class Ghost(Character):
         self.wander_time = const.GHOST_WANDER_TIME
         self.wander_pos: pg.Vector2 = util.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
+        self.unfreeze_timer = 0
 
     @property
     def teleport_after(self):
@@ -428,6 +436,10 @@ class Ghost(Character):
         # Uses Pathfind
         self.move(self.pathfind(*self.prey.position) - self.position)
 
+    def freeze(self, after_freeze_position: pg.Vector2):
+        self.unfreeze_timer = const.GHOST_KILL_ANIMATION_TIME
+        self.after_freeze_position = after_freeze_position
+
     def wander_handler(self):
         model = get_game_engine()
         self.state = const.GhostState.WANDER
@@ -456,6 +468,11 @@ class Ghost(Character):
         Determine what ghost should do next.
         Runs every tick.
         """
+        if self.unfreeze_timer > 0:
+            self.unfreeze_timer -= 1
+            if self.unfreeze_timer == 0:
+                self.position = self.after_freeze_position
+            return
         model = get_game_engine()
         if model.timer == 1:
             self.chase_handler()

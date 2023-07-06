@@ -48,6 +48,7 @@ class GraphicalView:
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
         self.petrification_animation: list[CastMagicParticleEffect] = []
         self.sortinghat_animations = []
+        self.ghost_kill_animations = []
 
         # scale the pictures to proper size
         self.pictures = {}
@@ -232,6 +233,13 @@ class GraphicalView:
             self.render_stop()
         elif cur_state == const.STATE_ENDGAME:
             self.render_endgame()
+        kill_animation_end_list = []
+        for kill_animation in self.ghost_kill_animations:
+            print(kill_animation)
+            if model.timer > kill_animation[4]:
+                kill_animation_end_list.append(kill_animation)
+        for kill_animation in kill_animation_end_list:
+            self.ghost_kill_animations.remove(kill_animation)
 
     def handle_player_move(self, event: EventPlayerMove):
         move_direction = event.direction
@@ -251,6 +259,10 @@ class GraphicalView:
             direction = const.CharacterDirection.UP
         self.character_direction[event.player_id] = direction
 
+    def handle_ghost_kill(self, event: EventGhostKill):
+        self.ghost_kill_animations.append((event.ghost_id, event.destination, event.victim_id, event.victim_effect,
+                                           get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME))
+
     def register_listeners(self):
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
@@ -261,6 +273,7 @@ class GraphicalView:
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
         ev_manager.register_listener(EventTimesUp, self.register_places)
         ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
+        ev_manager.register_listener(EventGhostKill, self.handle_ghost_kill)
 
     def display_fps(self):
         """
@@ -323,6 +336,10 @@ class GraphicalView:
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
             detail = (player.effect, player.dead, player.effect_timer)
+            for kill_animation in self.ghost_kill_animations:
+                if kill_animation[2] == player.player_id:
+                    detail = (kill_animation[3], player.dead, const.GAME_LENGTH)
+                    break
             objects.append(
                 Object(coord[1], const.ObjectType.PLAYER, player.position, player.player_id, detail))
         for ghost in model.ghosts:
@@ -441,6 +458,14 @@ class GraphicalView:
             position = position + \
                 (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
             self.sortinghat_animations.append((position, victim, index))
+
+        # Ghost Killing Animation
+        for kill_animation in self.ghost_kill_animations:
+            print(kill_animation[1])
+            pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, -20 - 35),
+                         kill_animation[1] + pg.Vector2(15, 20 - 35), 10)
+            pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, 20 - 35),
+                         kill_animation[1] + pg.Vector2(15, -20 - 35), 10)
 
         # Fog
         self.fog.tick()
