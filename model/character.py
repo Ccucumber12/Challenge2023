@@ -5,6 +5,7 @@ from math import ceil
 import pygame as pg
 
 import const
+import instances_manager
 import utl
 from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat
 from instances_manager import get_event_manager, get_game_engine
@@ -176,7 +177,7 @@ class Player(Character):
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
         speed = const.PLAYER_SPEED
         super().__init__(position, speed, const.PLAYER_RADIUS)
-        
+
         self.dead = False
         self.respawn_timer = 0
         self.score = 0
@@ -356,11 +357,23 @@ class Ghost(Character):
         self.teleport_chanting = False  # if it is chantting
         self.teleport_distination = pg.Vector2(0, 0)
         self.prey = None
+        self.__teleport_time = 0
+        self.__teleport_last = -self.teleport_cd
 
         # Wander and chase config
         self.wander_time = const.GHOST_WANDER_TIME
         self.wander_pos: pg.Vector2 = utl.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
+
+    @property
+    def teleport_after(self):
+        model = instances_manager.get_game_engine()
+        return self.__teleport_time - model.timer
+
+    @property
+    def teleport_cooldown_remain(self):
+        model = instances_manager.get_game_engine()
+        return max(0, self.teleport_cd - (model.timer - self.__teleport_last))
 
     def move(self, direction: pg.Vector2):
         """Move the ghost along direction."""
@@ -382,6 +395,8 @@ class Ghost(Character):
         self.teleport_available = False
         self.teleport_distination = destination
         model = get_game_engine()
+        self.__teleport_last = model.timer
+        self.__teleport_time = model.timer + const.GHOST_CHANTING_TIME
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
         get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_distination))
