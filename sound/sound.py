@@ -16,6 +16,7 @@ class BackGroundMusic:
         pg.mixer.init()
         self.musics = {}
         self.current_music: pg.mixer.music
+        self.muted = False
         pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
         pg.mixer.music.play(-1)
 
@@ -35,7 +36,7 @@ class BackGroundMusic:
     def handle_state_change(self, event):
         if event.state in const.MUSIC_PATH:
             pg.mixer.music.load(const.MUSIC_PATH[event.state])
-            if pg.mixer.music.get_busy():
+            if not self.muted:
                 pg.mixer.music.play(-1)
 
     def handle_every_tick(self, event):
@@ -44,5 +45,7 @@ class BackGroundMusic:
     def handle_mute(self, event):
         if pg.mixer.music.get_busy():
             pg.mixer.music.stop()
+            self.muted = True
         else:
             pg.mixer.music.play(-1)
+            self.muted = False
