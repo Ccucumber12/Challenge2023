@@ -4,7 +4,7 @@ import pygame as pg
 from pygame import Vector2
 
 import instances_manager
-from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey
+from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey, EffectType
 from event_manager.events import EventPlayerMove
 
 
@@ -28,7 +28,7 @@ class HelperImpl(Helper):
                           i.dead,
                           i.speed,
                           i.score,
-                          None if i.effect is None else ItemType.get_by_name(i.effect.name),
+                          None if i.effect is None else EffectType.get_by_name(i.effect.name),
                           i.effect_timer)
                    for i in model.players]
         return players
