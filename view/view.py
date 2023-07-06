@@ -1,5 +1,6 @@
 import os
 
+import numpy as np
 import pygame as pg
 
 import const
