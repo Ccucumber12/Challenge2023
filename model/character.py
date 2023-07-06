@@ -324,10 +324,6 @@ class Patronus(Character):
     def tick(self):
         # Look for the direction of the player it is chasing
         model = get_game_engine()
-        if model.map.get_type(self.position) == const.MAP_PUDDLE:
-            self.speed = 0.7 * const.PATRONUS_SPEED
-        else:
-            self.speed = const.PATRONUS_SPEED
         if self.chasing == None or self.chasing.dead:
             self.chasing = self.choose_target()
         if self.chasing != None:
