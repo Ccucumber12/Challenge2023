@@ -176,16 +176,23 @@ class Player(Character):
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
         speed = const.PLAYER_SPEED
         super().__init__(position, speed, const.PLAYER_RADIUS)
-
-        self.base_speed = const.PATRONUS_SPEED
+        
         self.dead = False
         self.respawn_timer = 0
         self.score = 0
         self.effect_timer = 0
         self.effect = None
+        self.golden_snitch = False
 
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventPetrify, self.handle_petrify)
+
+    @property
+    def base_speed(self):
+        speed = const.PLAYER_SPEED
+        if self.golden_snitch:
+            speed *= 1.5
+        return speed
 
     def is_invisible(self):
         return self.effect == const.ITEM_SET.CLOAK
@@ -259,7 +266,7 @@ class Player(Character):
         self.effect_timer = const.ITEM_DURATION[effect]
         if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
             self.add_score(150)
-            self.base_speed *= 1.5
+            self.golden_snitch = True
         elif self.effect == const.ITEM_SET.PATRONUS:
             model = get_game_engine()
             model.patronuses.append(Patronus(0, self.position, self))
