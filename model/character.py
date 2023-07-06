@@ -437,7 +437,8 @@ class Ghost(Character):
         elif self.state == const.GHOST_STATE.CHASE:
             if self.teleport_chanting:
                 return
-            while (self.prey is None) or (self.prey.dead == True) or (self.prey.invisible) or (self.prey.invincible):
+            while (self.prey is None or self.prey.dead == True or self.prey.invisible 
+                   or self.prey.invincible):
                 # Choose prey by closest person alive
 
                 # Include patronuses as possible prey

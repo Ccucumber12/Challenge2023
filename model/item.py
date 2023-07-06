@@ -45,9 +45,9 @@ class Item:
                     ret += dot * (20000 / min(150, abs(vec1.cross(vec2)) / dis))
 
             return ret
-        if (self.golden_snitch_goal is None) or mindis() < 100:
+        if self.golden_snitch_goal is None or mindis() < 100:
             pnts = [pg.Vector2(random.uniform(0, const.ARENA_SIZE[0]),
-                               random.uniform(0, const.ARENA_SIZE[1])) for i in range(50)]
+                               random.uniform(0, const.ARENA_SIZE[1])) for _ in range(50)]
             weights = [getweight(pos) for pos in pnts]
             self.golden_snitch_goal = pnts[weights.index(min(weights))]
 
@@ -56,21 +56,13 @@ class Item:
             new_position = self.golden_snitch_goal
             self.golden_snitch_goal = None
         else:
-            new_position = self.position + \
-                (self.golden_snitch_goal - self.position).normalize() * \
-                const.GOLDEN_SNITCH_SPEED / const.FPS
+            new_position = (self.position + (self.golden_snitch_goal - self.position).normalize() * const.GOLDEN_SNITCH_SPEED / const.FPS)
         # clamp
         new_position.x = utl.clamp(new_position.x, 0, const.ARENA_SIZE[0] - 1)
         new_position.y = utl.clamp(new_position.y, 0, const.ARENA_SIZE[1] - 1)
 
         # Update
         self.position = new_position
-
-        # Todo: Portal
-        portal = model.map.get_portal(self.position)
-        if portal is not None:
-            self.position = model.map.convert_cell(portal)
-            print(f"Golden snitch used portal!")
 
 
     def tick(self):
