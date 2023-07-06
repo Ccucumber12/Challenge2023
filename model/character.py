@@ -168,11 +168,10 @@ class Player(Character):
         model = get_game_engine()
 
         position = pg.Vector2(model.map.get_spawn_point(player_id.value))
-
-        # temporary: gets random positioin for spawn point
         speed = const.PLAYER_SPEED
         super().__init__(position, speed, const.PLAYER_RADIUS)
 
+        self.base_speed = const.PATRONUS_SPEED
         self.dead = False
         self.invisible = False
         self.invincible = 0  # will be invicible until timer > invincible.
@@ -254,7 +253,7 @@ class Player(Character):
         self.effect_timer = const.ITEM_DURATION[effect]
         if self.effect == const.ITEM_SET.GOLDEN_SNITCH:
             self.add_score(150)
-            self.speed *= 1.5
+            self.base_speed *= 1.5
         elif self.effect == const.ITEM_SET.CLOAK:
             self.invisible = True
         elif self.effect == const.ITEM_SET.PATRONUS:
@@ -275,9 +274,9 @@ class Player(Character):
         """
         model = get_game_engine()
         if model.map.get_type(self.position) == const.MAP_PUDDLE:
-            self.speed = 0.7 * const.PLAYER_SPEED
+            self.speed = 0.7 * self.base_speed
         else:
-            self.speed = const.PLAYER_SPEED
+            self.speed = self.base_speed
         if self.effect_timer > 0:
             self.effect_timer -= 1
         else:
