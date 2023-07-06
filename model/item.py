@@ -10,13 +10,10 @@ from instances_manager import get_event_manager, get_game_engine
 
 
 class Item:
-    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET, item_width,
-                 item_height):
+    def __init__(self, position: pg.Vector2, item_id, item_type: const.ITEM_SET):
         self.item_id = item_id
         self.type = item_type
         self.position = position
-        self.width = item_width
-        self.height = item_height
         self.eaten = False
         self.golden_snitch_goal = None
         self.vanish_time = get_game_engine().timer + const.ITEM_LIFETIME[item_type]
@@ -69,7 +66,7 @@ class Item:
     def tick(self):
         model = get_game_engine()
         for player in model.players:
-            if (utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, self.width)
+            if (utl.overlaped(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
@@ -101,8 +98,8 @@ class ItemGenerator:
         model = get_game_engine()
         for candidate in candidates:
             # discard points not leggel
-            if not (const.ITEM_WIDTH < candidate.x < const.ARENA_SIZE[0] - const.ITEM_WIDTH
-                    and const.ITEM_HEIGHT < candidate.y < const.ARENA_SIZE[1] - const.ITEM_HEIGHT) \
+            if not (const.ITEM_RADIUS < candidate.x < const.ARENA_SIZE[0] - const.ITEM_RADIUS
+                    and const.ITEM_RADIUS < candidate.y < const.ARENA_SIZE[1] - const.ITEM_RADIUS) \
                     or model.map.get_type(candidate) == const.MAP_OBSTACLE:
                 continue
             min_distance_to_objects = const.ARENA_SIZE[0] + const.ARENA_SIZE[1]
@@ -127,9 +124,9 @@ class ItemGenerator:
         # generate candidates of position
         rand_times = 15
         candidates_x = random.sample(
-            range(const.ITEM_WIDTH // 2, const.ARENA_SIZE[0] - 1 - const.ITEM_WIDTH // 2), rand_times)
+            range(const.ITEM_RADIUS, const.ARENA_SIZE[0] - 1 - const.ITEM_RADIUS), rand_times)
         candidates_y = random.sample(
-            range(const.ITEM_HEIGHT // 2, const.ARENA_SIZE[1] - 1 - const.ITEM_HEIGHT // 2), rand_times)
+            range(const.ITEM_RADIUS, const.ARENA_SIZE[1] - 1 - const.ITEM_RADIUS), rand_times)
         candidates = [pg.Vector2(x, y) for x, y in zip(candidates_x, candidates_y)]
         model = get_game_engine()
         items_position = [item.position for item in model.items]
@@ -142,8 +139,7 @@ class ItemGenerator:
             # print("Failed to generate item!")
             return False
         else:
-            generate_item = Item(best, self.id_counter, generate_type,
-                                 const.ITEM_WIDTH, const.ITEM_HEIGHT)
+            generate_item = Item(best, self.id_counter, generate_type)
             model.items.add(generate_item)
             self.id_counter = self.id_counter + 1
             # print(f"Item {generate_type} generated at {best}!")
@@ -179,8 +175,7 @@ class ItemGenerator:
         players_position = [player.position for player in model.players]
         best = self.choose_location(candidates, players_position)
 
-        generate_item = Item(best, self.id_counter, const.ITEM_SET.GOLDEN_SNITCH,
-                             const.ITEM_WIDTH, const.ITEM_HEIGHT)
+        generate_item = Item(best, self.id_counter, const.ITEM_SET.GOLDEN_SNITCH)
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
         # print(f"Golden snitch generated at {best}!")
