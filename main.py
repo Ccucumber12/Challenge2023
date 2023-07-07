@@ -4,6 +4,7 @@ import sys
 import pygame as pg
 
 import instances_manager
+import event_manager.events
 from controller.controller import Controller
 from event_manager.event_manager import EventManager
 from model.model import GameEngine
@@ -31,6 +32,7 @@ def main():
     parser.add_argument('ai2', nargs='?', default='manual')
     parser.add_argument('ai3', nargs='?', default='manual')
     parser.add_argument('ai4', nargs='?', default='manual')
+    parser.add_argument('-m', '--mute', action='store_true', help='mute the BGM')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
@@ -41,6 +43,9 @@ def main():
     Controller()
     GraphicalView()
     BackGroundMusic()
+
+    if args.mute:
+        ev_manager.post(event_manager.events.EventMuteMusic())
 
     # Main loop
     model.run()

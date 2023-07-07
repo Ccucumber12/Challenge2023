@@ -15,10 +15,8 @@ class BackGroundMusic:
         self.register_listeners()
         pg.mixer.init()
         self.musics = {}
-        self.current_music: pg.mixer.music
         self.muted = False
         pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
-        pg.mixer.music.play(-1)
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -31,7 +29,9 @@ class BackGroundMusic:
         """
         This method is called when a new game is instantiated.
         """
-        pass
+        pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
+        if not self.muted:
+            pg.mixer.music.play(-1)
 
     def handle_state_change(self, event):
         if event.state in const.MUSIC_PATH:
@@ -43,9 +43,9 @@ class BackGroundMusic:
         pass
 
     def handle_mute(self, event):
-        if pg.mixer.music.get_busy():
-            pg.mixer.music.stop()
-            self.muted = True
-        else:
+        if self.muted:
             pg.mixer.music.play(-1)
             self.muted = False
+        else:
+            self.muted = True
+            pg.mixer.music.stop()
