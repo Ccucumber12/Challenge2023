@@ -46,7 +46,7 @@ class GameEngine:
         for i in const.PlayerIds:
             self.players.append(Player(i))
         self.ghosts: list[Ghost] = [
-            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
+            Ghost(const.GhostIds.DEMENTOR, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
         self.patronuses: list[Patronus] = []
         self.items: set[Item] = set()
         self.timer = 0
@@ -183,7 +183,7 @@ class GameEngine:
             candidate = pg.Vector2(
                 random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
                 random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
-        new_ghost = Ghost(len(self.ghosts), const.GHOST_INIT_TP_CD, candidate)
+        new_ghost = Ghost(const.GhostIds.DEMENTOR, const.GHOST_INIT_TP_CD, candidate)
         self.ghosts.append(new_ghost)
 
     def create_ghost_handler(self):

@@ -177,7 +177,7 @@ class Player(Character):
 
         self.player_id = player_id
         self.dead = False
-        self.respawn_timer = 0
+        self.respawn_time = 0
         self.score = 0
         self.effect_timer = 0
         self.effect: const.EffectType | None = None
@@ -247,6 +247,7 @@ class Player(Character):
             get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.effect))
             self.dead = True
             self.remove_effect()
+            self.respawn_time = model.timer + const.PLAYER_RESPAWN_TIME
             model.register_user_event(const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def respawn_handler(self):
@@ -357,7 +358,7 @@ class Patronus(Character):
 
 
 class Ghost(Character):
-    def __init__(self, ghost_id: int, teleport_cd: int, position: pg.Vector2):
+    def __init__(self, ghost_id, teleport_cd: int, position: pg.Vector2):
         self.ghost_id = ghost_id
 
         speed = const.GHOST_INIT_SPEED
