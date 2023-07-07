@@ -59,9 +59,9 @@ class CastMagicParticleEffect:
         """
         remain_particles = []
         for particle in self.particles:
-            particle.update()
             if not particle.arrive():
                 remain_particles.append(particle)
+                particle.update()
         self.particles = remain_particles
 
         for _ in range(int(util.random_fluctuation(self.thickness))):
