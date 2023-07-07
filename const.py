@@ -58,6 +58,10 @@ class GhostState(IntEnum):
 
 CACHE_CELLS = 3
 
+class GhostSkins(Enum):
+    NORMAL = 0
+    KILLING = 1
+
 # patronus
 PATRONUS_SPEED = PLAYER_SPEED
 PATRONUS_RADIUS = PLAYER_RADIUS
@@ -217,6 +221,7 @@ PICTURES_PATH = {
     CharacterDirection.DOWN: "front.png",
     CharacterDirection.RIGHT: "right.png",
     GhostIds.DEMENTOR: "pictures/characters/ghosts/dementor",
+    GhostSkins.KILLING: "pictures/characters/ghosts/dementor/killing",
     Scene.TITLE: "pictures/scenes/Title.png",
     Scene.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
     Scene.FOG: "pictures/scenes/Fog.png",

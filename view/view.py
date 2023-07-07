@@ -185,6 +185,11 @@ class GraphicalView:
                     picture = pg.image.load(os.path.join(const.PICTURES_PATH[ghost], "dementor" + 
                                                          str(i) + ".png")).convert_alpha()
                     self.character_image[ghost].append(crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True))
+        self.ghost_killing_image = {}
+        picture = pg.image.load(os.path.join(const.PICTURES_PATH[const.GhostSkins.KILLING], "right.png")).convert_alpha()
+        self.ghost_killing_image[const.CharacterDirection.RIGHT] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+        picture = pg.image.load(os.path.join(const.PICTURES_PATH[const.GhostSkins.KILLING], "left.png")).convert_alpha()
+        self.ghost_killing_image[const.CharacterDirection.LEFT] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
 
         self.background_images = []
         for i in model.map.images:
@@ -425,7 +430,17 @@ class GraphicalView:
                 ul = [x - y for x, y in zip(obj.position,
                                             [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
                 # if obj.image_index == const.GhostIds.DEMENTOR:
-                self.screen.blit(self.character_image[const.GhostIds.DEMENTOR][model.timer//const.ANIMATION_PICTURE_LENGTH % const.DEMENTOR_PICTURE_NUMBER], ul)
+                ghost_shown = False
+                for kill_animation in self.ghost_kill_animations:
+                    if kill_animation[0] == obj.image_index:
+                        if obj.position.x < kill_animation[1].x:
+                            self.screen.blit(self.ghost_killing_image[const.CharacterDirection.RIGHT], ul)
+                        else:
+                            self.screen.blit(self.ghost_killing_image[const.CharacterDirection.LEFT], ul)
+                        ghost_shown = True
+                        break
+                if not ghost_shown:
+                    self.screen.blit(self.character_image[const.GhostIds.DEMENTOR][model.timer//const.ANIMATION_PICTURE_LENGTH % const.DEMENTOR_PICTURE_NUMBER], ul)
             elif obj.object_type == const.ObjectType.PATRONUS:
                 effect_timer = obj.detail[0]
                 if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:
@@ -492,11 +507,11 @@ class GraphicalView:
             self.sortinghat_animations.append((position, victim, index))
 
         # Ghost Killing Animation
-        for kill_animation in self.ghost_kill_animations:
-            pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, -20 - 35),
-                         kill_animation[1] + pg.Vector2(15, 20 - 35), 10)
-            pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, 20 - 35),
-                         kill_animation[1] + pg.Vector2(15, -20 - 35), 10)
+        # for kill_animation in self.ghost_kill_animations:
+        #     pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, -20 - 35),
+        #                  kill_animation[1] + pg.Vector2(15, 20 - 35), 10)
+        #     pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, 20 - 35),
+        #                  kill_animation[1] + pg.Vector2(15, -20 - 35), 10)
         kill_animation_end_list = []
         for kill_animation in self.ghost_kill_animations:
             if model.timer > kill_animation[4]:
