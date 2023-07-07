@@ -28,8 +28,9 @@ class HelperImpl(Helper):
                           i.dead,
                           i.speed,
                           i.score,
-                          None if i.effect is None else EffectType.get_by_name(i.effect.name),
-                          i.effect_timer)
+                          EffectType.NONE if i.effect is None else EffectType.get_by_name(i.effect.name),
+                          i.effect_timer,
+                          i.golden_snitch)
                    for i in model.players]
         return players
 
@@ -43,6 +44,7 @@ class HelperImpl(Helper):
             ghost = Ghost(i.ghost_id,
                           i.position,
                           i.speed,
+                          i.teleport_chanting,
                           destination,
                           after,
                           cooldown)
@@ -109,6 +111,10 @@ class HelperImpl(Helper):
 
     def distance_to(self, position: Vector2) -> float:
         return self.distance(self.get_myself().position, position)
+
+    def get_time(self) -> int:
+        model = instances_manager.get_game_engine()
+        return model.timer
 
 
 __helper_impl = HelperImpl()

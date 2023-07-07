@@ -54,6 +54,7 @@ class EffectType(Enum):
     PETRIFICATION = auto()
     SORTINGHAT = auto()
     REMOVED_SORTINGHAT = auto()
+    NONE = auto()
 
 
 class Item:
@@ -76,7 +77,7 @@ class Item:
 
 
 class Player:
-    def __init__(self, _id, _position, _dead, _speed, _score, _effect, _effect_remain):
+    def __init__(self, _id, _position, _dead, _speed, _score, _effect, _effect_remain, _caught_golden_snitch):
         self.__id = _id
         self.__position = _position
         self.__dead = _dead
@@ -84,6 +85,7 @@ class Player:
         self.__score = _score
         self.__effect = _effect
         self.__effect_remain = _effect_remain
+        self.__caught_golden_snitch = _caught_golden_snitch
 
     @property
     def id(self) -> int:
@@ -115,10 +117,11 @@ class Player:
 
 
 class Ghost:
-    def __init__(self, _id, _position, _speed, _teleport_destination, _teleport_after, _teleport_cooldown_remain):
+    def __init__(self, _id, _position, _speed, _chanting, _teleport_destination, _teleport_after, _teleport_cooldown_remain):
         self.__id = _id
         self.__position = _position
         self.__speed = _speed
+        self.__chanting = _chanting
         self.__teleport_destination = _teleport_destination
         self.__teleport_after = _teleport_after
         self.__teleport_cooldown_remain = _teleport_cooldown_remain
@@ -134,6 +137,10 @@ class Ghost:
     @property
     def speed(self) -> float:
         return self.__speed
+
+    @property
+    def chanting(self) -> bool:
+        return self.__chanting
 
     @property
     def teleport_destination(self) -> Vector2:
@@ -173,11 +180,11 @@ class Portkey:
         self.__to = _to
 
     @property
-    def position(self):
+    def position(self) -> Vector2:
         return self.__position
 
     @property
-    def to(self):
+    def to(self) -> Vector2:
         return self.__to
 
 
@@ -216,6 +223,9 @@ class Helper:
         pass
 
     def distance_to(self, position: Vector2) -> float:
+        pass
+
+    def get_time(self) -> int:
         pass
 
 
@@ -273,3 +283,7 @@ def distance(a: Vector2, b: Vector2) -> float:
 
 def distance_to(position: Vector2) -> float:
     return _helper.distance_to(position)
+
+
+def get_time() -> int:
+    return _helper.get_time()
