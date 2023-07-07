@@ -349,7 +349,7 @@ class Patronus(Character):
 
 
 class Ghost(Character):
-    def __init__(self, ghost_id: int, teleport_cd: int, position: pg.Vector2):
+    def __init__(self, ghost_id, teleport_cd: int, position: pg.Vector2):
         self.ghost_id = ghost_id
 
         speed = const.GHOST_INIT_SPEED

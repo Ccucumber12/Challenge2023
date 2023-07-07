@@ -179,8 +179,12 @@ class GraphicalView:
                     crop(picture, *const.DEAD_PLAYER_SIZE[direction], True)
 
         for ghost in const.GhostIds:
-            picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
-            self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+            if ghost == const.GhostIds.DEMENTOR:
+                self.character_image[ghost] = []
+                for i in range(const.DEMENTOR_PICTURE_NUMBER):
+                    picture = pg.image.load(os.path.join(const.PICTURES_PATH[ghost], "dementor" + 
+                                                         str(i) + ".png")).convert_alpha()
+                    self.character_image[ghost].append(crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True))
 
         self.background_images = []
         for i in model.map.images:
@@ -426,7 +430,8 @@ class GraphicalView:
             elif obj.object_type == const.ObjectType.GHOST:
                 ul = [x - y for x, y in zip(obj.position,
                                             [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
-                self.screen.blit(self.pictures[const.GhostIds.DEMENTOR], ul)
+                # if obj.image_index == const.GhostIds.DEMENTOR:
+                self.screen.blit(self.character_image[const.GhostIds.DEMENTOR][model.timer//const.ANIMATION_PICTURE_LENGTH % const.DEMENTOR_PICTURE_NUMBER], ul)
             elif obj.object_type == const.ObjectType.PATRONUS:
                 effect_timer = obj.detail[0]
                 if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:

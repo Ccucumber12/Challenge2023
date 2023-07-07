@@ -4,7 +4,7 @@ import pygame as pg
 
 # model
 
-FPS = 60  # frame per second
+FPS = 30  # frame per second
 GAME_LENGTH = 180 * FPS
 
 
@@ -141,6 +141,8 @@ SORTINGHAT_ANIMATION_SPEED = 500
 SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
 MAGIC_CIRCLE_RADIUS = GHOST_RADIUS
 GHOST_KILL_ANIMATION_TIME = FPS // 2
+ANIMATION_PICTURE_LENGTH = FPS // 3
+DEMENTOR_PICTURE_NUMBER = 3
 
 class ObjectType(IntEnum):
     # The number represents the order of rendering the type.
@@ -214,7 +216,7 @@ PICTURES_PATH = {
     CharacterDirection.LEFT: "left.png",
     CharacterDirection.DOWN: "front.png",
     CharacterDirection.RIGHT: "right.png",
-    GhostIds.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
+    GhostIds.DEMENTOR: "pictures/characters/ghosts/dementor",
     Scene.TITLE: "pictures/scenes/Title.png",
     Scene.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
     Scene.FOG: "pictures/scenes/Fog.png",
