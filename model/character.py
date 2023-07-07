@@ -178,7 +178,7 @@ class Player(Character):
 
         self.player_id = player_id
         self.dead = False
-        self.respawn_timer = 0
+        self.respawn_time = 0
         self.score = 0
         self.effect_timer = 0
         self.effect: const.EffectType | None = None
@@ -248,6 +248,7 @@ class Player(Character):
             get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.effect))
             self.dead = True
             self.remove_effect()
+            self.respawn_time = model.timer + const.PLAYER_RESPAWN_TIME
             model.register_user_event(const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def respawn_handler(self):
@@ -286,7 +287,7 @@ class Player(Character):
             model.patronuses.append(Patronus(0, self.position, self))
             for ghost in model.ghosts:
                 while ghost.prey == self:
-                    ghost.choose_prey()
+                    ghost.choose_prey(1)
             # The parameters passed is not properly assigned yet
 
     def tick(self):
@@ -454,23 +455,25 @@ class Ghost(Character):
     def wander_handler(self):
         model = get_game_engine()
         self.state = const.GhostState.WANDER
-        self.wander_pos = util.get_random_pos(const.GHOST_RADIUS)
+        self.wander_pos = model.map.get_random_pos(const.GHOST_RADIUS)
         model.register_user_event(int(self.wander_time), self.chase_handler)
         self.wander_time = max(0.5 * const.FPS, self.wander_time - 0.5 * const.FPS)
 
     def wander(self):
+        model = get_game_engine()
         if self.position.distance_to(self.wander_pos) < const.GHOST_RADIUS:
-            self.wander_pos = util.get_random_pos(const.GHOST_RADIUS)
+            self.wander_pos = model.map.get_random_pos(const.GHOST_RADIUS)
         self.move(self.pathfind(*self.wander_pos) - self.position)
 
-    def choose_prey(self):
+    def choose_prey(self, randomness):
+        #randomness: a real number which denotes how much randomness affects the result
         model = get_game_engine()
         prey_candidates = (
             [x for x in model.players if not x.dead and not x.is_invisible() and not x.is_invincible()]
             + model.patronuses)
         self.prey = min(
             prey_candidates,
-            key=lambda x: self.get_distance(x) - x.score + random.random(),
+            key=lambda x: self.get_distance(x) - x.score + randomness * random.uniform(0, 100),
             default=None)
 
     def tick(self):
@@ -488,20 +491,24 @@ class Ghost(Character):
         if model.timer == 1:
             self.chase_handler()
 
+        if self.teleport_chanting:
+            return
+        if self.teleport_available:
+            if self.state == const.GhostState.WANDER:
+                self.wander_pos = model.map.get_random_pos(const.GHOST_RADIUS)
+                self.teleport(self.wander_pos)
+            else:
+                self.choose_prey(10)    
+                if self.prey is not None:
+                    self.teleport(self.prey.position)
+            return
+
         if self.state == const.GhostState.WANDER:
             self.wander()
         elif self.state == const.GhostState.CHASE:
-            if self.teleport_chanting:
-                return
-            while (self.prey is None or self.prey.dead or self.prey.is_invisible()
+            if (self.prey is None or self.prey.dead or self.prey.is_invisible()
                    or self.prey.is_invincible()):
-                self.choose_prey()
-
+                self.choose_prey(1)
                 if self.prey is None:
-                    break
-            if (self.teleport_available and self.prey is not None
-                    and self.get_distance(self.prey) > self.speed * const.GHOST_CHANTING_TIME):
-                print(f"Teleporting to {self.prey.position}")
-                self.teleport(self.prey.position)
-                return
+                    self.wander()
             self.chase()
