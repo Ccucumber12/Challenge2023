@@ -251,12 +251,6 @@ class GraphicalView:
             self.render_stop()
         elif cur_state == const.STATE_ENDGAME:
             self.render_endgame()
-        kill_animation_end_list = []
-        for kill_animation in self.ghost_kill_animations:
-            if model.timer > kill_animation[4]:
-                kill_animation_end_list.append(kill_animation)
-        for kill_animation in kill_animation_end_list:
-            self.ghost_kill_animations.remove(kill_animation)
 
     def handle_player_move(self, event: EventPlayerMove):
         move_direction = event.direction
@@ -499,11 +493,16 @@ class GraphicalView:
 
         # Ghost Killing Animation
         for kill_animation in self.ghost_kill_animations:
-            print(kill_animation[1])
             pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, -20 - 35),
                          kill_animation[1] + pg.Vector2(15, 20 - 35), 10)
             pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, 20 - 35),
                          kill_animation[1] + pg.Vector2(15, -20 - 35), 10)
+        kill_animation_end_list = []
+        for kill_animation in self.ghost_kill_animations:
+            if model.timer > kill_animation[4]:
+                kill_animation_end_list.append(kill_animation)
+        for kill_animation in kill_animation_end_list:
+            self.ghost_kill_animations.remove(kill_animation)
 
         # Fog
         self.fog.tick()

@@ -182,6 +182,7 @@ class Player(Character):
         self.effect_timer = 0
         self.effect: const.EffectType | None = None
         self.golden_snitch = False
+        self.unfreeze_timer = 0
 
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventPetrify, self.handle_petrify)
@@ -201,6 +202,9 @@ class Player(Character):
 
     def handle_petrify(self, event: EventPetrify):
         event.victim.set_effect(const.EffectType.PETRIFICATION)
+
+    def freeze(self):
+        self.unfreeze_timer = const.GHOST_KILL_ANIMATION_TIME
 
     def iscaught(self):
         model = get_game_engine()
@@ -223,6 +227,7 @@ class Player(Character):
         model = get_game_engine()
         if self.effect == const.EffectType.SORTINGHAT:
             catcher.freeze(self.position)
+            self.freeze()
             get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.player_id, self.effect))
             self.remove_effect()
             others = [x for x in const.PlayerIds
@@ -238,6 +243,7 @@ class Player(Character):
             return
         elif not self.dead:
             catcher.freeze(self.position)
+            self.freeze()
             get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.effect))
             self.dead = True
             self.remove_effect()
@@ -248,7 +254,7 @@ class Player(Character):
         self.dead = False
 
     def move(self, direction: pg.Vector2):
-        if self.effect == const.EffectType.PETRIFICATION:
+        if self.effect == const.EffectType.PETRIFICATION or self.unfreeze_timer > 0:
             return
         super().move(direction)
 
@@ -286,6 +292,8 @@ class Player(Character):
         Run when EventEveryTick() arises.
         """
         model = get_game_engine()
+        if self.unfreeze_timer > 0:
+            self.unfreeze_timer -= 1
         if model.map.get_type(self.position) == const.MAP_PUDDLE:
             self.speed = 0.7 * self.base_speed
         else:
