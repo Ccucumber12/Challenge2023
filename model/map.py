@@ -6,6 +6,7 @@ import pygame as pg
 
 import const
 import util
+import random
 
 
 class Map:
@@ -34,6 +35,14 @@ class Map:
         y = util.clamp(position[1] * const.ARENA_SIZE[1] / self.size[1], 0, const.ARENA_SIZE[1] - 1)
         return pg.Vector2(x, y)
 
+    def get_random_pos(self, r: int) -> pg.Vector2:
+        ret = pg.Vector2(random.randint(r, const.ARENA_SIZE[0] - r),
+                      random.randint(r, const.ARENA_SIZE[1] - r))
+        while self.get_type(ret) == const.MAP_OBSTACLE:
+            ret = pg.Vector2(random.randint(r, const.ARENA_SIZE[0] - r),
+                        random.randint(r, const.ARENA_SIZE[1] - r))
+        return ret
+            
     def get_type(self, position: pg.Vector2) -> int:
         x, y = self.convert_coordinate(position)
         return self.map[x][y]
