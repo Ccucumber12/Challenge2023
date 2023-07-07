@@ -1,3 +1,5 @@
+import os
+
 import pygame as pg
 
 import const
@@ -17,6 +19,16 @@ class BackGroundMusic:
         self.musics = {}
         self.muted = False
         pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
+        self.sound = {}
+        for effect, path in const.EFFECT_SOUND_PATH.items():
+            self.sound[effect] = pg.mixer.Sound(os.path.join(const.EFFECT_SOUND_DIR, path))
+
+    def handle_effect_sound(self, event: EventPlayerGetItem):
+        if event.effect_type in self.sound:
+            self.sound[event.effect_type].play()
+
+    def handle_teleport_sound(self, event: EventGhostTeleport):
+        self.sound[const.GhostState.TELEPORT].play()
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -24,6 +36,8 @@ class BackGroundMusic:
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
         ev_manager.register_listener(EventMuteMusic, self.handle_mute)
+        ev_manager.register_listener(EventPlayerGetItem, self.handle_effect_sound)
+        ev_manager.register_listener(EventGhostTeleport, self.handle_teleport_sound)
 
     def initialize(self, event):
         """
@@ -44,8 +58,11 @@ class BackGroundMusic:
 
     def handle_mute(self, event):
         if self.muted:
-            pg.mixer.music.play(-1)
             self.muted = False
+            pg.mixer.music.play(-1)
+            pg.mixer.set_num_channels(8)
+
         else:
             self.muted = True
             pg.mixer.music.stop()
+            pg.mixer.set_num_channels(0)  # Mute all sound effect channels

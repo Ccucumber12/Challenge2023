@@ -7,7 +7,8 @@ import pygame as pg
 import const
 import instances_manager
 import util
-from event_manager.events import EventGhostTeleport, EventPetrify, EventSortinghat, EventGhostKill
+from event_manager.events import (EventGhostTeleportChant, EventGhostTeleport, EventPetrify, EventSortinghat, 
+                                  EventGhostKill, EventPlayerGetItem)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -277,6 +278,7 @@ class Player(Character):
 
 
     def set_effect(self, effect: const.EffectType):
+        get_event_manager().post(EventPlayerGetItem(self.player_id, effect))
         self.effect = effect
         self.effect_timer = const.ITEM_DURATION[effect]
         if self.effect == const.EffectType.PATRONUS:
@@ -415,11 +417,12 @@ class Ghost(Character):
         self.__teleport_time = model.timer + const.GHOST_CHANTING_TIME
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
-        get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_distination))
+        get_event_manager().post(EventGhostTeleportChant(self.ghost_id, self.position, self.teleport_distination))
 
     def teleport_handler(self):
         self.teleport_chanting = False
         self.position = self.teleport_distination
+        get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_distination))
 
     def teleport_cd_handler(self):
         self.teleport_available = True

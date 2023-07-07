@@ -233,8 +233,16 @@ FINAL_SCORE_POSITION = [(x, y - 2 * PLAYER_RADIUS - 30) for (x, y) in PODIUM_POS
 
 # sound
 MUSIC_PATH = {
-    STATE_MENU: "music/title_music_v3.wav",
-    STATE_PLAY: "music/ingame_music_all.wav"
+    STATE_MENU: "music/BGM/title_music_v3.wav",
+    STATE_PLAY: "music/BGM/Challenge_ingame_music_ver2.wav"
+}
+EFFECT_SOUND_DIR = "music/effect"
+EFFECT_SOUND_PATH = {
+    EffectType.CLOAK: "invisible_v2.wav",
+    EffectType.PATRONUS: "get_patronus_v2.wav",
+    EffectType.PETRIFICATION: "stone_v2.wav",
+    EffectType.REMOVED_SORTINGHAT: "sorting_hat.wav",
+    GhostState.TELEPORT: "teleport_v2.wav"
 }
 
 # controller

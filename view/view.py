@@ -278,7 +278,7 @@ class GraphicalView:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
-        ev_manager.register_listener(EventGhostTeleport,
+        ev_manager.register_listener(EventGhostTeleportChant,
                                      self.add_ghost_teleport_chanting_animation)
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
