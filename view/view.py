@@ -57,6 +57,7 @@ class GraphicalView:
         self.transparent_player_image = {}
         self.wearing_sortinghat_image = {}
         self.shining_player_image = {}
+        self.dead_player_image = {}
         self.sortinghat_animation_picture = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
@@ -80,11 +81,13 @@ class GraphicalView:
                 ratio = min(desire_width/width, desire_height/height)
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
+
         for item in const.ItemType:
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_RADIUS*2, const.ITEM_RADIUS*2, True)
             self.transparent_player_image[item] = self.pictures[item].convert_alpha()
             self.transparent_player_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
+
         for player in const.PlayerIds:
             # normal
             self.character_image[player] = {}
@@ -117,6 +120,7 @@ class GraphicalView:
             for direction in const.CharacterDirection:
                 self.petrified_player_image[player][direction] = pg.transform.grayscale(
                     self.character_image[player][direction])
+
             # transparent
             self.transparent_player_image[player] = {}
             for direction in const.CharacterDirection:
@@ -155,6 +159,7 @@ class GraphicalView:
 
             # sortinghat
             load_player_skin(player, self.wearing_sortinghat_image, const.PlayerSkins.SORTINGHAT)
+
             # shining player
             self.shining_player_image[player] = {}
             for direction in const.CharacterDirection:
@@ -163,6 +168,15 @@ class GraphicalView:
                                                      const.PICTURES_PATH[direction])).convert_alpha()
                 self.shining_player_image[player][direction] =\
                     crop(picture, *const.SHINING_PLAYER_SIZE[direction], True)
+            
+            #dead player
+            self.dead_player_image[player] = {}
+            for direction in const.CharacterDirection:
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[const.PlayerSkins.DEAD],
+                                                     const.PICTURES_PATH[direction])).convert_alpha()
+                self.dead_player_image[player][direction] =\
+                    crop(picture, *const.DEAD_PLAYER_SIZE[direction], True)
 
         for ghost in const.GhostIds:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
@@ -357,6 +371,13 @@ class GraphicalView:
         objects.sort(key=lambda x: x.y)
         half_sec = model.timer // (const.FPS // 2)
         quater_sec = model.timer // (const.FPS // 4)
+
+        def render_picture(image_dic: dict, index, direction):
+            width = image_dic[index][direction].get_width()
+            height = image_dic[index][direction].get_height()
+            ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+            self.screen.blit(image_dic[index][direction], ul)
+            
         for obj in objects:
             # ul means upper left
             if obj.object_type == const.ObjectType.PLAYER:
@@ -372,6 +393,19 @@ class GraphicalView:
                 ul = [x - y for x, y in zip(obj.position, [width/2, height])]
                 if effect_timer < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
                     self.screen.blit(self.character_image[obj.image_index][direction], ul)
+                elif dead:
+                    if direction == const.CharacterDirection.DOWN or direction == const.CharacterDirection.UP:
+                        render_picture(self.dead_player_image, obj.image_index, direction)
+                    if direction == const.CharacterDirection.LEFT:
+                        width = self.dead_player_image[obj.image_index][direction].get_width()
+                        height = self.dead_player_image[obj.image_index][direction].get_height()
+                        ul = [x - y for x, y in zip(obj.position, [width/2-7, height])]
+                        self.screen.blit(self.dead_player_image[obj.image_index][direction], ul)
+                    if direction == const.CharacterDirection.RIGHT:
+                        width = self.dead_player_image[obj.image_index][direction].get_width()
+                        height = self.dead_player_image[obj.image_index][direction].get_height()
+                        ul = [x - y for x, y in zip(obj.position, [width/2+7, height])]
+                        self.screen.blit(self.dead_player_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.PETRIFICATION:
                     self.screen.blit(self.petrified_player_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.CLOAK:

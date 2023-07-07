@@ -174,6 +174,7 @@ class PlayerSkins(Enum):
     NORMAL = 0
     SORTINGHAT = 1
     SHINING = 2
+    DEAD = 3
 
 class CharacterDirection(Enum):
     UP = 0
@@ -186,6 +187,13 @@ SHINING_PLAYER_SIZE = {
     CharacterDirection.LEFT: (64, 64),
     CharacterDirection.DOWN: (73, 73),
     CharacterDirection.RIGHT: (64, 64),
+}
+
+DEAD_PLAYER_SIZE = {
+    CharacterDirection.UP: (64, 64),
+    CharacterDirection.LEFT: (60, 60),
+    CharacterDirection.DOWN: (66, 66),
+    CharacterDirection.RIGHT: (60, 60),
 }
 
 PICTURES_PATH = {
@@ -201,6 +209,7 @@ PICTURES_PATH = {
     PlayerSkins.NORMAL: "normal",
     PlayerSkins.SORTINGHAT: "sortinghat",
     PlayerSkins.SHINING: "shining",
+    PlayerSkins.DEAD: "dead",
     CharacterDirection.UP: "rear.png",
     CharacterDirection.LEFT: "left.png",
     CharacterDirection.DOWN: "front.png",
