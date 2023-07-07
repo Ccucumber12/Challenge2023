@@ -242,3 +242,6 @@ MUTE_KEY = pg.K_F1
 # Utils
 
 FLUCTUATION_RATIO = 0.3
+
+# Others
+MAP_DIR = "maps"

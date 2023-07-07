@@ -1,4 +1,5 @@
 import random
+import os
 
 import pygame as pg
 
@@ -26,7 +27,7 @@ class GameEngine:
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map(map_name)
+        self.map = load_map(os.path.join(const.MAP_DIR, map_name))
         self.timer = 0
         self.ai = ai
         print(ai)
