@@ -81,6 +81,7 @@ class Player:
                  _id: int,
                  _position: Vector2,
                  _dead: bool,
+                 _respawn_after: int,
                  _speed: float,
                  _score: int,
                  _effect: EffectType,
@@ -89,6 +90,7 @@ class Player:
         self.__id = _id
         self.__position = _position.copy()
         self.__dead = _dead
+        self.__respawn_after = _respawn_after
         self.__speed = _speed
         self.__score = _score
         self.__effect = _effect

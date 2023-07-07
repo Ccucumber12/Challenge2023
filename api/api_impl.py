@@ -26,6 +26,7 @@ class HelperImpl(Helper):
         players = [Player(i.player_id,
                           i.position,
                           i.dead,
+                          i.respawn_time - model.timer if i.dead else -1,
                           i.speed,
                           i.score,
                           EffectType.NONE if i.effect is None else EffectType.get_by_name(i.effect.name),
