@@ -361,7 +361,7 @@ class GraphicalView:
         for ghost in model.ghosts:
             coord = game_map.convert_coordinate(ghost.position)
             objects.append(
-                Object(coord[1], const.ObjectType.GHOST, ghost.position, ghost.ghost_id, tuple()))
+                Object(coord[1], const.ObjectType.GHOST, ghost.position, const.GhostIds.DEMENTOR, (ghost.ghost_id, )))
         for patronus in model.patronuses:
             coord = game_map.convert_coordinate(patronus.position)
             detail = (patronus.death_time, )
@@ -432,7 +432,7 @@ class GraphicalView:
                 # if obj.image_index == const.GhostIds.DEMENTOR:
                 ghost_shown = False
                 for kill_animation in self.ghost_kill_animations:
-                    if kill_animation[0] == obj.image_index:
+                    if kill_animation[0] == obj.detail[0]:
                         if obj.position.x < kill_animation[1].x:
                             self.screen.blit(self.ghost_killing_image[const.CharacterDirection.RIGHT], ul)
                         else:
