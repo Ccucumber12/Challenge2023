@@ -69,7 +69,7 @@ class CastMagicParticleEffect:
                                            const.PETRIFICATION_ANIMATION_PARTICLE_RADIUS))
         self.current_position += (self.victim.position
                                   - self.current_position).normalize() * self.speed
-        return (self.current_position - self.victim.position).length() <= 5
+        return (self.current_position - self.victim.position).length() <= self.speed*0.6
 
 
 class Particle:
