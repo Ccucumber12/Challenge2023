@@ -123,6 +123,5 @@ def load_map(map_dir):
                 continue
             find_connected_component(sx, sy, cnt)
             cnt += 1
-    print('\n'.join([' '.join([str(j) for j in i]) for i in connected_component]))
 
     return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir, connected_component)

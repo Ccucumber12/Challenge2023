@@ -13,7 +13,6 @@ class TeamAI(AI):
         for i in tmp:
             if get_ground_type(i) != GroundType.OBSTACLE:
                 self.candidates.append(i)
-        print(self.candidates)
          
     def evaluate_position(self, pos):
         #tries to find the most "empty" position that is nearby
