@@ -263,6 +263,8 @@ class GraphicalView:
         self.show_helper = not self.show_helper
 
     def handle_player_move(self, event: EventPlayerMove):
+        if get_game_engine().players[event.player_id].effect == const.EffectType.PETRIFICATION:
+            return
         move_direction = event.direction
         direction = const.CharacterDirection.DOWN
         if move_direction.length() == 0:
