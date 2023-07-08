@@ -475,6 +475,17 @@ class Ghost(Character):
             prey_candidates,
             key=lambda x: self.get_distance(x) - x.score + randomness * random.uniform(0, 100),
             default=None)
+    
+    def choose_random_pos(self, randomness):
+        #count: The number of candidates
+        model = get_game_engine()
+        positions = [model.map.get_random_pos(const.GHOST_RADIUS) for _ in range(5)]
+        ghosts = model.ghosts
+        
+        ret = min(positions,
+            key=lambda x: -sum([(g.position - x).length() for g in ghosts]) + randomness * random.uniform(0, 100),
+            default=None)
+        return ret
 
     def tick(self):
         """
@@ -495,12 +506,14 @@ class Ghost(Character):
             return
         if self.teleport_available:
             if self.state == const.GhostState.WANDER:
-                self.wander_pos = model.map.get_random_pos(const.GHOST_RADIUS)
+                self.wander_pos = self.choose_random_pos(0.5)
                 self.teleport(self.wander_pos)
             else:
-                self.choose_prey(10)    
-                if self.prey is not None:
-                    self.teleport(self.prey.position)
+                self.choose_prey(10)
+                if self.prey is None:
+                    self.teleport(self.choose_random_pos(0.5))
+                    return
+                self.teleport(self.prey.position)
             return
 
         if self.state == const.GhostState.WANDER:
