@@ -7,6 +7,8 @@ import instances_manager
 from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey, EffectType
 from event_manager.events import EventPlayerMove
 
+import const
+
 
 class HelperImpl(Helper):
 
@@ -116,6 +118,16 @@ class HelperImpl(Helper):
     def get_time(self) -> int:
         model = instances_manager.get_game_engine()
         return model.timer
+
+    def get_map_size(self) -> tuple[int, int]:
+        return const.ARENA_SIZE
+
+    def connected(self, a: Vector2, b: Vector2) -> bool:
+        model = instances_manager.get_game_engine()
+        return model.map.in_same_connected_component(a, b)
+
+    def connected_to(self, position: Vector2) -> bool:
+        return self.connected(self.get_myself().position, position)
 
 
 __helper_impl = HelperImpl()
