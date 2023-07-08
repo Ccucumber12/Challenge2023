@@ -2,7 +2,7 @@ import pygame as pg
 
 import const
 from event_manager.events import (EventEveryTick, EventInitialize, EventMuteMusic, EventPlayerMove,
-                                  EventQuit, EventStateChange)
+                                  EventQuit, EventStateChange, EventHelpMenu)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -64,6 +64,8 @@ class Controller:
         for event_pg in key_down_events:
             if event_pg.type == pg.KEYDOWN and event_pg.key == pg.K_SPACE:
                 ev_manager.post(EventStateChange(const.STATE_PLAY))
+            elif event_pg.type == pg.KEYDOWN and event_pg.key == pg.K_ESCAPE:
+                ev_manager.post(EventHelpMenu())
 
     def ctrl_play(self, key_down_events):
         ev_manager = get_event_manager()

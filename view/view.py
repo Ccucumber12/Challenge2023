@@ -33,6 +33,8 @@ class GraphicalView:
         """
         self.register_listeners()
 
+        self.show_helper = False
+
         # optimization
 
         self.screen = pg.display.set_mode(size=const.WINDOW_SIZE, flags=pg.DOUBLEBUF)
@@ -256,6 +258,9 @@ class GraphicalView:
             self.render_stop()
         elif cur_state == const.STATE_ENDGAME:
             self.render_endgame()
+    
+    def handle_show_helper(self, event: EventHelpMenu):
+        self.show_helper = not self.show_helper
 
     def handle_player_move(self, event: EventPlayerMove):
         move_direction = event.direction
@@ -283,6 +288,7 @@ class GraphicalView:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
+        ev_manager.register_listener(EventHelpMenu, self.handle_show_helper)
         ev_manager.register_listener(EventGhostTeleportChant,
                                      self.add_ghost_teleport_chanting_animation)
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
@@ -322,17 +328,53 @@ class GraphicalView:
     def render_menu(self):
         # draw background
         # self.screen.fill(Const.BACKGROUND_COLOR)
+        self.screen.fill(const.BACKGROUND_COLOR)
         self.screen.blit(self.pictures[const.Scene.TITLE],
                          ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
 
         # draw text
-        font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-        text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
-        text_center = (const.WINDOW_SIZE[0] / 2, 40)
-        self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-        text_surface = font.render("Press [F1] to mute/unmute music", 1, pg.Color('gray88'))
-        text_center = (const.WINDOW_SIZE[0] / 2, 80)
-        self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        if not self.show_helper:
+            font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
+            text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
+            text_center = (const.WINDOW_SIZE[0] / 2, 40)
+            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+            text_surface = font.render("Press [ESC] to see helper.", 1, pg.Color('gray88'))
+            text_center = (const.WINDOW_SIZE[0] / 2, 80)
+            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        else:
+            background = pg.Surface((const.HELPER_SIZE[0], const.HELPER_SIZE[1]), pg.SRCALPHA)
+            background.fill((255, 255, 255, 200))
+            self.screen.blit(background, tuple((x - y)/2 for x, y in zip (const.WINDOW_SIZE, const.HELPER_SIZE)))
+            # keyboard
+            image = pg.image.load("pictures/other/keyboard.png").convert_alpha()
+            bounding_rect = image.get_bounding_rect()
+            cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
+            cropped_image.blit(image, (0, 0), bounding_rect)
+            width, height = [cropped_image.get_width(), cropped_image.get_height()]
+            ratio = min((const.HELPER_SIZE[0] * 2 / 3) / width, (const.HELPER_SIZE[1] * 2 / 3) / height)
+            cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
+            self.screen.blit(cropped_image, ((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 160))
+            # text
+            text_position = pg.Vector2((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 520)
+            font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 60)
+            text_surface = font.render("Manual", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_surface.get_rect(
+                center=(const.WINDOW_SIZE[0]/2, (const.WINDOW_SIZE[1] - const.HELPER_SIZE[1])/2 + 60)))
+            font = pg.font.Font(None, 32)
+            text_surface = font.render("F1: Mute/unmute the BGM", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_position)
+            text_position.y += 40
+            text_surface = font.render("F2: Mute/unmute effect sounds", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_position)
+            # text_surface = font.render("Press ESC to see helper.", 1, pg.Color('gray88'))
+            # text_center = (const.WINDOW_SIZE[0] / 2, 80)
+            # self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+            # font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
+            # text_surface = font.render("[space]: start the game", 1, pg.Color('gray88'))
+            # self.screen.blit(text_surface, (20, 20))
+            # text_surface = font.render("Press ESC to see helper.", 1, pg.Color('gray88'))
+            # text_center = (const.WINDOW_SIZE[0] / 2, 80)
+            # self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
 

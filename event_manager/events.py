@@ -23,6 +23,15 @@ class EventStateChange(BaseEvent):
     def __str__(self):
         return f'{self.name} => StateTo: {self.state}'
 
+class EventHelpMenu(BaseEvent):
+    name = 'HelpMenu Event'
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return f'Show help menu'
+
 
 class EventEveryTick(BaseEvent):
     name = 'Tick event'
