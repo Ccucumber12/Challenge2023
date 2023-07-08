@@ -17,7 +17,8 @@ class BackGroundMusic:
         self.register_listeners()
         pg.mixer.init()
         self.musics = {}
-        self.muted = False
+        self.mute_BGM = False
+        self.mute_sound = False
         pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
         self.sound = {}
         for effect, path in const.EFFECT_SOUND_PATH.items():
@@ -44,25 +45,30 @@ class BackGroundMusic:
         This method is called when a new game is instantiated.
         """
         pg.mixer.music.load(const.MUSIC_PATH[const.STATE_MENU])
-        if not self.muted:
+        if not self.mute_BGM:
             pg.mixer.music.play(-1)
 
     def handle_state_change(self, event):
         if event.state in const.MUSIC_PATH:
             pg.mixer.music.load(const.MUSIC_PATH[event.state])
-            if not self.muted:
+            if not self.mute_BGM:
                 pg.mixer.music.play(-1)
 
     def handle_every_tick(self, event):
         pass
 
     def handle_mute(self, event):
-        if self.muted:
-            self.muted = False
-            pg.mixer.music.play(-1)
-            pg.mixer.set_num_channels(8)
-
-        else:
-            self.muted = True
-            pg.mixer.music.stop()
-            pg.mixer.set_num_channels(0)  # Mute all sound effect channels
+        if event.type == "BGM":
+            if self.mute_BGM:
+                self.mute_BGM = False
+                pg.mixer.music.play(-1)
+            else:
+                self.mute_BGM = True
+                pg.mixer.music.stop()
+        elif event.type == "effect":
+            if self.mute_sound:
+                self.mute_sound = False
+                pg.mixer.set_num_channels(8)
+            else:
+                self.mute_sound = True
+                pg.mixer.set_num_channels(0)  # Mute all sound effect channels

@@ -45,7 +45,8 @@ def main():
     BackGroundMusic()
 
     if args.mute:
-        ev_manager.post(event_manager.events.EventMuteMusic())
+        ev_manager.post(event_manager.events.EventMuteMusic("BGM"))
+        ev_manager.post(event_manager.events.EventMuteMusic("effect"))
 
     # Main loop
     model.run()

@@ -263,7 +263,8 @@ PLAYER_KEYS = {
     PlayerIds.PLAYER3: {pg.K_UP: pg.Vector2(0, -1), pg.K_DOWN: pg.Vector2(0, 1),
                         pg.K_LEFT: pg.Vector2(-1, 0), pg.K_RIGHT: pg.Vector2(1, 0)}
 }
-MUTE_KEY = pg.K_F1
+MUTE_BGM_KEY = pg.K_F1
+MUTE_EFFECT_SOUND_KEY = pg.K_F2
 
 # Utils
 

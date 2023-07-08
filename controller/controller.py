@@ -34,8 +34,10 @@ class Controller:
             if event_pg.type == pg.QUIT:
                 ev_manager.post(EventQuit())
             if event_pg.type == pg.KEYDOWN:
-                if event_pg.key == const.MUTE_KEY:
-                    ev_manager.post(EventMuteMusic())
+                if event_pg.key == const.MUTE_BGM_KEY:
+                    ev_manager.post(EventMuteMusic("BGM"))
+                if event_pg.key == const.MUTE_EFFECT_SOUND_KEY:
+                    ev_manager.post(EventMuteMusic("effect"))
                 key_down_events.append(event_pg)
             # for orientating
             if event_pg.type == pg.MOUSEBUTTONDOWN:

@@ -158,3 +158,7 @@ class EventGhostKill(BaseEvent):
 
 class EventMuteMusic(BaseEvent):
     name = 'MuteMusic event'
+
+    def __init__(self, type):
+        super().__init__()
+        self.type = type
