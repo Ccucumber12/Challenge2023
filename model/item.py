@@ -31,6 +31,8 @@ class Item:
             ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[1] / 2)).length() * 2
             dis = (pos - self.position).length()
             for player in model.players:
+                if player.is_invisible():
+                    continue
                 vec1 = player.position - self.position
                 vec2 = pos - self.position
                 dot = vec1.dot(vec2)
