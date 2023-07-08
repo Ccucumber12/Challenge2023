@@ -284,11 +284,11 @@ class Player(Character):
         self.effect_timer = const.ITEM_DURATION[effect]
         if self.effect == const.EffectType.PATRONUS:
             model = get_game_engine()
-            model.patronuses.append(Patronus(0, self.position, self))
+            model.patronuses.append(Patronus(model.patronus_counter, self.position, self))
+            model.patronus_counter += 1
             for ghost in model.ghosts:
                 while ghost.prey == self:
                     ghost.choose_prey(1)
-            # The parameters passed is not properly assigned yet
 
     def tick(self):
         """
@@ -322,7 +322,7 @@ class Patronus(Character):
         self.dead = False
         self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.EffectType.PATRONUS]
         print(
-            f"A patronus belong to {owner.player_id} was gernerated at {position}!")
+            f"Patronus {self.patronus_id} which belongs to {owner.player_id} was gernerated at {position}!")
 
     def choose_target(self) -> Player | None:
         """Return a player that is not dead and is not the one who call the patronus"""

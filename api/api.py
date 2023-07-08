@@ -18,7 +18,7 @@ class GroundType(Enum):
         if num == 0:
             return GroundType.ROAD
         elif num == 1:
-            return GroundType.PUDDLE
+            return GroundType.SLOW
         elif num == 2:
             return GroundType.OBSTACLE
         else:
@@ -28,9 +28,9 @@ class GroundType(Enum):
     """
     可以正常行走的道路
     """
-    PUDDLE = auto()
+    SLOW = auto()
     """
-    水坑，可以行走，行走時會緩速
+    緩速帶，可以行走，行走時會緩速
     """
     OBSTACLE = auto()
     """
@@ -77,7 +77,7 @@ class EffectType(Enum):
     """
     @staticmethod
     def get_by_name(s):
-        for i in ItemType:
+        for i in EffectType:
             if i.name == s:
                 return i
         return None
