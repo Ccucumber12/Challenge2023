@@ -4,7 +4,7 @@ import pygame as pg
 
 # model
 
-FPS = 30  # frame per second
+FPS = 60  # frame per second
 GAME_LENGTH = 180 * FPS
 
 
@@ -153,11 +153,10 @@ DEMENTOR_PICTURE_NUMBER = 3
 class ObjectType(IntEnum):
     # The number represents the order of rendering the type.
     MAP = 0
-    # SCORE_BOARD = 1
-    GHOST = 2
     ITEM = 3
     PATRONUS = 4
     PLAYER = 5
+    GHOST = 6
 
 class Scene(Enum):
     TITLE = 0

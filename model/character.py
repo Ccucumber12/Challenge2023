@@ -7,8 +7,8 @@ import pygame as pg
 import const
 import instances_manager
 import util
-from event_manager.events import (EventGhostTeleportChant, EventGhostTeleport, EventPetrify, EventSortinghat, 
-                                  EventGhostKill, EventPlayerGetItem)
+from event_manager.events import (EventGhostKill, EventGhostTeleport, EventGhostTeleportChant,
+                                  EventPetrify, EventPlayerGetItem, EventSortinghat)
 from instances_manager import get_event_manager, get_game_engine
 
 
