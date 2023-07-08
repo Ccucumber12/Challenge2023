@@ -8,10 +8,12 @@ import const
 import util
 import random
 
+from queue import Queue
+
 
 class Map:
 
-    def __init__(self, size, map_list, portals, images, spawn, ghost_spawn_point, map_dir):
+    def __init__(self, size, map_list, portals, images, spawn, ghost_spawn_point, map_dir, connected_component):
         self.size = size
         self.map = map_list
         self.images = images
@@ -19,6 +21,7 @@ class Map:
         self.spawn = spawn
         self.ghost_spawn_point = ghost_spawn_point
         self.map_dir = map_dir
+        self.connected_component = connected_component
 
     def convert_coordinate(self, position: tuple | pg.Vector2) -> tuple:
         """
@@ -62,6 +65,11 @@ class Map:
         x, y = self.ghost_spawn_point
         return self.convert_cell((x, y))
 
+    def in_same_connected_component(self, p1, p2):
+        g1 = self.convert_coordinate(p1)
+        g2 = self.convert_coordinate(p2)
+        return self.connected_component[g1[0]][g1[1]] == self.connected_component[g2[0]][g2[1]]
+
 
 def load_map(map_dir):
     json_file = os.path.join(map_dir, 'map.json')
@@ -87,16 +95,34 @@ def load_map(map_dir):
                 map_list[x][y] = int(row[x])
             y += 1
 
-    """ Feature: Add "thickness" to the walls so it doesn't look like the character is in the walls"
-    new_map_list = [[0] * size[0] for _ in range(0, size[1])]
-    for y in range(size[1]):
-        for x in range(size[0]):
-            if map_list[x][y] == Const.MAP_OBSTACLE:
-                for dx in range(-1, 2): 
-                    for dy in range(-1, 2):
-                        if 0 <= x + dx < size[0] and 0 <= y + dy < size[1]:
-                            new_map_list[x+dx][y+dy] = Const.MAP_OBSTACLE
-    print(new_map_list)
-    map_list = new_map_list
-    """
-    return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir)
+    # find connected components
+    def find_connected_component(sx, sy, ccid):
+        q = Queue()
+        q.put((sx, sy))
+        connected_component[sx][sy] = ccid
+        dir = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+        while not q.empty():
+            tx, ty = q.get()
+            for dx, dy in dir:
+                nx = tx + dx
+                ny = ty + dy
+                if not (0 <= nx < size[0] and 0 <= ny < size[1]):
+                    continue
+                if map_list[nx][ny] == const.MAP_OBSTACLE:
+                    continue
+                if connected_component[nx][ny] != -1:
+                    continue
+                connected_component[nx][ny] = ccid
+                q.put((nx, ny))
+
+    connected_component = [[-1] * size[1] for _ in range(0, size[0])]
+    cnt = 0
+    for sx in range(0, size[0]):
+        for sy in range(0, size[1]):
+            if connected_component[sx][sy] != -1:
+                continue
+            find_connected_component(sx, sy, cnt)
+            cnt += 1
+    print('\n'.join([' '.join([str(j) for j in i]) for i in connected_component]))
+
+    return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir, connected_component)

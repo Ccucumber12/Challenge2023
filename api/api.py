@@ -394,6 +394,12 @@ class Helper:
     def get_map_size(self) -> tuple[int, int]:
         pass
 
+    def connected(self, a: Vector2, b: Vector2) -> bool:
+        pass
+
+    def connected_to(self, position: Vector2) -> bool:
+        pass
+
 
 _helper: Helper = None
 
@@ -513,3 +519,17 @@ def get_map_size() -> tuple[int, int]:
     :return: 包含兩個 `int` 的 `tuple`，格式為 (width, height)，分別表示寬和高
     """
     return _helper.get_map_size()
+
+
+def connected(a: Vector2, b: Vector2) -> bool:
+    """
+    兩個位置是否能不透過港口鑰互通。如果兩個位置有至少一個是障礙物，會回傳 False。
+    """
+    return _helper.connected(a, b)
+
+
+def connected_to(position: Vector2) -> bool:
+    """
+    判斷一個位置是否能和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
+    """
+    return _helper.connected_to(position)

@@ -148,7 +148,8 @@ class Character:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
-        if grid[end[0]][end[1]] == const.MAP_OBSTACLE:
+        if grid[end[0]][end[1]] == const.MAP_OBSTACLE or \
+                not Map.in_same_connected_component(self.position, (x, y)):
             return x, y
 
         if len(self.saved_path) == 0:
