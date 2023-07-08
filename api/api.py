@@ -376,16 +376,16 @@ class Helper:
     def get_nearest_player(self) -> Player:
         pass
 
-    def get_ground_type(self, position: Vector2) -> GroundType:
+    def get_ground_type(self, position: Vector2 | tuple[float, float]) -> GroundType:
         pass
 
     def get_myself(self) -> Player:
         pass
 
-    def distance(self, a: Vector2, b: Vector2) -> float:
+    def distance(self, a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]) -> float:
         pass
 
-    def distance_to(self, position: Vector2) -> float:
+    def distance_to(self, position: Vector2 | tuple[float, float]) -> float:
         pass
 
     def get_time(self) -> int:
@@ -394,10 +394,10 @@ class Helper:
     def get_map_size(self) -> tuple[int, int]:
         pass
 
-    def connected(self, a: Vector2, b: Vector2) -> bool:
+    def connected(self, a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]) -> bool:
         pass
 
-    def connected_to(self, position: Vector2) -> bool:
+    def connected_to(self, position: Vector2 | tuple[float, float]) -> bool:
         pass
 
 
@@ -477,7 +477,7 @@ def get_nearest_player() -> Player:
     return _helper.get_nearest_player()
 
 
-def get_ground_type(position: Vector2) -> GroundType:
+def get_ground_type(position: Vector2 | tuple[float, float]) -> GroundType:
     """
     獲得某個位置的地面類型。
     """
@@ -491,14 +491,14 @@ def get_myself() -> Player:
     return _helper.get_myself()
 
 
-def distance(a: Vector2, b: Vector2) -> float:
+def distance(a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]) -> float:
     """
     `a`、`b` 兩個位置之間的直線距離。
     """
     return _helper.distance(a, b)
 
 
-def distance_to(position: Vector2) -> float:
+def distance_to(position: Vector2 | tuple[float, float]) -> float:
     """
     自己的位置（`get_myself().position`）和 `position` 之間的直線距離。
     """
@@ -521,14 +521,14 @@ def get_map_size() -> tuple[int, int]:
     return _helper.get_map_size()
 
 
-def connected(a: Vector2, b: Vector2) -> bool:
+def connected(a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]) -> bool:
     """
     兩個位置是否能不透過港口鑰互通。如果兩個位置有至少一個是障礙物，會回傳 False。
     """
     return _helper.connected(a, b)
 
 
-def connected_to(position: Vector2) -> bool:
+def connected_to(position: Vector2 | tuple[float, float]) -> bool:
     """
     判斷一個位置是否能和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
     """

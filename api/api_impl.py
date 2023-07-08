@@ -4,7 +4,7 @@ import pygame as pg
 from pygame import Vector2
 
 import instances_manager
-from api.api import AI, Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey, EffectType
+from api.api import Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey, EffectType
 from event_manager.events import EventPlayerMove
 
 import const
@@ -14,6 +14,14 @@ class HelperImpl(Helper):
 
     def __init__(self):
         self._current_player = -1
+
+    @staticmethod
+    def __check_position(v, function_name, variable_name):
+        if type(v) is tuple:
+            v = Vector2(v)
+        if type(v) is not Vector2:
+            raise TypeError(f'{function_name}: {variable_name} is neither Vector2 nor tuple')
+        return v
 
     def get_items(self) -> list[Item]:
         model = instances_manager.get_game_engine()
@@ -102,17 +110,21 @@ class HelperImpl(Helper):
                 nearest = i
         return nearest
 
-    def get_ground_type(self, position: Vector2) -> GroundType:
+    def get_ground_type(self, position: Vector2 | tuple[float, float]) -> GroundType:
+        position = self.__check_position(position, 'get_ground_type', 'position')
         model = instances_manager.get_game_engine()
         return GroundType.get_by_num(model.map.get_type(position))
 
     def get_myself(self) -> Player:
         return self.get_players()[self._current_player]
 
-    def distance(self, a: Vector2, b: Vector2) -> float:
+    def distance(self, a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]) -> float:
+        a = self.__check_position(a, 'distance', 'a')
+        b = self.__check_position(b, 'distance', 'b')
         return a.distance_to(b)
 
-    def distance_to(self, position: Vector2) -> float:
+    def distance_to(self, position: Vector2 | tuple[float, float]) -> float:
+        position = self.__check_position(position, 'distance_to', 'position')
         return self.distance(self.get_myself().position, position)
 
     def get_time(self) -> int:
@@ -122,11 +134,14 @@ class HelperImpl(Helper):
     def get_map_size(self) -> tuple[int, int]:
         return const.ARENA_SIZE
 
-    def connected(self, a: Vector2, b: Vector2) -> bool:
+    def connected(self, a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]) -> bool:
+        a = self.__check_position(a, 'connected', 'a')
+        b = self.__check_position(b, 'connected', 'b')
         model = instances_manager.get_game_engine()
         return model.map.in_same_connected_component(a, b)
 
-    def connected_to(self, position: Vector2) -> bool:
+    def connected_to(self, position: Vector2 | tuple[float, float]) -> bool:
+        position = self.__check_position(position, 'connected_to', 'position')
         return self.connected(self.get_myself().position, position)
 
 
