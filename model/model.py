@@ -48,6 +48,7 @@ class GameEngine:
         self.ghosts: list[Ghost] = [
             Ghost(const.GhostIds.DEMENTOR, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
         self.patronuses: list[Patronus] = []
+        self.patronus_counter = 0
         self.items: set[Item] = set()
         self.timer = 0
         self.user_events: dict[int, list[function]] = {}
