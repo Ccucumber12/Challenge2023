@@ -391,6 +391,9 @@ class Helper:
     def get_time(self) -> int:
         pass
 
+    def get_map_size(self) -> tuple[int, int]:
+        pass
+
 
 _helper: Helper = None
 
@@ -501,3 +504,12 @@ def get_time() -> int:
     取得從遊戲開始到現在經過了幾個 tick。
     """
     return _helper.get_time()
+
+
+def get_map_size() -> tuple[int, int]:
+    """
+    取得地圖大小。
+
+    :return: 包含兩個 `int` 的 `tuple`，格式為 (width, height)，分別表示寬和高
+    """
+    return _helper.get_map_size()
