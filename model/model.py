@@ -183,7 +183,7 @@ class GameEngine:
             candidate = pg.Vector2(
                 random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
                 random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
-        new_ghost = Ghost(const.GhostIds.DEMENTOR, const.GHOST_INIT_TP_CD, candidate)
+        new_ghost = Ghost(len(self.ghosts), const.GHOST_INIT_TP_CD, candidate)
         self.ghosts.append(new_ghost)
 
     def create_ghost_handler(self):
