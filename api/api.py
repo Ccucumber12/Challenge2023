@@ -77,7 +77,7 @@ class EffectType(Enum):
     """
     @staticmethod
     def get_by_name(s):
-        for i in ItemType:
+        for i in EffectType:
             if i.name == s:
                 return i
         return None
