@@ -108,6 +108,20 @@ class EffectType(Enum):
     """
 
 
+class SortKey(Enum):
+    """
+    `get_XXXs()` 回傳的 list 中元素的排序方式。
+    """
+    ID = auto()
+    """
+    按照編號排序
+    """
+    DISTANCE = auto()
+    """
+    按照和自己的距離排序
+    """
+
+
 class Item:
     """
     地圖上出現的可撿的道具。
@@ -352,19 +366,19 @@ class Portkey:
 
 
 class Helper:
-    def get_items(self) -> list[Item]:
+    def get_items(self, sort_key: SortKey = SortKey.ID) -> list[Item]:
         pass
 
-    def get_players(self) -> list[Player]:
+    def get_players(self, sort_key: SortKey = SortKey.ID) -> list[Player]:
         pass
 
-    def get_ghosts(self) -> list[Ghost]:
+    def get_ghosts(self, sort_key: SortKey = SortKey.ID) -> list[Ghost]:
         pass
 
-    def get_patronuses(self) -> list[Patronus]:
+    def get_patronuses(self, sort_key: SortKey = SortKey.ID) -> list[Patronus]:
         pass
 
-    def get_portkeys(self) -> list[Portkey]:
+    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
     def get_nearest_ghost(self) -> Ghost:
@@ -409,51 +423,51 @@ def _set_helper(helper):
     _helper = helper
 
 
-def get_items() -> list[Item]:
+def get_items(sort_key: SortKey = SortKey.ID) -> list[Item]:
     """
     獲得目前在場上的所有道具。
 
     :returns: 包含場上所有道具的 `list`，保證這個 `list` 中的元素照道具的 ID 排序
     """
-    return _helper.get_items()
+    return _helper.get_items(sort_key)
 
 
-def get_players() -> list[Player]:
+def get_players(sort_key: SortKey = SortKey.ID) -> list[Player]:
     """
     獲得場上的所有玩家。
 
     :returns: 包含所有玩家的 `list`，保證這個 `list` 的長度是 4，
     且其中的元素照玩家 ID 排序。也就是說，`list` 裡第 `i` 個玩家的 ID 是 `i`
     """
-    return _helper.get_players()
+    return _helper.get_players(sort_key)
 
 
-def get_ghosts() -> list[Ghost]:
+def get_ghosts(sort_key: SortKey = SortKey.ID) -> list[Ghost]:
     """
     獲得場上的所有鬼。
 
     :returns: 包含所有鬼的 `list`，保證這個 `list` 中的元素照鬼的 ID 排序。
     也就是說，`list` 裡第 `i` 個鬼的 ID 是 `i`
     """
-    return _helper.get_ghosts()
+    return _helper.get_ghosts(sort_key)
 
 
-def get_patronuses() -> list[Patronus]:
+def get_patronuses(sort_key: SortKey = SortKey.ID) -> list[Patronus]:
     """
     獲得場上的所有玩家召喚出的護法。
 
     :returns: 包含所有護法的 `list`，保證這個 `list` 中的元素照護法的 ID 排序
     """
-    return _helper.get_patronuses()
+    return _helper.get_patronuses(sort_key)
 
 
-def get_portkeys() -> list[Portkey]:
+def get_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
     """
     獲得所有港口鑰。
 
     :return: 包含所有港口鑰的 `list`
     """
-    return _helper.get_portkeys()
+    return _helper.get_portkeys(sort_key)
 
 
 def get_nearest_ghost() -> Ghost:
