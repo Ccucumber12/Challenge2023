@@ -68,7 +68,7 @@ class Item:
     def tick(self):
         model = get_game_engine()
         for player in model.players:
-            if (util.overlaped(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
+            if (util.overlap_with(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True

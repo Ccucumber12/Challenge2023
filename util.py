@@ -5,7 +5,7 @@ import pygame as pg
 import const
 
 
-def is_overlaped(a: pg.Vector2, r_a, b: pg.Vector2, r_b) -> bool:
+def overlap_with(a: pg.Vector2, r_a, b: pg.Vector2, r_b) -> bool:
     """ Treat a and b as circle with and return if thay are overlaping."""
     return a.distance_to(b) <= r_a + r_b
 
