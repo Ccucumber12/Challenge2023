@@ -194,7 +194,7 @@ class Player:
     @property
     def speed(self) -> float:
         """
-        當前移動速度，受是否抓過金探子。（`.caught_golden_snitch`）與所在位置的地面類型影響。
+        當前移動速度，受是否抓過金探子（`.caught_golden_snitch`）與所在位置的地面類型影響。
         """
         return self.__speed
 
