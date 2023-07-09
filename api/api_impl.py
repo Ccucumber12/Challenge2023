@@ -169,7 +169,7 @@ def init(ai_file):
         signal.signal(signal.SIGALRM, handler)
 
 
-def call_ai(player_id):
+def call_ai(player_id: int):
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
