@@ -1,4 +1,6 @@
 import importlib
+import signal
+import sys
 import threading
 
 import pygame as pg
@@ -157,23 +159,47 @@ def init(ai_file):
     for i in range(0, 4):
         if ai_file[i] == 'manual':
             continue
-        file = 'ai.'+ ai_file[i]
+        file = 'ai.' + ai_file[i]
         m = importlib.import_module(file)
         __ai[i] = m.TeamAI()
+    if sys.platform == "linux":
+        def handler(sig, frame):
+            raise TimeoutError()
+
+        signal.signal(signal.SIGALRM, handler)
 
 
 def call_ai(player_id):
-    def timeout_alarm(player_id: int):
-        print(f"The AI of player {player_id} time out!")
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
-    timer = threading.Timer(interval=1 / (6 * const.FPS), function=timeout_alarm, args=[player_id])
-    timer.start()
-    destination = __ai[player_id].player_tick()
-    timer.cancel()
+    destination: Vector2
+    if sys.platform == "linux":
+        signal.setitimer(signal.ITIMER_REAL, 1 / (6 * const.FPS))
+    else:
+        def timeout_alarm(player_id: int):
+            print(f"The AI of player {player_id} time out!")
+
+        timer = threading.Timer(interval=1 / (6 * const.FPS),
+                                function=timeout_alarm, args=[player_id])
+        timer.start()
+    try:
+        destination = __ai[player_id].player_tick()
+    except Exception as e:
+        print(f"Exception in ai of player {player_id}.")
+        print(e)
+        return
+    if sys.platform == "linux":
+        signal.setitimer(signal.ITIMER_REAL, 0)
+    else:
+        timer.cancel()
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
     event_manager.post(
         EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
+
+
+class TimeoutError(Exception):
+    def __str__(self):
+        return "Function ran out of time."
