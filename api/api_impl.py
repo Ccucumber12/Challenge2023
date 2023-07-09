@@ -1,6 +1,6 @@
 import importlib
+import platform
 import signal
-import sys
 import threading
 
 import pygame as pg
@@ -9,7 +9,7 @@ from pygame import Vector2
 import const
 import instances_manager
 from api.api import (EffectType, Ghost, GroundType, Helper, Item, ItemType, Patronus, Player,
-                     Portkey, _set_helper, SortKey)
+                     Portkey, SortKey, _set_helper)
 from event_manager.events import EventPlayerMove
 
 
@@ -181,7 +181,7 @@ def init(ai_file):
             print(e)
             raise
         __ai[i] = m.TeamAI()
-    if sys.platform == "linux":
+    if platform.system() != "Windows":
         def handler(sig, frame):
             raise TimeoutError()
 
@@ -193,7 +193,7 @@ def call_ai(player_id):
         return
     __helper_impl._current_player = player_id
     destination: Vector2
-    if sys.platform == "linux":
+    if platform.system() != "Windows":
         signal.setitimer(signal.ITIMER_REAL, 1 / (6 * const.FPS))
     else:
         def timeout_alarm(player_id: int):
@@ -208,7 +208,7 @@ def call_ai(player_id):
         print(f"Exception in ai of player {player_id}.")
         print(e)
         return
-    if sys.platform == "linux":
+    if platform != "Windows":
         signal.setitimer(signal.ITIMER_REAL, 0)
     else:
         timer.cancel()

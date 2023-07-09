@@ -1,10 +1,10 @@
 import argparse
-import sys
+import platform
 
 import pygame as pg
 
-import instances_manager
 import event_manager.events
+import instances_manager
 from controller.controller import Controller
 from event_manager.event_manager import EventManager
 from model.model import GameEngine
@@ -16,7 +16,7 @@ def main():
     # Initialization
     pg.init()
 
-    if sys.platform == 'win32':
+    if platform.system() == 'Windows':
         # On Windows, the monitor scaling can be set to something besides normal 100%.
         # PyScreeze and Pillow needs to account for this to make accurate screenshots.
         import ctypes
