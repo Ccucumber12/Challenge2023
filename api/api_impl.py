@@ -160,7 +160,11 @@ def init(ai_file):
         if ai_file[i] == 'manual':
             continue
         file = 'ai.' + ai_file[i]
-        m = importlib.import_module(file)
+        try:
+            m = importlib.import_module(file)
+        except Exception as e:
+            print(e)
+            raise
         __ai[i] = m.TeamAI()
     if sys.platform == "linux":
         def handler(sig, frame):
