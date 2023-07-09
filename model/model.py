@@ -30,7 +30,7 @@ class GameEngine:
         self.map = load_map(os.path.join(const.MAP_DIR, map_name))
         self.timer = 0
         self.ai = ai
-        print(ai)
+        # print(ai)
 
     @property
     def state(self):

@@ -63,6 +63,8 @@ class GraphicalView:
         self.sortinghat_animation_picture = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
+        self.portkey_animation_image = []
+        self.portkey_animation = []
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -235,6 +237,12 @@ class GraphicalView:
             self.sortinghat_animation_picture.append(
                 pg.transform.rotate(self.sortinghat_animation_picture[0], angle))
 
+        # port key
+        picture = pg.image.load("pictures/other/portal_animation.png").convert_alpha()
+        for t in range(8):
+            subpicture = picture.subsurface(pg.Rect(t * 64, 128, 64, 64))
+            self.portkey_animation_image.append(subpicture)
+
     def initialize(self, event):
         """
         This method is called when a new game is instantiated.
@@ -285,6 +293,10 @@ class GraphicalView:
     def handle_ghost_kill(self, event: EventGhostKill):
         self.ghost_kill_animations.append((event.ghost_id, event.destination, event.victim_id, event.victim_effect,
                                            get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME))
+    
+    def handle_portkey(self, event: EventPortkey):
+        self.portkey_animation.append(Portal(self.screen, event.destination, 
+                                             self.portkey_animation_image, int(const.FPS / 3)))
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -298,6 +310,7 @@ class GraphicalView:
         ev_manager.register_listener(EventTimesUp, self.register_places)
         ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
         ev_manager.register_listener(EventGhostKill, self.handle_ghost_kill)
+        ev_manager.register_listener(EventPortkey, self.handle_portkey)
 
     def display_fps(self):
         """
@@ -368,15 +381,6 @@ class GraphicalView:
             text_position.y += 40
             text_surface = font.render("F2: Mute/unmute effect sounds", 1, pg.Color('black'))
             self.screen.blit(text_surface, text_position)
-            # text_surface = font.render("Press ESC to see helper.", 1, pg.Color('gray88'))
-            # text_center = (const.WINDOW_SIZE[0] / 2, 80)
-            # self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-            # font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-            # text_surface = font.render("[space]: start the game", 1, pg.Color('gray88'))
-            # self.screen.blit(text_surface, (20, 20))
-            # text_surface = font.render("Press ESC to see helper.", 1, pg.Color('gray88'))
-            # text_center = (const.WINDOW_SIZE[0] / 2, 80)
-            # self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
 
@@ -411,6 +415,10 @@ class GraphicalView:
             detail = (patronus.death_time, )
             objects.append(Object(coord[1], const.ObjectType.PATRONUS,
                                   patronus.position, None, detail))
+        for portal in self.portkey_animation:
+            coord = game_map.convert_coordinate(portal.position)
+            detail = (portal, )
+            objects.append(Object(coord[1], const.ObjectType.PORTAL, portal.position, None, detail))
 
         for row, image in self.background_images:
             objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(0, 0), None, (image,)))
@@ -491,6 +499,8 @@ class GraphicalView:
                     ul = [x - y for x, y in zip(obj.position,
                                                 [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
                     self.screen.blit(self.shining_patronus, ul)
+            elif obj.object_type == const.ObjectType.PORTAL:
+                obj.detail[0].tick()
             elif obj.object_type == const.ObjectType.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
             elif obj.object_type == const.ObjectType.ITEM:
@@ -563,6 +573,8 @@ class GraphicalView:
         for kill_animation in kill_animation_end_list:
             self.ghost_kill_animations.remove(kill_animation)
 
+        self.portkey_animation = [x for x in self.portkey_animation if x.tick()]
+
         # Fog
         self.fog.tick()
 
@@ -616,6 +628,28 @@ class GraphicalView:
             self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
+
+
+class Portal:
+    def __init__(self, screen, position: pg.Vector2, animation_image, image_duration):
+        self.screen = screen
+        self.animation_image = animation_image
+        self.image_duration = image_duration
+        self.position = position.copy()
+        self.position.y -= 32
+        self.animation_index = 0
+        self.animation_life = 0
+
+    def tick(self):
+        ul = self.position + pg.Vector2(-32, 0)
+        self.screen.blit(self.animation_image[self.animation_index], ul)
+        self.animation_life += 1
+        if self.animation_life == self.image_duration:
+            self.animation_index += 1
+            self.animation_life = 0
+        if self.animation_index == 8:
+            return False # del
+        return True
 
 
 class Fog:

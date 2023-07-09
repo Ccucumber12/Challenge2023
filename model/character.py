@@ -8,7 +8,7 @@ import const
 import instances_manager
 import util
 from event_manager.events import (EventGhostKill, EventGhostTeleport, EventGhostTeleportChant,
-                                  EventPetrify, EventPlayerGetItem, EventSortinghat)
+                                  EventPetrify, EventPlayerGetItem, EventSortinghat, EventPortkey)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -229,7 +229,7 @@ class Player(Character):
         Caught by the ghost.
         Kill player
         """
-        print(f"{self.player_id} was caught!")
+        # print(f"{self.player_id} was caught!")
         model = get_game_engine()
         if self.effect == const.EffectType.SORTINGHAT:
             catcher.freeze(self.position)
@@ -257,7 +257,7 @@ class Player(Character):
             model.register_user_event(const.PLAYER_RESPAWN_TIME, self.respawn_handler)
 
     def respawn_handler(self):
-        print(f"{self.player_id} respawned!")
+        # print(f"{self.player_id} respawned!")
         self.dead = False
 
     def move(self, direction: pg.Vector2):
@@ -269,7 +269,8 @@ class Player(Character):
         portal = model.map.get_portal(self.position)
         if portal is not None:
             self.position = model.map.convert_cell(portal)
-            print(f"Player {self.player_id} used a portal!")
+            get_event_manager().post(EventPortkey(self.position))
+            # print(f"Player {self.player_id} used a portal!")
 
     def add_score(self, points: int):
         self.score += points
@@ -326,8 +327,8 @@ class Patronus(Character):
         self.score = 500
         self.dead = False
         self.death_time = get_game_engine().timer + const.ITEM_DURATION[const.EffectType.PATRONUS]
-        print(
-            f"Patronus {self.patronus_id} which belongs to {owner.player_id} was gernerated at {position}!")
+        # print(
+        #     f"Patronus {self.patronus_id} which belongs to {owner.player_id} was gernerated at {position}!")
 
     def choose_target(self) -> Player | None:
         """Return a player that is not dead and is not the one who call the patronus"""
@@ -360,7 +361,7 @@ class Patronus(Character):
         if self.chasing != None:
             self.chase()
         if self.iscaught():
-            print(f"Patronus {self.patronus_id} was caught!")
+            # print(f"Patronus {self.patronus_id} was caught!")
             self.dead = True
 
 
@@ -440,7 +441,7 @@ class Ghost(Character):
         model.register_user_event(const.GHOST_CHASE_TIME, self.wander_handler)
         # Temporary: the speed of ghost will increase by 0.2 coordinate/tick for each wandering period
         self.speed = min(const.GHOST_MAX_SPEED, self.speed + 0.2)
-        print(f"Ghost speed updated to {self.speed}")
+        # print(f"Ghost speed updated to {self.speed}")
 
     def chase(self):
         """

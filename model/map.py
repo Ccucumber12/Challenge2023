@@ -63,8 +63,8 @@ class Map:
     def get_portal(self, position):
         x, y = self.convert_coordinate(position)
         for i in self.portals:
-            if (i[0], i[1]) == (x, y):
-                return i[2], i[3]
+            if (i[0][0], i[0][1]) == (x, y):
+                return i[1][0], i[1][1]
         return None
 
     def get_spawn_point(self, num):

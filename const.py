@@ -153,6 +153,7 @@ DEMENTOR_PICTURE_NUMBER = 3
 class ObjectType(IntEnum):
     # The number represents the order of rendering the type.
     MAP = 0
+    PORTAL = 1
     ITEM = 3
     PATRONUS = 4
     PLAYER = 5
