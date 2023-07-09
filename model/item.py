@@ -87,6 +87,7 @@ class Item:
                             player.set_effect(i)
                             break
                     print(f"{player.player_id} got effect: {self.type}!")
+                break
         if self.type == const.ItemType.GOLDEN_SNITCH:
             self.move_golden_snitch()
 
