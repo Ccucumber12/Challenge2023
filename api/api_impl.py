@@ -1,4 +1,6 @@
 import importlib
+import signal
+import sys
 import threading
 
 import pygame as pg
@@ -7,7 +9,7 @@ from pygame import Vector2
 import const
 import instances_manager
 from api.api import (EffectType, Ghost, GroundType, Helper, Item, ItemType, Patronus, Player,
-                     Portkey, _set_helper)
+                     Portkey, _set_helper, SortKey)
 from event_manager.events import EventPlayerMove
 
 
@@ -24,15 +26,26 @@ class HelperImpl(Helper):
             raise TypeError(f'{function_name}: {variable_name} is neither Vector2 nor tuple')
         return v
 
-    def get_items(self) -> list[Item]:
+    @staticmethod
+    def __check_sort_key(v, function_name, variable_name='sort_key'):
+        if type(v) is not SortKey:
+            raise TypeError(f'{function_name}: {variable_name} is not SortKey')
+
+    def __sort_list(self, sort_key, t: list, function_name):
+        HelperImpl.__check_sort_key(sort_key, function_name)
+        if sort_key == SortKey.DISTANCE:
+            t.sort(key=lambda v: self.distance_to(v.position))
+
+    def get_items(self, sort_key: SortKey = SortKey.ID) -> list[Item]:
         model = instances_manager.get_game_engine()
         items = [Item(i.item_id,
                       ItemType.get_by_name(i.type.name),
                       i.position)
                  for i in model.items]
+        self.__sort_list(sort_key, items, 'get_items')
         return items
 
-    def get_players(self) -> list[Player]:
+    def get_players(self, sort_key: SortKey = SortKey.ID) -> list[Player]:
         model = instances_manager.get_game_engine()
         players = [Player(i.player_id,
                           i.position,
@@ -45,9 +58,10 @@ class HelperImpl(Helper):
                           i.effect_timer,
                           i.golden_snitch)
                    for i in model.players]
+        self.__sort_list(sort_key, players, 'get_players')
         return players
 
-    def get_ghosts(self) -> list[Ghost]:
+    def get_ghosts(self, sort_key: SortKey = SortKey.ID) -> list[Ghost]:
         model = instances_manager.get_game_engine()
         ghosts = []
         for i in model.ghosts:
@@ -62,22 +76,25 @@ class HelperImpl(Helper):
                           after,
                           cooldown)
             ghosts.append(ghost)
+        self.__sort_list(sort_key, ghosts, 'get_ghosts')
         return ghosts
 
-    def get_patronuses(self) -> list[Patronus]:
+    def get_patronuses(self, sort_key: SortKey = SortKey.ID) -> list[Patronus]:
         model = instances_manager.get_game_engine()
         patronuses = [Patronus(i.patronus_id,
                                i.position,
                                i.owner.player_id)
                       for i in model.patronuses]
+        self.__sort_list(sort_key, patronuses, 'get_patronuses')
         return patronuses
 
-    def get_portkeys(self) -> list[Portkey]:
+    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         model = instances_manager.get_game_engine()
         map_obj = model.map
         portkeys = [Portkey(map_obj.convert_cell((i[0], i[1])),
                             map_obj.convert_cell((i[2], i[3])))
                     for i in map_obj.portals]
+        self.__sort_list(sort_key, portkeys, 'get_portkeys')
         return portkeys
 
     def get_nearest_ghost(self) -> Ghost:
@@ -157,23 +174,51 @@ def init(ai_file):
     for i in range(0, 4):
         if ai_file[i] == 'manual':
             continue
-        file = 'ai.'+ ai_file[i]
-        m = importlib.import_module(file)
+        file = 'ai.' + ai_file[i]
+        try:
+            m = importlib.import_module(file)
+        except Exception as e:
+            print(e)
+            raise
         __ai[i] = m.TeamAI()
+    if sys.platform == "linux":
+        def handler(sig, frame):
+            raise TimeoutError()
+
+        signal.signal(signal.SIGALRM, handler)
 
 
 def call_ai(player_id):
-    def timeout_alarm(player_id: int):
-        print(f"The AI of player {player_id} time out!")
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
-    timer = threading.Timer(interval=1 / (6 * const.FPS), function=timeout_alarm, args=[player_id])
-    timer.start()
-    destination = __ai[player_id].player_tick()
-    timer.cancel()
+    destination: Vector2
+    if sys.platform == "linux":
+        signal.setitimer(signal.ITIMER_REAL, 1 / (6 * const.FPS))
+    else:
+        def timeout_alarm(player_id: int):
+            print(f"The AI of player {player_id} time out!")
+
+        timer = threading.Timer(interval=1 / (6 * const.FPS),
+                                function=timeout_alarm, args=[player_id])
+        timer.start()
+    try:
+        destination = __ai[player_id].player_tick()
+    except Exception as e:
+        print(f"Exception in ai of player {player_id}.")
+        print(e)
+        return
+    if sys.platform == "linux":
+        signal.setitimer(signal.ITIMER_REAL, 0)
+    else:
+        timer.cancel()
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
     event_manager.post(
         EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
+
+
+class TimeoutError(Exception):
+    def __str__(self):
+        return "Function ran out of time."

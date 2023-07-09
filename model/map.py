@@ -13,7 +13,16 @@ from queue import Queue
 
 class Map:
 
-    def __init__(self, size, map_list, portals, images, spawn, ghost_spawn_point, map_dir, connected_component):
+    def __init__(self,
+                 size,
+                 map_list,
+                 portals,
+                 images,
+                 spawn,
+                 ghost_spawn_point,
+                 map_dir,
+                 connected_component,
+                 closest_cell):
         self.size = size
         self.map = map_list
         self.images = images
@@ -22,6 +31,7 @@ class Map:
         self.ghost_spawn_point = ghost_spawn_point
         self.map_dir = map_dir
         self.connected_component = connected_component
+        self.closest_cell = closest_cell
 
     def convert_coordinate(self, position: tuple | pg.Vector2) -> tuple:
         """
@@ -100,10 +110,10 @@ def load_map(map_dir):
         q = Queue()
         q.put((sx, sy))
         connected_component[sx][sy] = ccid
-        dir = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+        direction = [[0, 1], [1, 0], [0, -1], [-1, 0]]
         while not q.empty():
             tx, ty = q.get()
-            for dx, dy in dir:
+            for dx, dy in direction:
                 nx = tx + dx
                 ny = ty + dy
                 if not (0 <= nx < size[0] and 0 <= ny < size[1]):
@@ -119,9 +129,36 @@ def load_map(map_dir):
     cnt = 0
     for sx in range(0, size[0]):
         for sy in range(0, size[1]):
+            if map_list[sx][sy] == const.MAP_OBSTACLE:
+                continue
             if connected_component[sx][sy] != -1:
                 continue
             find_connected_component(sx, sy, cnt)
             cnt += 1
 
-    return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir, connected_component)
+    # calculate closest distance
+    closest_distance = [[[(-1, -1)] * size[1] for _ in range(0, size[0])] for _ in range(0, cnt)]
+
+    def calculate_closest_distance(ccid):
+        q = Queue()
+        for i in range(0, size[0]):
+            for j in range(0, size[1]):
+                if connected_component[i][j] == ccid:
+                    q.put((i, j))
+                    closest_distance[ccid][i][j] = (i, j)
+        while not q.empty():
+            tx, ty = q.get()
+            direction = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+            for dx, dy in direction:
+                nx = tx + dx
+                ny = ty + dy
+                if not (0 <= nx < size[0] and 0 <= ny < size[1]):
+                    continue
+                if closest_distance[ccid][nx][ny] != (-1, -1):
+                    continue
+                closest_distance[ccid][nx][ny] = closest_distance[ccid][tx][ty]
+                q.put((nx, ny))
+    for i in range(0, cnt):
+        calculate_closest_distance(i)
+
+    return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir, connected_component, closest_distance)

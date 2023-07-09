@@ -88,7 +88,7 @@ class Character:
             cols = len(grid[0])
 
             def heuristic(cell, target):
-                return abs(cell[0] - target[0]) + abs(cell[1] - target[1])
+                return (abs(cell[0] - target[0]) + abs(cell[1] - target[1])) * 1
 
             def get_neighbors(cell):
                 neighbors = []
@@ -139,6 +139,8 @@ class Character:
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
+        closest_cell = Map.closest_cell
+        connected_component = Map.connected_component
 
         # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
@@ -150,7 +152,7 @@ class Character:
         end = Map.convert_coordinate([x, y])
         if grid[end[0]][end[1]] == const.MAP_OBSTACLE or \
                 not Map.in_same_connected_component(self.position, (x, y)):
-            return x, y
+            end = closest_cell[connected_component[start[0]][start[1]]][end[0]][end[1]]
 
         if len(self.saved_path) == 0:
             path = a_star(grid, start, end)
