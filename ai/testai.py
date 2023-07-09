@@ -7,8 +7,8 @@ class TeamAI(AI):
 
     def player_tick(self) -> Vector2:
         vec = get_nearest_ghost().position - get_myself().position
-        if 0 < vec.length() <= 300:
-            return get_myself().position - vec.normalize() * get_myself().speed
+        if 1e-9 < vec.length() <= 300 or len(get_items()) == 0:
+            return get_myself().position - vec.normalize() * 10000
         elif get_nearest_item() is not None:
             # print('test', get_myself().id, get_items())
             for i in get_items():

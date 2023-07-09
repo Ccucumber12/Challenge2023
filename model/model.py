@@ -55,8 +55,6 @@ class GameEngine:
         self.item_generator = ItemGenerator()
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
-        api_impl.init(self.ai)
-
     def handle_every_tick(self, event):
         cur_state = self.state
         ev_manager = get_event_manager()
@@ -66,6 +64,9 @@ class GameEngine:
             self.update_objects()
 
             self.timer += 1
+
+            if self.timer == 1:
+                api_impl.init(self.ai)
 
             # checks if a new second has passed and calls each player to update score
             if self.timer % const.FPS == 0:
