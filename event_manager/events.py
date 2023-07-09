@@ -72,6 +72,14 @@ class EventPlayerGetItem(BaseEvent):
         return f'{self.name} => player_id {self.player_id} get {self.effect_type}'
 
 
+class EventPortkey:
+    name = 'Portkey event'
+    
+    def __init__(self, destination):
+        super().__init__()
+        self.destination = destination
+
+
 class EventGhostMove(BaseEvent):
     name = 'GhostMove event'
 

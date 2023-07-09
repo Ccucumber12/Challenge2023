@@ -8,7 +8,7 @@ import const
 import instances_manager
 import util
 from event_manager.events import (EventGhostKill, EventGhostTeleport, EventGhostTeleportChant,
-                                  EventPetrify, EventPlayerGetItem, EventSortinghat)
+                                  EventPetrify, EventPlayerGetItem, EventSortinghat, EventPortkey)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -267,6 +267,7 @@ class Player(Character):
         portal = model.map.get_portal(self.position)
         if portal is not None:
             self.position = model.map.convert_cell(portal)
+            get_event_manager().post(EventPortkey(self.position))
             print(f"Player {self.player_id} used a portal!")
 
     def add_score(self, points: int):
