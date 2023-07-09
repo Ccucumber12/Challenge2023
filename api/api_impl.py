@@ -1,13 +1,14 @@
 import importlib
+import threading
 
 import pygame as pg
 from pygame import Vector2
 
-import instances_manager
-from api.api import Ghost, GroundType, Helper, Item, ItemType, Player, _set_helper, Patronus, Portkey, EffectType
-from event_manager.events import EventPlayerMove
-
 import const
+import instances_manager
+from api.api import (EffectType, Ghost, GroundType, Helper, Item, ItemType, Patronus, Player,
+                     Portkey, _set_helper)
+from event_manager.events import EventPlayerMove
 
 
 class HelperImpl(Helper):
@@ -39,7 +40,8 @@ class HelperImpl(Helper):
                           i.respawn_time - model.timer if i.dead else -1,
                           i.speed,
                           i.score,
-                          EffectType.NONE if i.effect is None else EffectType.get_by_name(i.effect.name),
+                          EffectType.NONE if i.effect is None else EffectType.get_by_name(
+                              i.effect.name),
                           i.effect_timer,
                           i.golden_snitch)
                    for i in model.players]
@@ -161,11 +163,17 @@ def init(ai_file):
 
 
 def call_ai(player_id):
+    def timeout_alarm(player_id: int):
+        print(f"The AI of player {player_id} time out!")
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
+    timer = threading.Timer(interval=1 / (6 * const.FPS), function=timeout_alarm, args=[player_id])
+    timer.start()
     destination = __ai[player_id].player_tick()
+    timer.cancel()
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
-    event_manager.post(EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
+    event_manager.post(
+        EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
