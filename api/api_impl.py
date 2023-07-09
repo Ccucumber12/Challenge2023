@@ -157,7 +157,7 @@ def init(ai_file):
     for i in range(0, 4):
         if ai_file[i] == 'manual':
             continue
-        file = ai_file[i]
+        file = 'ai.'+ ai_file[i]
         m = importlib.import_module(file)
         __ai[i] = m.TeamAI()
 
