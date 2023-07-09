@@ -351,7 +351,7 @@ class Patronus(Character):
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        if self.chasing == None or self.chasing.dead:
+        if self.chasing == None or self.chasing.dead or self.chasing.effect == const.EffectType.CLOAK:
             self.chasing = self.choose_target()
         if self.chasing != None:
             self.chase()
