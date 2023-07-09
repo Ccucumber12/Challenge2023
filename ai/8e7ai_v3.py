@@ -48,9 +48,7 @@ class TeamAI(AI):
                 else:
                     return dis * 0.3
             else:
-                ret = distance(item.position, get_myself().position) * 0.6
-                ret += min(distance(ghost.position, item.position) for ghost in get_ghosts()) * 0.2
-                return ret
+                return distance(item.position, get_myself().position) * 0.8
         elif item.type == ItemType.PATRONUS:
             return distance(item.position, get_myself().position)
         elif item.type == ItemType.PETRIFICATION:
@@ -61,7 +59,7 @@ class TeamAI(AI):
             return distance(item.position, get_myself().position) * multi
         else:
             #Sorting hat
-            ret = distance(item.position, get_myself().position) * 0.2
+            ret = distance(item.position, get_myself().position) * 0.25
             ret += min(distance(ghost.position, item.position) for ghost in get_ghosts()) * 0.1
             return ret
 
@@ -84,12 +82,8 @@ class TeamAI(AI):
             return golden_snitch_pos
         
         if len(items) > 0 and (distance(items[0].position, pos) < max(vec.length(), 150) or vec.length() > 350 or get_myself().dead):
-            #print("go to items")
             return items[0].position
         else:
-            #Case 1: Close to corner and can't run
-            if vec.length() < 150 and get_myself().effect == EffectType.CLOAK:
-                return pos - vec
             ret = min(self.candidates,
                 key=lambda x: self.evaluate_position(x),
                 default=None)

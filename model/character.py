@@ -216,6 +216,8 @@ class Player(Character):
             # Even if the player is invisible, the ghost can still catch him.
             return False
         for ghost in model.ghosts:
+            if ghost.teleport_chanting:
+                continue
             if self.get_distance(ghost) < (const.PLAYER_RADIUS + const.GHOST_RADIUS):
                 return ghost # Not a good method but it's the easiest I can think of now
         return False
@@ -525,4 +527,5 @@ class Ghost(Character):
                 self.choose_prey(1)
                 if self.prey is None:
                     self.wander()
+                    return
             self.chase()
