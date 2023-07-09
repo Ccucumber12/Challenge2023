@@ -88,13 +88,12 @@ class HelperImpl(Helper):
         self.__sort_list(sort_key, patronuses, 'get_patronuses')
         return patronuses
 
-    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+    def get_portkeys(self) -> list[Portkey]:
         model = instances_manager.get_game_engine()
         map_obj = model.map
         portkeys = [Portkey(map_obj.convert_cell((i[0], i[1])),
                             map_obj.convert_cell((i[2], i[3])))
                     for i in map_obj.portals]
-        self.__sort_list(sort_key, portkeys, 'get_portkeys')
         return portkeys
 
     def get_nearest_ghost(self) -> Ghost:
