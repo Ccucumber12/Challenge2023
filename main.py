@@ -42,7 +42,8 @@ def main():
     instances_manager.register_game_engine(model)
     Controller()
     GraphicalView()
-    BackGroundMusic()
+    if not args.mute:
+        BackGroundMusic()
 
     if args.mute:
         ev_manager.post(event_manager.events.EventMuteMusic("BGM"))

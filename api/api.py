@@ -378,7 +378,7 @@ class Helper:
     def get_patronuses(self, sort_key: SortKey = SortKey.ID) -> list[Patronus]:
         pass
 
-    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+    def get_portkeys(self) -> list[Portkey]:
         pass
 
     def get_nearest_ghost(self) -> Ghost:
@@ -414,6 +414,9 @@ class Helper:
     def connected_to(self, position: Vector2 | tuple[float, float]) -> bool:
         pass
 
+    def get_map_name(self) -> str:
+        pass
+
 
 _helper: Helper = None
 
@@ -427,7 +430,8 @@ def get_items(sort_key: SortKey = SortKey.ID) -> list[Item]:
     """
     獲得目前在場上的所有道具。
 
-    :returns: 包含場上所有道具的 `list`，保證這個 `list` 中的元素照道具的 ID 排序
+    :returns: 包含場上所有道具的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照道具編號排序
     """
     return _helper.get_items(sort_key)
 
@@ -436,8 +440,8 @@ def get_players(sort_key: SortKey = SortKey.ID) -> list[Player]:
     """
     獲得場上的所有玩家。
 
-    :returns: 包含所有玩家的 `list`，保證這個 `list` 的長度是 4，
-    且其中的元素照玩家 ID 排序。也就是說，`list` 裡第 `i` 個玩家的 ID 是 `i`
+    :returns: 包含所有玩家的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照玩家編號排序，也就是說，`list` 裡第 `i` 個玩家的編號是 `i`
     """
     return _helper.get_players(sort_key)
 
@@ -446,8 +450,8 @@ def get_ghosts(sort_key: SortKey = SortKey.ID) -> list[Ghost]:
     """
     獲得場上的所有鬼。
 
-    :returns: 包含所有鬼的 `list`，保證這個 `list` 中的元素照鬼的 ID 排序。
-    也就是說，`list` 裡第 `i` 個鬼的 ID 是 `i`
+    :returns: 包含所有鬼的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照鬼的編號排序，也就是說，`list` 裡第 `i` 個鬼的編號是 `i`
     """
     return _helper.get_ghosts(sort_key)
 
@@ -456,18 +460,19 @@ def get_patronuses(sort_key: SortKey = SortKey.ID) -> list[Patronus]:
     """
     獲得場上的所有玩家召喚出的護法。
 
-    :returns: 包含所有護法的 `list`，保證這個 `list` 中的元素照護法的 ID 排序
+    :returns: 包含所有護法的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照護法編號排序
     """
     return _helper.get_patronuses(sort_key)
 
 
-def get_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+def get_portkeys() -> list[Portkey]:
     """
     獲得所有港口鑰。
 
     :return: 包含所有港口鑰的 `list`
     """
-    return _helper.get_portkeys(sort_key)
+    return _helper.get_portkeys()
 
 
 def get_nearest_ghost() -> Ghost:
@@ -547,3 +552,10 @@ def connected_to(position: Vector2 | tuple[float, float]) -> bool:
     判斷一個位置是否能和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
     """
     return _helper.connected_to(position)
+
+
+def get_map_name() -> str:
+    """
+    取得地圖名稱。
+    """
+    return _helper.get_map_name()

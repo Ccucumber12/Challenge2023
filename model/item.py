@@ -80,13 +80,13 @@ class Item:
                         continue
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
-                    print(f'{player.player_id} cast petrification against {victim.player_id}')
+                    # print(f'{player.player_id} cast petrification against {victim.player_id}')
                 else:
                     for i in const.EffectType:
                         if i.name == self.type.name:
                             player.set_effect(i)
                             break
-                    print(f"{player.player_id} got effect: {self.type}!")
+                    # print(f"{player.player_id} got effect: {self.type}!")
                 break
         if self.type == const.ItemType.GOLDEN_SNITCH:
             self.move_golden_snitch()

@@ -14,6 +14,7 @@ from queue import Queue
 class Map:
 
     def __init__(self,
+                 name,
                  size,
                  map_list,
                  portals,
@@ -23,6 +24,7 @@ class Map:
                  map_dir,
                  connected_component,
                  closest_cell):
+        self.name = name
         self.size = size
         self.map = map_list
         self.images = images
@@ -89,6 +91,7 @@ def load_map(map_dir):
         data = json.load(f)
     images = data['images']
 
+    name = os.path.basename(os.path.dirname(json_file))
     size = (data['width'], data['height'])
     spawn = [tuple(i) for i in data['spawn']]
     portals = [tuple(tuple(j) for j in i) for i in data['portals']]
@@ -161,4 +164,4 @@ def load_map(map_dir):
     for i in range(0, cnt):
         calculate_closest_distance(i)
 
-    return Map(size, map_list, portals, images, spawn, ghost_spawn, map_dir, connected_component, closest_distance)
+    return Map(name, size, map_list, portals, images, spawn, ghost_spawn, map_dir, connected_component, closest_distance)
