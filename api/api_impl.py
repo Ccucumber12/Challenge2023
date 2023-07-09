@@ -162,6 +162,10 @@ class HelperImpl(Helper):
         position = self.__check_position(position, 'connected_to', 'position')
         return self.connected(self.get_myself().position, position)
 
+    def get_map_name(self) -> str:
+        model = instances_manager.get_game_engine()
+        return model.map.name
+
 
 __helper_impl = HelperImpl()
 __ai = [None] * 4

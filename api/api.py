@@ -414,6 +414,9 @@ class Helper:
     def connected_to(self, position: Vector2 | tuple[float, float]) -> bool:
         pass
 
+    def get_map_name(self) -> str:
+        pass
+
 
 _helper: Helper = None
 
@@ -549,3 +552,10 @@ def connected_to(position: Vector2 | tuple[float, float]) -> bool:
     判斷一個位置是否能和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
     """
     return _helper.connected_to(position)
+
+
+def get_map_name() -> str:
+    """
+    取得地圖名稱。
+    """
+    return _helper.get_map_name()
