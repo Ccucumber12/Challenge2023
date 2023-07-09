@@ -389,7 +389,7 @@ class GraphicalView:
         game_map = model.map
         objects: list[Object] = []
         for item in model.items:
-            coord = game_map.convert_coordinate(item.position)
+            coord = game_map.convert_coordinate(item.render_position)
             detail = (item.vanish_time, )
             objects.append(Object(coord[1], const.ObjectType.ITEM,
                                   item.position, item.type, detail))

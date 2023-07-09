@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 import pygame as pg
+from math import sin, pi
 
 import const
 import util
@@ -14,6 +15,7 @@ class Item:
         self.item_id = item_id
         self.type = item_type
         self.position = position
+        self.render_position = position
         self.eaten = False
         self.golden_snitch_goal = None
         self.vanish_time = get_game_engine().timer + const.ITEM_LIFETIME[item_type]
@@ -64,6 +66,10 @@ class Item:
 
         # Update
         self.position = new_position
+        self.render_position = self.position
+    
+    def hover(self, timer: int):
+        self.render_position.y = self.position.y + const.ITEM_HOVER_LENGTH / 2 * sin((self.vanish_time + timer) / const.ITEM_HOVER_LOOP_TIME * 2 * pi)
 
     def tick(self):
         model = get_game_engine()
@@ -90,6 +96,8 @@ class Item:
                 break
         if self.type == const.ItemType.GOLDEN_SNITCH:
             self.move_golden_snitch()
+        else:
+            self.hover(model.timer)
 
 
 class ItemGenerator:
