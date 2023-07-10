@@ -207,6 +207,8 @@ def call_ai(player_id: int):
         timer.start()
     try:
         destination = __ai[player_id].player_tick()
+        if type(destination) != Vector2:
+            raise WrongTypeError()
     except Exception as e:
         print(f"Exception in ai of player {player_id}.")
         print(e)
@@ -223,5 +225,9 @@ def call_ai(player_id: int):
 
 
 class TimeoutError(Exception):
-    def __str__(self):
-        return "Function ran out of time."
+    def __str__(self) -> str:
+        return "TimeoutError: function running out of time"
+
+class WrongTypeError(Exception):
+    def __str__(self) -> str:
+        return "WrongTypeError: unexpected return value tpye"
