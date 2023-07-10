@@ -212,7 +212,7 @@ SHINING_PLAYER_SIZE = {
 DEAD_PLAYER_SIZE = {
     CharacterDirection.UP: (64, 64),
     CharacterDirection.LEFT: (60, 60),
-    CharacterDirection.DOWN: (66, 66),
+    CharacterDirection.DOWN: (64, 64),
     CharacterDirection.RIGHT: (60, 60),
 }
 
