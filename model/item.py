@@ -14,8 +14,9 @@ class Item:
     def __init__(self, position: pg.Vector2, item_id, item_type: const.ItemType):
         self.item_id = item_id
         self.type = item_type
-        self.position = position
-        self.render_position = position
+        self.position = pg.Vector2(position)
+        self.render_position = pg.Vector2(position)
+        self.ripple = Ripple(item_type, position)
         self.eaten = False
         self.golden_snitch_goal = None
         self.vanish_time = get_game_engine().timer + const.ITEM_LIFETIME[item_type]
@@ -69,7 +70,11 @@ class Item:
         self.render_position = self.position
     
     def hover(self, timer: int):
-        self.render_position.y = self.position.y + const.ITEM_HOVER_LENGTH / 2 * sin((self.vanish_time + timer) / const.ITEM_HOVER_LOOP_TIME * 2 * pi)
+        """Only used when itemType is not golden snitch."""
+        progress_ratio = ((self.vanish_time + timer) % const.ITEM_HOVER_LOOP_TIME) / const.ITEM_HOVER_LOOP_TIME
+        self.render_position.y = self.position.y + const.ITEM_HOVER_LENGTH / 2 * sin(progress_ratio * 2 * pi + pi / 5) # adjust pi / 6 for ripple effect
+        self.ripple.size = tuple(x * 2 * progress_ratio for x in const.ITEM_RIPPLE_RECT)
+        self.ripple.color.a = int(max(0, 255 * (1 - 2 * progress_ratio)))
 
     def tick(self):
         model = get_game_engine()
@@ -195,3 +200,12 @@ class ItemGenerator:
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
         # print(f"Golden snitch generated at {best}!")
+
+class Ripple:
+    def __init__(self, item_type: const.ItemType, item_position: pg.Vector2):
+        self.show = item_type != const.ItemType.GOLDEN_SNITCH
+        if self.show == False:
+            return 
+        self.size = (0, 0)
+        self.color = pg.Color(const.ITEM_RIPPLE_COLOR)
+        self.position = item_position + const.ITEM_RIPPLE_DISPLACEMENT[item_type]

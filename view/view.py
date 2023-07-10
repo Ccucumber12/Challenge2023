@@ -389,10 +389,10 @@ class GraphicalView:
         game_map = model.map
         objects: list[Object] = []
         for item in model.items:
-            coord = game_map.convert_coordinate(item.render_position)
-            detail = (item.vanish_time, )
+            coord = game_map.convert_coordinate(item.position)
+            detail = (item.vanish_time, item.ripple)
             objects.append(Object(coord[1], const.ObjectType.ITEM,
-                                  item.position, item.type, detail))
+                                  item.render_position, item.type, detail))
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
             detail = (player.effect, player.dead, player.effect_timer)
@@ -494,6 +494,14 @@ class GraphicalView:
             elif obj.object_type == const.ObjectType.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
             elif obj.object_type == const.ObjectType.ITEM:
+                # render ripple
+                ripple = obj.detail[1]
+                if ripple.show:
+                    ripple_surface = pg.Surface(ripple.size, pg.SRCALPHA)
+                    pg.draw.ellipse(ripple_surface, ripple.color, pg.Rect((0, 0), ripple.size), width=const.ITEM_RIPPLE_WIDTH)
+                    self.screen.blit(ripple_surface, pg.Rect(ripple.position, (0, 0)).inflate(ripple.size))
+
+                # render item
                 ul = [x - y for x, y in zip(obj.position,
                                             [const.ITEM_RADIUS, const.ITEM_RADIUS*2])]
                 # It's acually is a rectangle.
