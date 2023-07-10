@@ -278,7 +278,7 @@ class Ghost:
     @property
     def speed(self) -> float:
         """
-        當前移動速度，會隨時間增加且受所在位置的地面類型影響。
+        當前移動速度，會隨時間增加。
         """
         return self.__speed
 
@@ -315,9 +315,10 @@ class Patronus:
     """
     玩家獲得護法道具後召喚出的護法。
     """
-    def __init__(self, _id: int, _position: Vector2, _owner: int):
+    def __init__(self, _id: int, _position: Vector2, _speed: float, _owner: int):
         self.__id = _id
         self.__position = _position.copy()
+        self.__speed = _speed
         self.__owner = _owner
 
     @property
@@ -333,6 +334,13 @@ class Patronus:
         護法位置。
         """
         return self.__position
+
+    @property
+    def speed(self) -> float:
+        """
+        當前移動速度。
+        """
+        return self.__speed
 
     @property
     def owner(self) -> int:

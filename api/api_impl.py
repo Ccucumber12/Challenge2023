@@ -83,6 +83,7 @@ class HelperImpl(Helper):
         model = instances_manager.get_game_engine()
         patronuses = [Patronus(i.patronus_id,
                                i.position,
+                               i.speed,
                                i.owner.player_id)
                       for i in model.patronuses]
         self.__sort_list(sort_key, patronuses, 'get_patronuses')
