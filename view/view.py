@@ -167,11 +167,44 @@ class GraphicalView:
             picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
             self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
 
-        self.background_images = []
-        for i in model.map.images:
-            loaded_image = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
-            loaded_image = pg.transform.scale(loaded_image, const.ARENA_SIZE)
-            self.background_images.append((int(model.map.images[i]), loaded_image))
+        def prepare_background():
+            '''
+            Explanation:
+            Every item on the background is a large image, whose size is ARENA_SIZE.
+            If you blit every object on the screen from scratch at every tick,
+            you are repeating a lot amount of work, since the background is not
+            going to changed throughout the whole game. This issue is getting
+            worse if the map designer wants more details or decorations on the
+            map, since there will be more items on the background, which means
+            more and more large image to be blitted.
+            To solve this issue, we can prepare the background (unchanged parts)
+            once in the initialization of the game. At every tick, we can simply
+            reuse the background.
+            For a concrete example, let the number of the items on the background
+            to be 9. Using the old way to draw the game, we are going to draw 9
+            surface, whose size is ARENA_SIZE (which is the window size), onto the
+            screen. Using the new way, we only need to draw 1 surface. This should
+            be a significant optimization.
+            '''
+            imgs = [
+                (
+                    int(model.map.images[i]),
+                    pg.transform.scale(
+                        pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha(),
+                        const.ARENA_SIZE,
+                    ),
+                )
+                for i in model.map.images
+            ]
+            imgs.sort(key=lambda x: x[0])
+
+            background = pg.Surface(const.ARENA_SIZE)
+            for _, img in imgs:
+                background.blit(img, (0, 0))
+
+            return imgs[0][0], background
+
+        self.background_image = prepare_background()
 
         picture = pg.image.load(const.PICTURES_PATH[const.Scene.SCORE_BOARD]).convert_alpha()
         self.pictures[const.Scene.SCORE_BOARD] = crop(
@@ -335,8 +368,7 @@ class GraphicalView:
             objects.append(Object(coord[1], const.ObjectType.PATRONUS,
                                   patronus.position, None, detail))
 
-        for row, image in self.background_images:
-            objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(0, 0), None, (image,)))
+        objects.append(Object(self.background_image[0], const.ObjectType.MAP, pg.Vector2(0, 0), None, (self.background_image[1],)))
 
         objects.sort(key=lambda x: x.y)
         half_sec = model.timer // (const.FPS // 2)
@@ -367,7 +399,7 @@ class GraphicalView:
                     self.screen.blit(self.wearing_sortinghat_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.REMOVED_SORTINGHAT:
                     width = self.shining_player_image[obj.image_index][direction].get_width()
-                    height = (self.character_image[obj.image_index][direction].get_height() + 
+                    height = (self.character_image[obj.image_index][direction].get_height() +
                               self.shining_player_image[obj.image_index][direction].get_height()) / 2
                     ul = [x - y for x, y in zip(obj.position, [width/2, height])]
                     self.screen.blit(self.shining_player_image[obj.image_index][direction], ul)
