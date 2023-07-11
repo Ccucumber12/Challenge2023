@@ -205,6 +205,7 @@ class GraphicalView:
             loaded_image = cv2.resize(loaded_image, const.ARENA_SIZE, interpolation=cv2.INTER_AREA)
             x, y, w, h = cv2.boundingRect(loaded_image[..., 3])
             picture = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
+            picture = pg.transform.scale(picture, const.ARENA_SIZE)
             picture = picture.subsurface(pg.Rect(x, y, w, h))
             self.background_images.append((int(model.map.images[i]), picture, (x, y)))
 
@@ -222,6 +223,8 @@ class GraphicalView:
         self.pictures[const.Scene.ENDGAME] = crop(
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         self.fog = Fog(self.screen, self.pictures[const.Scene.FOG], const.FOG_SPEED)
+        # print(self.pictures[const.SCENE.FOG].get_width())
+        # print(self.pictures[const.SCENE.FOG].get_height())
 
         # Animation
         picture = pg.image.load(const.PICTURES_PATH[const.OtherPictures.PATRONUS]).convert_alpha()
