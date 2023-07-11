@@ -55,7 +55,6 @@ def main():
     if args.mute:
         ev_manager.post(event_manager.events.EventMuteMusic("BGM"))
         ev_manager.post(event_manager.events.EventMuteMusic("effect"))
-    print(args)
 
     # Main loop
     model.run()

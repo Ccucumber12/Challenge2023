@@ -50,3 +50,12 @@ def move_point_in_arena(source: Vector2, target: Vector2):
         target = intersect(source, target, Vector2(0, height), Vector2(width, height))
 
     return target
+
+
+def get_full_exception(exception: Exception) -> str:
+    exception_cls = exception.__class__
+    exception_module = exception_cls.__module__
+    if exception_module == 'builtins':
+        return exception_cls.__qualname__
+    else:
+        return exception_module + '.' + exception_cls.__qualname__

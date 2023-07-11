@@ -7,10 +7,11 @@ import traceback
 from pygame import Vector2
 
 import const
+import error
 import instances_manager
+import util
 from api.api import (EffectType, Ghost, GroundType, Helper, Item, ItemType, Patronus, Player,
                      Portkey, SortKey, _set_helper)
-from error import TimeoutError, WrongTypeError
 from event_manager.events import EventPlayerMove
 
 
@@ -203,7 +204,7 @@ class Timer():
         self.system = platform.system()
         if self.system != 'Windows':
             def handler(sig, frame):
-                raise TimeoutError()
+                raise error.TimeoutError()
 
             signal.signal(signal.SIGALRM, handler)
         self.timer = None
@@ -246,7 +247,7 @@ def init(ai_file):
             __timer.cancel_timer()
             print(f"Exception in ai of player {i}.")
             if model.no_error_message:
-                print(e)
+                print(f'{util.get_full_exception(e)}: {e}')
             else:
                 print(traceback.format_exc())
             raise
@@ -263,12 +264,12 @@ def call_ai(player_id: int):
         destination = __ai[player_id].player_tick()
         __timer.cancel_timer()
         if type(destination) != Vector2:
-            raise WrongTypeError()
+            raise error.WrongTypeError()
     except Exception as e:
         __timer.cancel_timer()
         print(f"Exception in ai of player {player_id}.")
         if model.no_error_message:
-            print(e)
+            print(f'{util.get_full_exception(e)}: {e}')
         else:
             print(traceback.format_exc())
         return
