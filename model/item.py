@@ -101,7 +101,7 @@ class Item:
                         for ghost in model.ghosts:
                             vec = ghost.position - self.position
                             if vec.length() <= const.PATRONUS_SHOCKWAVE_RADIUS:
-                                impact_power = const.PATRONUS_SHOCKWAVE_IMPACT * (vec.length() / const.PATRONUS_SHOCKWAVE_RADIUS)
+                                impact_power = const.PATRONUS_SHOCKWAVE_IMPACT * (1 - vec.length() / const.PATRONUS_SHOCKWAVE_RADIUS)
                                 vec.scale_to_length(impact_power)
                                 ghost.velocity += vec
                     for i in const.EffectType:

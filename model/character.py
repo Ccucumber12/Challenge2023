@@ -505,9 +505,15 @@ class Ghost(Character):
         return ret
     
     def update_velocity(self, model):
-        new_position = self.position + self.velocity
-        if model.map.get_type(new_position) != const.MAP_OBSTACLE:
-            self.position += self.velocity
+        for degree in range(100):
+            new_position = self.position + self.velocity.rotate(degree)
+            if model.map.get_type(new_position) != const.MAP_OBSTACLE:
+                self.position = new_position
+                break
+            new_position = self.position + self.velocity.rotate(-degree)
+            if model.map.get_type(new_position) != const.MAP_OBSTACLE:
+                self.position = new_position
+                break
         self.velocity *= 0.9
 
     def tick(self):
