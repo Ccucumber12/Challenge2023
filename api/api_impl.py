@@ -243,6 +243,7 @@ def init(ai_file):
             __ai[i] = m.TeamAI()
             timer.cancel_timer()
         except Exception:
+            timer.cancel_timer()
             print(f"Exception in ai of player {i}.")
             print(traceback.format_exc())
             raise
