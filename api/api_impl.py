@@ -2,6 +2,7 @@ import importlib
 import platform
 import signal
 import threading
+import traceback
 
 import pygame as pg
 from pygame import Vector2
@@ -10,6 +11,7 @@ import const
 import instances_manager
 from api.api import (EffectType, Ghost, GroundType, Helper, Item, ItemType, Patronus, Player,
                      Portkey, SortKey, _set_helper)
+from error import TimeoutError, WrongTypeError
 from event_manager.events import EventPlayerMove
 
 
@@ -202,8 +204,8 @@ def init(ai_file):
         file = 'ai.' + ai_file[i]
         try:
             m = importlib.import_module(file)
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
             raise
         __ai[i] = m.TeamAI()
     system = platform.system()
@@ -235,9 +237,9 @@ def call_ai(player_id: int):
             timer.cancel()
         if type(destination) != Vector2:
             raise WrongTypeError()
-    except Exception as e:
+    except Exception:
         print(f"Exception in ai of player {player_id}.")
-        print(e)
+        print(traceback.format_exc())
         return
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
@@ -246,11 +248,3 @@ def call_ai(player_id: int):
         EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
 
 
-class TimeoutError(Exception):
-    def __str__(self) -> str:
-        return "function running out of time"
-
-
-class WrongTypeError(Exception):
-    def __str__(self) -> str:
-        return "unexpected return value type"
