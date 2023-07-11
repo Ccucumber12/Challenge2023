@@ -96,6 +96,12 @@ class Item:
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
                 else:
+                    if self.type == const.ItemType.PATRONUS:
+                        for ghost in model.ghosts:
+                            vec = ghost.position - self.position
+                            if vec.length() <= const.PATRONUS_SHOCKWAVE_RADIUS:
+                                vec.scale_to_length(const.PATRONUS_SHOCKWAVE_IMPACT)
+                                ghost.velocity += vec
                     for i in const.EffectType:
                         if i.name == self.type.name:
                             player.set_effect(i)
