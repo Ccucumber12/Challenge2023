@@ -19,7 +19,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name, ai):
+    def __init__(self, map_name, ai, show_ai_target):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -30,6 +30,7 @@ class GameEngine:
         self.map = load_map(os.path.join(const.MAP_DIR, map_name))
         self.timer = 0
         self.ai = ai
+        self.show_ai_target = show_ai_target
         # print(ai)
 
     @property

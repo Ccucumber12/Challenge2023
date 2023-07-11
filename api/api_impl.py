@@ -192,6 +192,11 @@ class HelperImpl(Helper):
 
 __helper_impl = HelperImpl()
 __ai = [None] * 4
+__last_target = [None] * 4
+
+
+def get_last_target(player_id):
+    return __last_target[player_id]
 
 
 def init(ai_file):
@@ -217,6 +222,7 @@ def init(ai_file):
 
 
 def call_ai(player_id: int):
+    __last_target[player_id] = None
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
@@ -241,6 +247,7 @@ def call_ai(player_id: int):
         print(f"Exception in ai of player {player_id}.")
         print(traceback.format_exc())
         return
+    __last_target[player_id] = destination
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
