@@ -299,7 +299,7 @@ class Player(Character):
             model.patronus_counter += 1
             for ghost in model.ghosts:
                 while ghost.prey == self:
-                    ghost.choose_prey(1)
+                    ghost.choose_prey(1, -1)
 
     def tick(self):
         """
@@ -476,15 +476,16 @@ class Ghost(Character):
             self.wander_pos = model.map.get_random_pos(const.GHOST_RADIUS)
         self.move(self.pathfind(*self.wander_pos) - self.position)
 
-    def choose_prey(self, randomness):
+    def choose_prey(self, randomness, distance):
         #randomness: a real number which denotes how much randomness affects the result
+        #distance: 
         model = get_game_engine()
         prey_candidates = (
             [x for x in model.players if not x.dead and not x.is_invisible() and not x.is_invincible()]
             + model.patronuses)
         self.prey = min(
             prey_candidates,
-            key=lambda x: self.get_distance(x) - x.score + randomness * random.uniform(0, 100),
+            key=lambda x: distance * self.get_distance(x) - x.score + randomness * random.uniform(0, 100),
             default=None)
     
     def choose_random_pos(self, randomness):
@@ -520,7 +521,7 @@ class Ghost(Character):
                 self.wander_pos = self.choose_random_pos(0.2)
                 self.teleport(self.wander_pos)
             elif self.prey is None or (self.position - self.prey.position).length() < self.speed * const.GHOST_CHANTING_TIME:
-                self.choose_prey(10)
+                self.choose_prey(10, -1)
                 if self.prey is None:
                     self.teleport(self.choose_random_pos(0.2))
                     return
@@ -532,7 +533,7 @@ class Ghost(Character):
         elif self.state == const.GhostState.CHASE:
             if (self.prey is None or self.prey.dead or self.prey.is_invisible()
                    or self.prey.is_invincible() or self.get_distance(self.prey)):
-                self.choose_prey(1)
+                self.choose_prey(1, 1)
                 if self.prey is None:
                     self.wander()
                     return
