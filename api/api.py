@@ -367,9 +367,17 @@ class Portkey:
     港口鑰。
     """
 
-    def __init__(self, _position: Vector2, _target: Vector2):
+    def __init__(self, _id, _position: Vector2, _target: Vector2):
+        self.__id = _id
         self.__position = _position.copy()
         self.__target = _target.copy()
+
+    @property
+    def id(self) -> int:
+        """
+        港口鑰編號，每個港口鑰都有不同的編號。
+        """
+        return self.__id
 
     @property
     def position(self) -> Vector2:
@@ -399,7 +407,7 @@ class Helper:
     def get_patronuses(self, sort_key: SortKey = SortKey.ID) -> list[Patronus]:
         pass
 
-    def get_portkeys(self) -> list[Portkey]:
+    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
     def get_nearest_ghost(self) -> Ghost:
@@ -496,13 +504,14 @@ def get_patronuses(sort_key: SortKey = SortKey.ID) -> list[Patronus]:
     return _helper.get_patronuses(sort_key)
 
 
-def get_portkeys() -> list[Portkey]:
+def get_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
     """
     獲得所有港口鑰。
 
-    :return: 包含所有港口鑰的 `list`
+    :returns: 包含所有港口鑰的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照港口鑰編號排序，也就是說，`list` 裡第 `i` 個港口鑰的編號是 `i`
     """
-    return _helper.get_portkeys()
+    return _helper.get_portkeys(sort_key)
 
 
 def get_nearest_ghost() -> Ghost:
