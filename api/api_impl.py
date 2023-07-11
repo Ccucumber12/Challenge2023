@@ -92,8 +92,8 @@ class HelperImpl(Helper):
     def get_portkeys(self) -> list[Portkey]:
         model = instances_manager.get_game_engine()
         map_obj = model.map
-        portkeys = [Portkey(map_obj.convert_cell((i[0], i[1])),
-                            map_obj.convert_cell((i[2], i[3])))
+        portkeys = [Portkey(map_obj.convert_cell(i[0]),
+                            map_obj.convert_cell(i[1]))
                     for i in map_obj.portals]
         return portkeys
 

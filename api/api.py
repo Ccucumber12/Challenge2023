@@ -21,7 +21,7 @@ class GroundType(Enum):
             return GroundType.SLOW
         elif num == 2:
             return GroundType.OBSTACLE
-        elif num == 3:
+        elif num >= 3:
             return GroundType.PORTKEY
         else:
             return None

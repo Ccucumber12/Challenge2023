@@ -80,7 +80,6 @@ class Character:
         Take x and y as the destination, 
         then return the first (x, y) that the character should go to.
         """
-        without = {const.MAP_OBSTACLE, const.MAP_PORTKEY} if type(self) is Player else {const.MAP_OBSTACLE}
 
         def reconstruct_path(parent, current):
             path = []
@@ -146,6 +145,14 @@ class Character:
         grid = Map.map
         start = Map.convert_coordinate(self.position)
 
+        without = {const.MAP_OBSTACLE}
+        if type(self) is Player:
+            for i in range(len(Map.portals)):
+                tmp = const.MAP_PORTKEY_MIN + i
+                if tmp != Map.get_portal_id((x, y)):
+                    without.add(tmp)
+        print(without)
+
         # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
             self.saved_path.pop(0)
@@ -159,7 +166,6 @@ class Character:
             end = Map.get_closest_reachable_cell((x, y), self.position, without)
 
         if len(self.saved_path) == 0:
-            now = datetime.datetime.now()
             path = a_star(grid, start, end)
             self.saved_path = [(path[i][0], path[i][1])
                                for i in range(1, min(len(path), const.CACHE_CELLS+1))]
@@ -273,7 +279,7 @@ class Player(Character):
         model = get_game_engine()
         portal = model.map.get_portal(self.position)
         if portal is not None:
-            self.position = model.map.convert_cell(portal)
+            self.position = portal
             get_event_manager().post(EventPortkey(self.position))
             # print(f"Player {self.player_id} used a portal!")
 

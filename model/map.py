@@ -67,7 +67,11 @@ class Map:
         x, y = self.convert_coordinate(position)
         if self.portkey_map[x][y] == -1:
             return None
-        return self.portals[self.portkey_map[x][y]]
+        return self.convert_cell(self.portals[self.portkey_map[x][y]][1])
+
+    def get_portal_id(self, position):
+        x, y = self.convert_coordinate(position)
+        return self.portkey_map[x][y]
 
     def get_spawn_point(self, num):
         x, y = self.spawn[num]
@@ -179,8 +183,9 @@ def load_map(map_dir):
     name = os.path.basename(os.path.dirname(json_file))
     size = (data['width'], data['height'])
     spawn = [tuple(i) for i in data['spawn']]
-    portals = [tuple(i) for i in data['portals']]
+    portals = []
     ghost_spawn = tuple(data['ghost_spawn'])
+    portkey_cells = [[] for i in range(len(data['portals']))]
 
     with open(map_file) as f:
         rows = csv.reader(f)
@@ -191,9 +196,31 @@ def load_map(map_dir):
         y = 0
         for row in rows:
             for x in range(0, size[0]):
-                map_list[x][y] = min(int(row[x]), const.MAP_PORTKEY)
-                if map_list[x][y] >= const.MAP_PORTKEY:
-                    portkey_map[x][y] = int(row[x]) - const.MAP_PORTKEY
+                map_list[x][y] = int(row[x])
+                if map_list[x][y] >= const.MAP_PORTKEY_MIN:
+                    portkey_map[x][y] = int(row[x]) - const.MAP_PORTKEY_MIN
+                    portkey_cells[portkey_map[x][y]].append((x, y))
             y += 1
+
+    for i in range(len(data['portals'])):
+        sx = 0
+        sy = 0
+        for x, y in portkey_cells[i]:
+            sx += x
+            sy += y
+        sx /= len(data['portals'])
+        sy /= len(data['portals'])
+        ax = -1
+        ay = -1
+
+        def dis(a, b):
+            dx = a[0] - b[0]
+            dy = a[1] - b[1]
+            return dx * dx + dy * dy
+
+        for x, y in portkey_cells[i]:
+            if ax == -1 or dis((ax, ay), (sx, sy)) > dis((x, y), (sx, sy)):
+                ax, ay = x, y
+        portals.append(((ax, ay), (data['portals'][i][0], data['portals'][i][1])))
 
     return Map(name, size, map_list, portals, images, spawn, ghost_spawn, map_dir, portkey_map)
