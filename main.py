@@ -1,7 +1,12 @@
 import argparse
+import os
 import platform
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 import pygame as pg
+
+del os.environ['PYGAME_HIDE_SUPPORT_PROMPT']
 
 import event_manager.events
 import instances_manager

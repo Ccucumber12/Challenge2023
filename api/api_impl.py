@@ -230,8 +230,8 @@ class Timer():
 
 def init(ai_file):
     global __ai
-    global timer
-    timer = Timer()
+    global __timer
+    __timer = Timer()
     _set_helper(__helper_impl)
     for i in const.PlayerIds:
         if ai_file[i] == 'manual':
@@ -239,11 +239,11 @@ def init(ai_file):
         file = 'ai.' + ai_file[i]
         try:
             m = importlib.import_module(file)
-            timer.set_timer(1, i)
+            __timer.set_timer(1, i)
             __ai[i] = m.TeamAI()
-            timer.cancel_timer()
+            __timer.cancel_timer()
         except Exception:
-            timer.cancel_timer()
+            __timer.cancel_timer()
             print(f"Exception in ai of player {i}.")
             print(traceback.format_exc())
             raise
@@ -255,13 +255,13 @@ def call_ai(player_id: int):
         return
     __helper_impl._current_player = player_id
     try:
-        timer.set_timer(1 / (5 * const.FPS), player_id)
+        __timer.set_timer(1 / (5 * const.FPS), player_id)
         destination = __ai[player_id].player_tick()
-        timer.cancel_timer()
+        __timer.cancel_timer()
         if type(destination) != Vector2:
             raise WrongTypeError()
     except Exception:
-        timer.cancel_timer()
+        __timer.cancel_timer()
         print(f"Exception in ai of player {player_id}.")
         print(traceback.format_exc())
         return
