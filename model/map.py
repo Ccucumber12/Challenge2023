@@ -42,9 +42,9 @@ class Map:
             without.add(const.MAP_PORTKEY_MIN + i)
         self.find_closest_cells(without)
         for i in range(len(self.portals)):
-            without.remove(i)
+            without.remove(const.MAP_PORTKEY_MIN + i)
             self.find_closest_cells(without)
-            without.add(i)
+            without.add(const.MAP_PORTKEY_MIN + i)
 
     def convert_coordinate(self, position: tuple | pg.Vector2) -> tuple:
         """
