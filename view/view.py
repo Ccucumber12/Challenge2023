@@ -432,10 +432,10 @@ class GraphicalView:
             objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(position), None, (image,)))
 
         objects.sort(key=lambda x: x.y)
-        half_sec = model.timer // (const.FPS // 2)
+        # half_sec = model.timer // (const.FPS // 2)
         quater_sec = model.timer // (const.FPS // 4)
 
-        def render_picture(image_dic: dict, index, direction):
+        def render_picture(image_dic: dict, index, direction, obj):
             width = image_dic[index][direction].get_width()
             height = image_dic[index][direction].get_height()
             ul = [x - y for x, y in zip(obj.position, [width/2, height])]
@@ -458,7 +458,7 @@ class GraphicalView:
                     self.screen.blit(self.character_image[obj.image_index][direction], ul)
                 elif dead:
                     if direction == const.CharacterDirection.DOWN or direction == const.CharacterDirection.UP:
-                        render_picture(self.dead_player_image, obj.image_index, direction)
+                        render_picture(self.dead_player_image, obj.image_index, direction, obj)
                     if direction == const.CharacterDirection.LEFT:
                         width = self.dead_player_image[obj.image_index][direction].get_width()
                         height = self.dead_player_image[obj.image_index][direction].get_height()
@@ -523,7 +523,7 @@ class GraphicalView:
                 ul = [x - y for x, y in zip(obj.position,
                                             [const.ITEM_RADIUS, const.ITEM_RADIUS*2])]
                 # It's acually is a rectangle.
-                vanish_time = obj.detail[0]
+                # vanish_time = obj.detail[0]
                 # if half_sec % 2 == 0 or model.timer + 5*const.FPS < vanish_time:
                 #     self.screen.blit(self.pictures[obj.image_index], obj.position)
                 # else:
@@ -550,7 +550,7 @@ class GraphicalView:
         for animation in animations:
             effect = animation[0]
             victim = animation[1]
-            if effect.tick() == True:
+            if effect.tick():
                 self.petrification_animation.remove(animation)
                 get_event_manager().post(EventPetrify(victim))
                 continue

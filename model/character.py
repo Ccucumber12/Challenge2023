@@ -1,4 +1,3 @@
-import datetime
 import heapq
 import random
 from math import ceil
@@ -57,7 +56,7 @@ class Character:
             direction = self.speed * direction.normalize()
 
         # If it hits an obstacle, try a smaller distance
-        for attempt in range(3):
+        for _ in range(3):
             # Calculate new position
             new_position = self.position + direction
 
@@ -145,7 +144,7 @@ class Character:
         start = Map.convert_coordinate(self.position)
 
         without = {const.MAP_OBSTACLE}
-        if type(self) is Player:
+        if isinstance(self, Player):
             for i in range(len(Map.portals)):
                 tmp = const.MAP_PORTKEY_MIN + i
                 if tmp != Map.get_portal_id((x, y)):
@@ -220,8 +219,10 @@ class Player(Character):
         self.unfreeze_timer = const.GHOST_KILL_ANIMATION_TIME
 
     def iscaught(self):
+        """
+        Return if the player is caught by one of the ghosts
+        """
         model = get_game_engine()
-        """Return if the player is caught by one of the ghosts"""
         if self.dead or self.is_invincible():
             # If the player has sortinghat and is invincible, the effect of sortinghat won't triggered.
             # Even if the player is invisible, the ghost can still catch him.
@@ -361,9 +362,9 @@ class Patronus(Character):
 
     def tick(self):
         # Look for the direction of the player it is chasing
-        if self.chasing == None or self.chasing.dead or self.chasing.effect == const.EffectType.CLOAK:
+        if self.chasing is None or self.chasing.dead or self.chasing.effect == const.EffectType.CLOAK:
             self.chasing = self.choose_target()
-        if self.chasing != None:
+        if self.chasing is not None:
             self.chase()
         if self.iscaught():
             self.dead = True
@@ -393,6 +394,7 @@ class Ghost(Character):
         self.wander_pos: pg.Vector2 = util.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
         self.unfreeze_timer = 0
+        self.after_freeze_position = None
         self.cannot_see = [-1 for i in range(4)]
 
         get_game_engine().register_user_event(1, self.chase_handler)
@@ -512,7 +514,6 @@ class Ghost(Character):
             if self.unfreeze_timer == 0:
                 self.position = self.after_freeze_position
             return
-        model = get_game_engine()
 
         if self.teleport_chanting:
             return

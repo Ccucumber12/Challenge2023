@@ -1,14 +1,13 @@
+import os
 import csv
 import json
-import os
+from queue import Queue
+import random
 
 import pygame as pg
 
 import const
 import util
-import random
-
-from queue import Queue
 
 
 class Map:
