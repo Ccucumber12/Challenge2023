@@ -167,6 +167,24 @@ class HelperImpl(Helper):
         model = instances_manager.get_game_engine()
         return model.map.name
 
+    def find_possible_portkeys(self, source: Vector2 | tuple[float, float],
+                               target: Vector2 | tuple[float, float],
+                               sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+        source = HelperImpl.__check_position(source, 'find_possible_portkeys', 'source')
+        target = HelperImpl.__check_position(target, 'find_possible_portkeys', 'target')
+        candidates = []
+        for i in self.get_portkeys():
+            if self.connected(source, i.position) and self.connected(target, i.target):
+                candidates.append(i)
+        self.__sort_list(sort_key, candidates, 'find_possible_portkeys')
+        return candidates
+
+    def find_possible_portkeys_to(self, target: Vector2 | tuple[float, float],
+                                  sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+        target = HelperImpl.__check_position(target, 'find_possible_portkeys_to', 'target')
+        self.__check_sort_key(sort_key, 'find_possible_portkeys_to')
+        return self.find_possible_portkeys(self.get_myself().position, target)
+
 
 __helper_impl = HelperImpl()
 __ai = [None] * 4
