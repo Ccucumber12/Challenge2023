@@ -531,10 +531,11 @@ class Ghost(Character):
             return
         model = get_game_engine()
         
-        self.update_velocity(model)
-
         if self.teleport_chanting:
             return
+
+        self.update_velocity(model)
+
         if self.teleport_available:
             if self.state == const.GhostState.WANDER:
                 self.wander_pos = self.choose_random_pos(0.2)
