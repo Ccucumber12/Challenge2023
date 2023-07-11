@@ -261,6 +261,7 @@ def call_ai(player_id: int):
         if type(destination) != Vector2:
             raise WrongTypeError()
     except Exception:
+        timer.cancel_timer()
         print(f"Exception in ai of player {player_id}.")
         print(traceback.format_exc())
         return
