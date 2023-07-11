@@ -1,4 +1,5 @@
 import os
+import cv2
 
 import pygame as pg
 from pygame import Vector2
@@ -200,9 +201,12 @@ class GraphicalView:
 
         self.background_images = []
         for i in model.map.images:
-            loaded_image = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
-            loaded_image = pg.transform.scale(loaded_image, const.ARENA_SIZE)
-            self.background_images.append((int(model.map.images[i]), loaded_image))
+            loaded_image = cv2.imread(os.path.join(model.map.map_dir, i), cv2.IMREAD_UNCHANGED)
+            loaded_image = cv2.resize(loaded_image, const.ARENA_SIZE, interpolation=cv2.INTER_AREA)
+            x, y, w, h = cv2.boundingRect(loaded_image[..., 3])
+            picture = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
+            picture = picture.subsurface(pg.Rect(x, y, w, h))
+            self.background_images.append((int(model.map.images[i]), picture, (x, y)))
 
         picture = pg.image.load(const.PICTURES_PATH[const.Scene.SCORE_BOARD]).convert_alpha()
         self.pictures[const.Scene.SCORE_BOARD] = crop(
@@ -423,8 +427,8 @@ class GraphicalView:
             detail = (portal, )
             objects.append(Object(coord[1], const.ObjectType.PORTAL, portal.position, None, detail))
 
-        for row, image in self.background_images:
-            objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(0, 0), None, (image,)))
+        for row, image, position in self.background_images:
+            objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(position), None, (image,)))
 
         objects.sort(key=lambda x: x.y)
         half_sec = model.timer // (const.FPS // 2)
