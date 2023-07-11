@@ -382,7 +382,7 @@ class Portkey:
     @property
     def position(self) -> Vector2:
         """
-        港口鑰位置。
+        港口鑰位置。事實上每一個港口鑰都是一個不規則形狀區域，只要進入這個區域就會觸發，這個位置只是其中的一個點。
         """
         return self.__position
 
