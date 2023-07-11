@@ -36,6 +36,16 @@ class Map:
         self.number_of_connected_components = dict()
         self.portkey_map = portkey_map
 
+        without = {const.MAP_OBSTACLE}
+        self.find_closest_cells(without)
+        for i in range(len(self.portals)):
+            without.add(const.MAP_PORTKEY_MIN + i)
+        self.find_closest_cells(without)
+        for i in range(len(self.portals)):
+            without.remove(i)
+            self.find_closest_cells(without)
+            without.add(i)
+
     def convert_coordinate(self, position: tuple | pg.Vector2) -> tuple:
         """
         Return the coordinate based on self.size of position.
@@ -82,7 +92,9 @@ class Map:
         return self.convert_cell((x, y))
 
     def find_connected_components(self, without):
+        without = frozenset(without)
         width, height = self.size
+
         def find_connected_component(sx, sy, ccid):
             q = Queue()
             q.put((sx, sy))
@@ -119,14 +131,14 @@ class Map:
         if without is None:
             without = {const.MAP_OBSTACLE}
         without = frozenset(without)
-        if without not in self.connected_component:
-            self.find_connected_components(without)
+        assert(without in self.connected_component)
         g1 = self.convert_coordinate(p1)
         g2 = self.convert_coordinate(p2)
         return self.connected_component[without][g1[0]][g1[1]] \
             == self.connected_component[without][g2[0]][g2[1]]
 
     def find_closest_cells(self, without):
+        without = frozenset(without)
         if without not in self.connected_component:
             self.find_connected_components(without)
 
@@ -163,8 +175,7 @@ class Map:
         if without is None:
             without = {const.MAP_OBSTACLE}
         without = frozenset(without)
-        if without not in self.closest_cell:
-            self.find_closest_cells(without)
+        assert(without in self.closest_cell)
         g = self.convert_coordinate(p)
         gs = self.convert_coordinate(source)
         cc = self.connected_component[without][gs[0]][gs[1]]
