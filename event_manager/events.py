@@ -142,6 +142,16 @@ class EventGhostTeleport(BaseEvent):
         return f'{self.name} => ghost_id {self.ghost_id} teleport from {self.position} to {self.destination}'
 
 
+class EventPatronusShockwave(BaseEvent):
+    name = 'Patronus shockwave event'
+
+    def __init__(self, position: pg.Vector2):
+        super().__init__()
+        self.position = position
+
+    def __str__(self):
+        return f'{self.name} => shockwave occurred at {self.position}'
+
 class EventSortinghat(BaseEvent):
     name = 'Sortinghat event'
 

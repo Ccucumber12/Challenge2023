@@ -504,8 +504,7 @@ class Ghost(Character):
             default=None)
         return ret
     
-    def update_velocity(self):
-        model = instances_manager.get_game_engine()
+    def update_velocity(self, model):
         new_position = self.position + self.velocity
         if model.map.get_type(new_position) != const.MAP_OBSTACLE:
             self.position += self.velocity
@@ -524,7 +523,7 @@ class Ghost(Character):
             return
         model = get_game_engine()
         
-        self.update_velocity()
+        self.update_velocity(model)
 
         if self.teleport_chanting:
             return
