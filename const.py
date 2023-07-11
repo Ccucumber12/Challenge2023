@@ -66,6 +66,10 @@ class GhostSkins(Enum):
     KILLING = 1
 
 # patronus
+PATRONUS_SHOCKWAVE_IMPACT = 40
+PATRONUS_SHOCKWAVE_RADIUS = 300
+PATRONUS_SHOCKWAVE_ANIMATION_DURATION = 0.5 * FPS
+PATRONUS_SHOCKWAVE_COLOR = pg.Color(199, 220, 252)
 PATRONUS_SPEED = (GHOST_INIT_SPEED + GHOST_MAX_SPEED * 2) / 3
 PATRONUS_RADIUS = PLAYER_RADIUS
 
@@ -103,7 +107,8 @@ class EffectType(Enum):
     SORTINGHAT = auto()
     REMOVED_SORTINGHAT = auto()
 
-ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond to ITEM_SET
+# ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond to ITEM_SET
+ITEM_GENERATE_PROBABILITY = [0, 0, 1, 0, 0]  # should correspond to ITEM_SET
 # The probability of golden snitch should be set to ZERO.
 ITEM_DURATION = {
     EffectType.PATRONUS: 15 * FPS,

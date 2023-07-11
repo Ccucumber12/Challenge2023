@@ -6,7 +6,7 @@ from math import sin, pi
 
 import const
 import util
-from event_manager.events import EventCastPetrification
+from event_manager.events import (EventCastPetrification, EventPatronusShockwave)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -96,6 +96,14 @@ class Item:
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
                 else:
+                    if self.type == const.ItemType.PATRONUS:
+                        get_event_manager().post(EventPatronusShockwave(self.position))
+                        for ghost in model.ghosts:
+                            vec = ghost.position - self.position
+                            if vec.length() <= const.PATRONUS_SHOCKWAVE_RADIUS:
+                                impact_power = const.PATRONUS_SHOCKWAVE_IMPACT * (1 - vec.length() / const.PATRONUS_SHOCKWAVE_RADIUS)
+                                vec.scale_to_length(impact_power)
+                                ghost.velocity += vec
                     for i in const.EffectType:
                         if i.name == self.type.name:
                             player.set_effect(i)

@@ -380,11 +380,14 @@ class Ghost(Character):
         # State as defined by Const.GHOST_STATE
         self.state = const.GhostState.CHASE
 
+        # Velocity for patronus
+        self.velocity = pg.Vector2(0, 0)
+
         # teleport
         self.teleport_available = True
         self.teleport_cd = teleport_cd
         self.teleport_chanting = False  # if it is chantting
-        self.teleport_distination = pg.Vector2(0, 0)
+        self.teleport_destination = pg.Vector2(0, 0)
         self.prey = None
         self.__teleport_time = 0
         self.__teleport_last = -self.teleport_cd
@@ -427,19 +430,19 @@ class Ghost(Character):
             return
         self.teleport_chanting = True
         self.teleport_available = False
-        self.teleport_distination = destination
+        self.teleport_destination = destination
         model = get_game_engine()
         self.__teleport_last = model.timer
         self.__teleport_time = model.timer + const.GHOST_CHANTING_TIME
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
         self.teleport_cd = max(12*const.FPS, self.teleport_cd - 2 * const.FPS)
-        get_event_manager().post(EventGhostTeleportChant(self.ghost_id, self.position, self.teleport_distination))
+        get_event_manager().post(EventGhostTeleportChant(self.ghost_id, self.position, self.teleport_destination))
 
     def teleport_handler(self):
         self.teleport_chanting = False
-        self.position = self.teleport_distination
-        get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_distination))
+        self.position = self.teleport_destination
+        get_event_manager().post(EventGhostTeleport(self.ghost_id, self.position, self.teleport_destination))
 
     def teleport_cd_handler(self):
         self.teleport_available = True
@@ -502,6 +505,18 @@ class Ghost(Character):
             key=lambda x: -sum([(g.position - x).length() for g in ghosts]) + randomness * random.uniform(0, 100),
             default=None)
         return ret
+    
+    def update_velocity(self, model):
+        for degree in range(100):
+            new_position = self.position + self.velocity.rotate(degree)
+            if model.map.get_type(new_position) != const.MAP_OBSTACLE:
+                self.position = new_position
+                break
+            new_position = self.position + self.velocity.rotate(-degree)
+            if model.map.get_type(new_position) != const.MAP_OBSTACLE:
+                self.position = new_position
+                break
+        self.velocity *= 0.9
 
     def tick(self):
         """
@@ -514,6 +529,9 @@ class Ghost(Character):
             if self.unfreeze_timer == 0:
                 self.position = self.after_freeze_position
             return
+        model = get_game_engine()
+        
+        self.update_velocity(model)
 
         if self.teleport_chanting:
             return

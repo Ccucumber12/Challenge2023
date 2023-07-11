@@ -67,7 +67,7 @@ class HelperImpl(Helper):
         model = instances_manager.get_game_engine()
         ghosts = []
         for i in model.ghosts:
-            destination = i.teleport_distination if i.teleport_chanting else Vector2(-1, -1)
+            destination = i.teleport_destination if i.teleport_chanting else Vector2(-1, -1)
             after = i.teleport_after if i.teleport_chanting else -1
             cooldown = i.teleport_cooldown_remain
             ghost = Ghost(i.ghost_id,

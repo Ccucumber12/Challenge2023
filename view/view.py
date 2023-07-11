@@ -53,6 +53,7 @@ class GraphicalView:
         # animations
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
         self.petrification_animation: list[CastMagicParticleEffect] = []
+        self.patronus_shockwave_animations = []
         self.sortinghat_animations = []
         self.ghost_kill_animations = []
 
@@ -314,6 +315,7 @@ class GraphicalView:
         ev_manager.register_listener(EventGhostTeleportChant,
                                      self.add_ghost_teleport_chanting_animation)
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
+        ev_manager.register_listener(EventPatronusShockwave, self.add_patronus_shockwave_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
         ev_manager.register_listener(EventTimesUp, self.register_places)
         ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
@@ -338,6 +340,10 @@ class GraphicalView:
             CastMagicParticleEffect(event.attacker, event.victim, const.PETRIFICATION_ANIMATION_SPEED,
                                     const.PETRIFICATION_ANIMATION_COLOR,
                                     const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
+
+    def add_patronus_shockwave_animation(self, event):
+        model = get_game_engine()
+        self.patronus_shockwave_animations.append((event.position, model.timer + const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION))
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
@@ -556,6 +562,15 @@ class GraphicalView:
                 continue
             for particle in effect.particles:
                 pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
+        
+        # Patronus shockwave animation
+        animations = self.patronus_shockwave_animations.copy()
+        for animation in animations:
+            position = animation[0]
+            disappear_time = animation[1]
+            if model.timer > disappear_time:
+                self.patronus_shockwave_animations.remove(animation)
+            pg.draw.circle(self.screen, const.PATRONUS_SHOCKWAVE_COLOR, position, radius=const.PATRONUS_SHOCKWAVE_RADIUS, width=10)
 
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()
