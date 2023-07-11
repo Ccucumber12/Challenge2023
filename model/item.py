@@ -23,7 +23,6 @@ class Item:
 
         if self.type == const.ItemType.GOLDEN_SNITCH:
             model_map = get_game_engine().map
-            self.golden_snitch_positions = [model_map.get_random_pos(1) for i in range(100)]
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
@@ -35,7 +34,7 @@ class Item:
             return min((player.position - self.position).length() for player in model.players)
 
         def getweight(pos: pg.Vector2):
-            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[1] / 2)).length() * 2
+            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[1] / 2)).length() * 1
             dis = (pos - self.position).length()
             if dis == 0:
                 return 10000
@@ -54,8 +53,10 @@ class Item:
 
             return ret
         if self.golden_snitch_goal is None or mindis() < 100:
-            weights = [getweight(pos) for pos in self.golden_snitch_positions]
-            self.golden_snitch_goal = self.golden_snitch_positions[weights.index(min(weights))]
+            golden_snitch_positions = [pg.Vector2(random.randint(0, const.ARENA_SIZE[0]),
+                      random.randint(0, const.ARENA_SIZE[1])) for i in range(30)]
+            weights = [getweight(pos) for pos in golden_snitch_positions]
+            self.golden_snitch_goal = golden_snitch_positions[weights.index(min(weights))]
 
         # print("weight", getweight(self.golden_snitch_goal))
         if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED:
