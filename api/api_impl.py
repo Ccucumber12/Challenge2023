@@ -232,6 +232,7 @@ def init(ai_file):
     global __timer
     __timer = Timer()
     _set_helper(__helper_impl)
+    model = instances_manager.get_game_engine()
     for i in const.PlayerIds:
         if ai_file[i] == 'manual':
             continue
@@ -241,15 +242,19 @@ def init(ai_file):
             __timer.set_timer(1, i)
             __ai[i] = m.TeamAI()
             __timer.cancel_timer()
-        except Exception:
+        except Exception as e:
             __timer.cancel_timer()
             print(f"Exception in ai of player {i}.")
-            print(traceback.format_exc())
+            if model.no_error_message:
+                print(e)
+            else:
+                print(traceback.format_exc())
             raise
 
 
 def call_ai(player_id: int):
     __last_target[player_id] = None
+    model = instances_manager.get_game_engine()
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
@@ -259,13 +264,15 @@ def call_ai(player_id: int):
         __timer.cancel_timer()
         if type(destination) != Vector2:
             raise WrongTypeError()
-    except Exception:
+    except Exception as e:
         __timer.cancel_timer()
         print(f"Exception in ai of player {player_id}.")
-        print(traceback.format_exc())
+        if model.no_error_message:
+            print(e)
+        else:
+            print(traceback.format_exc())
         return
     __last_target[player_id] = destination
-    model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
     event_manager.post(

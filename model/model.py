@@ -19,7 +19,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name, ai, show_ai_target):
+    def __init__(self, map_name, ai, show_ai_target, no_error_message):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -31,6 +31,7 @@ class GameEngine:
         self.timer = 0
         self.ai = ai
         self.show_ai_target = show_ai_target
+        self.no_error_message = no_error_message
 
     @property
     def state(self):
