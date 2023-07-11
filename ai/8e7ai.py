@@ -4,31 +4,43 @@ from api.api import *
 import random
 import math
 
-
 class TeamAI(AI):
 
     def __init__(self):
-        tmp = [Vector2(random.uniform(0, 1200), random.uniform(0, 800)) for i in range(300)]
         self.candidates = []
-        for i in tmp:
+        while len(self.candidates) < 100:
+            i = Vector2(random.uniform(0, 1200), random.uniform(0, 800))
             if get_ground_type(i) != GroundType.OBSTACLE:
                 self.candidates.append(i)
+        self.portkey_eval = None
     
     def get_close_positions(self):
         return [pos for pos in self.candidates if distance(pos, get_myself().position) < 350] 
     def evaluate_position(self, pos):
         #tries to find the most "empty" position that is nearby
+        portkey = False
+        if not connected_to(pos):
+            if self.portkey_eval is not None:
+                return self.portkey_eval
+            portkey = True
+            pos = find_possible_portkeys_to(pos)[0].target
         ghosts = get_ghosts()
-        #ret = math.sqrt(distance(pos, get_myself().position)) * 2
         ret = 0
         if get_ground_type(pos) == GroundType.OBSTACLE:
             ret += 10000
+        same_side = False
         for ghost in ghosts:
             ghostpos = ghost.position
+            if connected(pos, ghostpos):
+                same_side = True
             if ghost.chanting: 
                 ghostpos = ghost.teleport_destination
             dis = distance(ghostpos, pos)
             ret -= min(500, dis) + min(200, dis)
+        if same_side is False:
+            ret -= 10000
+        if portkey:
+            self.portkey_eval = ret
         #ret -= distance(get_myself().position, get_nearest_player().position)
         return ret
     
@@ -73,6 +85,13 @@ class TeamAI(AI):
     def player_tick(self) -> Vector2:
         pos = get_myself().position
         vec = get_nearest_ghost().position - pos
+        self.portkey_eval = None
+
+        def convert_point(p):
+            if connected_to(p):
+                return p
+            else:
+                return find_possible_portkeys_to(p)[0].position
 
         has_golden_snitch = False
         golden_snitch_pos = (0, 0)
@@ -82,20 +101,20 @@ class TeamAI(AI):
                 golden_snitch_pos = i.position
 
         items = get_items()
-        items.sort(key=lambda x: self.evaluate_items(x))
+        best_item = min(items, key=lambda x: self.evaluate_items(x), default=None)
         if get_myself().effect == EffectType.SORTINGHAT:
-            return pos + vec
+            return convert_point(pos + vec)
         if has_golden_snitch and get_myself().effect == EffectType.CLOAK:
             return golden_snitch_pos
         
-        if len(items) > 0 and (distance(items[0].position, pos) < max(vec.length()*0.8, 150) or vec.length() > 450):
-            return items[0].position
+        if best_item is not None and (distance(best_item.position, pos) < max(vec.length()*0.8,150) or vec.length() > 450):
+            return convert_point(best_item.position)
         else:
             if vec.length() < 150 and get_myself().effect == EffectType.CLOAK:
                 return pos - vec
-            if vec.length() < 250:
+            if vec.length() < 250 and not get_myself().dead:
                 ret = min(self.get_close_positions(), key=lambda x: self.evaluate_position(x), 
                         default=None)
             else:
                 ret = min(self.candidates, key=lambda x: self.evaluate_position(x),default=None)
-            return ret
+            return convert_point(ret)
