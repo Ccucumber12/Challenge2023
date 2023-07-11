@@ -1,0 +1,18 @@
+{
+  "width": 150,
+  "height": 100,
+  "spawn": [
+    [20, 33], [27, 69], [128, 49], [116, 26]
+  ],
+  "images": {
+    "background.png": -2,
+    "portkey1-1.png": -1,
+    "portkey2-2.png": 36,
+    "fog.png": 101
+  },
+  "portals": [
+    [[30, 9], [136, 70]],
+    [[100, 34], [27, 80]]
+  ],
+  "ghost_spawn": [144, 95]
+}
