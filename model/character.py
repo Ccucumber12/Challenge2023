@@ -379,7 +379,7 @@ class Ghost(Character):
     def __init__(self, ghost_id, teleport_cd: int, position: pg.Vector2):
         self.ghost_id = ghost_id
 
-        speed = const.GHOST_INIT_SPEED
+        speed = const.GHOST_INIT_SPEED + const.GHOST_NEW_SPEED_BONUS * ghost_id
         super().__init__(position, speed, const.GHOST_RADIUS)
 
         # State as defined by Const.GHOST_STATE
@@ -399,6 +399,8 @@ class Ghost(Character):
         self.wander_pos: pg.Vector2 = util.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
         self.unfreeze_timer = 0
+
+        get_game_engine().register_user_event(1, self.chase_handler)
 
     @property
     def teleport_after(self):
@@ -450,8 +452,7 @@ class Ghost(Character):
         self.state = const.GhostState.CHASE
         self.chase_time = const.GHOST_CHASE_TIME
         model.register_user_event(const.GHOST_CHASE_TIME, self.wander_handler)
-        # Temporary: the speed of ghost will increase by 0.2 coordinate/tick for each wandering period
-        self.speed = min(const.GHOST_MAX_SPEED, self.speed + 0.2)
+        self.speed = min(const.GHOST_MAX_SPEED, self.speed + const.GHOST_SPEED_BONUS)
         # print(f"Ghost speed updated to {self.speed}")
 
     def chase(self):
@@ -511,14 +512,14 @@ class Ghost(Character):
         Determine what ghost should do next.
         Runs every tick.
         """
+        if get_game_engine().timer % 60 == 0:
+            print(f"speed of ghost {self.ghost_id} is {self.speed * const.FPS}")
         if self.unfreeze_timer > 0:
             self.unfreeze_timer -= 1
             if self.unfreeze_timer == 0:
                 self.position = self.after_freeze_position
             return
         model = get_game_engine()
-        if model.timer == 1:
-            self.chase_handler()
 
         if self.teleport_chanting:
             return
