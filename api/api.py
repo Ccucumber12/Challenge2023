@@ -588,7 +588,7 @@ def connected(a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]
 
 def connected_to(position: Vector2 | tuple[float, float]) -> bool:
     """
-    判斷一個位置是否能和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
+    判斷一個位置是否能不透過港口鑰和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
     """
     return _helper.connected_to(position)
 
