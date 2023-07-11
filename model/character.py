@@ -434,6 +434,7 @@ class Ghost(Character):
         self.__teleport_time = model.timer + const.GHOST_CHANTING_TIME
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
+        self.teleport_cd = max(12*const.FPS, self.teleport_cd - 2 * const.FPS)
         get_event_manager().post(EventGhostTeleportChant(self.ghost_id, self.position, self.teleport_distination))
 
     def teleport_handler(self):
