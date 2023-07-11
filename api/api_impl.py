@@ -199,26 +199,53 @@ def get_last_target(player_id):
     return __last_target[player_id]
 
 
+class Timer():
+    def __init__(self):
+        self.system = platform.system()
+        if self.system != 'Windows':
+            def handler(sig, frame):
+                raise TimeoutError()
+
+            signal.signal(signal.SIGALRM, handler)
+        self.timer = None
+        self.for_player_id = None
+
+    def set_timer(self, interval: float, player_id: int):
+        if self.system != 'Windows':
+            signal.setitimer(signal.ITIMER_REAL, interval)
+        else:
+            def timeout_alarm(player_id: int):
+                print(f"The AI of player {player_id} time out!")
+
+            self.timer = threading.Timer(interval=interval, function=timeout_alarm,
+                                         args=[player_id])
+            self.timer.start()
+
+    def cancel_timer(self):
+        if self.system != 'Windows':
+            signal.setitimer(signal.ITIMER_REAL, 0)
+        else:
+            self.timer.cancel()
+
+
 def init(ai_file):
     global __ai
-    global system
+    global timer
+    timer = Timer()
     _set_helper(__helper_impl)
-    for i in range(0, 4):
+    for i in const.PlayerIds:
         if ai_file[i] == 'manual':
             continue
         file = 'ai.' + ai_file[i]
         try:
             m = importlib.import_module(file)
+            timer.set_timer(1, i)
+            __ai[i] = m.TeamAI()
+            timer.cancel_timer()
         except Exception:
+            print(f"Exception in ai of player {i}.")
             print(traceback.format_exc())
             raise
-        __ai[i] = m.TeamAI()
-    system = platform.system()
-    if system != "Windows":
-        def handler(sig, frame):
-            raise TimeoutError()
-
-        signal.signal(signal.SIGALRM, handler)
 
 
 def call_ai(player_id: int):
@@ -226,21 +253,10 @@ def call_ai(player_id: int):
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
-    if system != "Windows":
-        signal.setitimer(signal.ITIMER_REAL, 1 / (6 * const.FPS))
-    else:
-        def timeout_alarm(player_id: int):
-            print(f"The AI of player {player_id} time out!")
-
-        timer = threading.Timer(interval=1 / (5 * const.FPS),
-                                function=timeout_alarm, args=[player_id])
-        timer.start()
     try:
+        timer.set_timer(1 / (5 * const.FPS), player_id)
         destination = __ai[player_id].player_tick()
-        if system != "Windows":
-            signal.setitimer(signal.ITIMER_REAL, 0)
-        else:
-            timer.cancel()
+        timer.cancel_timer()
         if type(destination) != Vector2:
             raise WrongTypeError()
     except Exception:
@@ -253,5 +269,3 @@ def call_ai(player_id: int):
     event_manager = instances_manager.get_event_manager()
     event_manager.post(
         EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
-
-
