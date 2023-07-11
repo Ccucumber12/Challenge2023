@@ -21,6 +21,8 @@ class GroundType(Enum):
             return GroundType.SLOW
         elif num == 2:
             return GroundType.OBSTACLE
+        elif num == 3:
+            return GroundType.PORTKEY
         else:
             return None
 
@@ -35,6 +37,10 @@ class GroundType(Enum):
     OBSTACLE = auto()
     """
     障礙物，不可通行
+    """
+    PORTKEY = auto()
+    """
+    港口鑰，玩家碰到時會傳送，鬼與護法可以正常通行
     """
 
 

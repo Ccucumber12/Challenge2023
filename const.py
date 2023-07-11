@@ -71,6 +71,7 @@ PATRONUS_RADIUS = PLAYER_RADIUS
 MAP_ROAD = 0
 MAP_PUDDLE = 1
 MAP_OBSTACLE = 2
+MAP_PORTKEY = 3
 
 # state machine constants
 

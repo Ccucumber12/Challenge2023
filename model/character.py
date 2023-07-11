@@ -1,3 +1,4 @@
+import datetime
 import heapq
 import random
 from math import ceil
@@ -79,6 +80,8 @@ class Character:
         Take x and y as the destination, 
         then return the first (x, y) that the character should go to.
         """
+        without = {const.MAP_OBSTACLE, const.MAP_PORTKEY} if type(self) is Player else {const.MAP_OBSTACLE}
+
         def reconstruct_path(parent, current):
             path = []
             while current is not None:
@@ -101,9 +104,9 @@ class Character:
                     new_row = cell[0] + dx
                     new_col = cell[1] + dy
                     if (0 <= new_row < rows and 0 <= new_col < cols
-                            and grid[new_row][new_col] != const.MAP_OBSTACLE
-                            and grid[cell[0]][new_col] != const.MAP_OBSTACLE
-                            and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
+                            and grid[new_row][new_col] not in without
+                            and grid[cell[0]][new_col] not in without
+                            and grid[new_row][cell[1]] not in without):
                         neighbors.append((new_row, new_col))
                 return neighbors
 
@@ -142,8 +145,6 @@ class Character:
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
-        closest_cell = Map.closest_cell
-        connected_component = Map.connected_component
 
         # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
@@ -153,11 +154,12 @@ class Character:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
-        if grid[end[0]][end[1]] == const.MAP_OBSTACLE or \
-                not Map.in_same_connected_component(self.position, (x, y)):
-            end = closest_cell[connected_component[start[0]][start[1]]][end[0]][end[1]]
+        if Map.get_type((x, y)) in without or \
+                not Map.in_same_connected_component(self.position, (x, y), without):
+            end = Map.get_closest_reachable_cell((x, y), self.position, without)
 
         if len(self.saved_path) == 0:
+            now = datetime.datetime.now()
             path = a_star(grid, start, end)
             self.saved_path = [(path[i][0], path[i][1])
                                for i in range(1, min(len(path), const.CACHE_CELLS+1))]
