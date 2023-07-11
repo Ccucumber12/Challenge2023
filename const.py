@@ -43,15 +43,16 @@ DIRECTION_TO_VEC2 = {
     'right': pg.Vector2(1, 0),
 }
 GHOST_RADIUS = 30
-GHOST_INIT_SPEED = 130 / FPS
+GHOST_INIT_SPEED = 120 / FPS
 GHOST_MAX_SPEED = 240 / FPS
-GHOST_CHANTING_TIME = 2 * FPS  # chanting time before it teleport
 GHOST_NEW_SPEED_BONUS = 20 / FPS
 GHOST_SPEED_BONUS = 7 / FPS
+GHOST_CHANTING_TIME = 2 * FPS  # chanting time before it teleport
 GHOST_CHANTING_COLOR = pg.Color(79, 48, 114)
 GHOST_WANDER_TIME = 3 * FPS
 GHOST_CHASE_TIME = 10 * FPS
 GHOST_INIT_TP_CD = 25 * FPS
+GHOST_CANNOTSEE = 5 * FPS
 
 class GhostState(IntEnum):
     CHASE = 1
@@ -106,9 +107,9 @@ ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond
 # The probability of golden snitch should be set to ZERO.
 ITEM_DURATION = {
     EffectType.PATRONUS: 15 * FPS,
-    EffectType.CLOAK: 5 * FPS,
-    EffectType.PETRIFICATION: 3 * FPS,
-    EffectType.SORTINGHAT: 10 * FPS,
+    EffectType.CLOAK: 4.5 * FPS,
+    EffectType.PETRIFICATION: 4 * FPS,
+    EffectType.SORTINGHAT: 8 * FPS,
     EffectType.REMOVED_SORTINGHAT: 5 * FPS
 }
 ITEM_LOSE_EFFECT_HINT_TIME = 2*FPS
@@ -123,6 +124,7 @@ ITEM_GENERATE_COOLDOWN = 3 * FPS
 MAX_ITEM_NUMBER = 10
 ITEM_RADIUS = 25
 SORTINGHAT_INVINCIBLE_TIME = 5 * FPS
+SORTINGHAT_STEAL_SCORE_TIME = 3 # in seconds
 GOLDEN_SNITCH_APPEAR_TIME = 120 * FPS
 GOLDEN_SNITCH_SPEED = 210 / FPS
 

@@ -250,7 +250,7 @@ class Player(Character):
                 victim = random.choice(others)
                 get_event_manager().post(EventSortinghat(self.player_id, victim))
                 start_second = ceil(model.timer / const.FPS)
-                for second in range(start_second, start_second + 5):
+                for second in range(start_second, start_second + const.SORTINGHAT_STEAL_SCORE_TIME):
                     minute = second // 60
                     model.players[victim.value].score -= const.PLAYER_ADD_SCORE[minute]
             self.set_effect(const.EffectType.REMOVED_SORTINGHAT)
@@ -355,6 +355,7 @@ class Patronus(Character):
             if self.get_distance(ghost) < (const.PATRONUS_RADIUS + const.GHOST_RADIUS):
                 get_event_manager().post(EventGhostKill(ghost.ghost_id, self.position))
                 ghost.freeze(self.position)
+                ghost.cannot_see[self.owner.player_id] = model.timer + const.GHOST_CANNOTSEE
                 return True
         return False
 
@@ -392,6 +393,7 @@ class Ghost(Character):
         self.wander_pos: pg.Vector2 = util.get_random_pos(const.GHOST_RADIUS)
         self.chase_time = const.GHOST_CHASE_TIME
         self.unfreeze_timer = 0
+        self.cannot_see = [-1 for i in range(4)]
 
         get_game_engine().register_user_event(1, self.chase_handler)
 
@@ -480,7 +482,8 @@ class Ghost(Character):
         #distance: 
         model = get_game_engine()
         prey_candidates = (
-            [x for x in model.players if not x.dead and not x.is_invisible() and not x.is_invincible()]
+            [x for x in model.players if not x.dead and not x.is_invisible()
+             and not x.is_invincible() and self.cannot_see[x.player_id] < model.timer]
             + model.patronuses)
         self.prey = min(
             prey_candidates,
@@ -504,8 +507,6 @@ class Ghost(Character):
         Determine what ghost should do next.
         Runs every tick.
         """
-        if get_game_engine().timer % 60 == 0:
-            pass
         if self.unfreeze_timer > 0:
             self.unfreeze_timer -= 1
             if self.unfreeze_timer == 0:
