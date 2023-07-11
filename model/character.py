@@ -151,7 +151,6 @@ class Character:
                 tmp = const.MAP_PORTKEY_MIN + i
                 if tmp != Map.get_portal_id((x, y)):
                     without.add(tmp)
-        print(without)
 
         # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
