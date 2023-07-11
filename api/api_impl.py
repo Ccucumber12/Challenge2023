@@ -83,17 +83,20 @@ class HelperImpl(Helper):
         model = instances_manager.get_game_engine()
         patronuses = [Patronus(i.patronus_id,
                                i.position,
+                               i.speed,
                                i.owner.player_id)
                       for i in model.patronuses]
         self.__sort_list(sort_key, patronuses, 'get_patronuses')
         return patronuses
 
-    def get_portkeys(self) -> list[Portkey]:
+    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         model = instances_manager.get_game_engine()
         map_obj = model.map
-        portkeys = [Portkey(map_obj.convert_cell((i[0], i[1])),
-                            map_obj.convert_cell((i[2], i[3])))
-                    for i in map_obj.portals]
+        portkeys = [Portkey(i,
+                            map_obj.convert_cell(portal[0]),
+                            map_obj.convert_cell(portal[1]))
+                    for i, portal in zip(range(len(map_obj.portals)), map_obj.portals)]
+        self.__sort_list(sort_key, portkeys, 'get_portkeys')
         return portkeys
 
     def get_nearest_ghost(self) -> Ghost:
@@ -165,6 +168,24 @@ class HelperImpl(Helper):
     def get_map_name(self) -> str:
         model = instances_manager.get_game_engine()
         return model.map.name
+
+    def find_possible_portkeys(self, source: Vector2 | tuple[float, float],
+                               target: Vector2 | tuple[float, float],
+                               sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+        source = HelperImpl.__check_position(source, 'find_possible_portkeys', 'source')
+        target = HelperImpl.__check_position(target, 'find_possible_portkeys', 'target')
+        candidates = []
+        for i in self.get_portkeys():
+            if self.connected(source, i.position) and self.connected(target, i.target):
+                candidates.append(i)
+        self.__sort_list(sort_key, candidates, 'find_possible_portkeys')
+        return candidates
+
+    def find_possible_portkeys_to(self, target: Vector2 | tuple[float, float],
+                                  sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+        target = HelperImpl.__check_position(target, 'find_possible_portkeys_to', 'target')
+        self.__check_sort_key(sort_key, 'find_possible_portkeys_to')
+        return self.find_possible_portkeys(self.get_myself().position, target)
 
 
 __helper_impl = HelperImpl()

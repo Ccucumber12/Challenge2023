@@ -13,7 +13,9 @@ class TeamAI(AI):
         for i in tmp:
             if get_ground_type(i) != GroundType.OBSTACLE:
                 self.candidates.append(i)
-         
+    
+    def get_close_positions(self):
+        return [pos for pos in self.candidates if distance(pos, get_myself().position) < 350] 
     def evaluate_position(self, pos):
         #tries to find the most "empty" position that is nearby
         ghosts = get_ghosts()
@@ -22,8 +24,11 @@ class TeamAI(AI):
         if get_ground_type(pos) == GroundType.OBSTACLE:
             ret += 10000
         for ghost in ghosts:
-            dis = distance(ghost.position, pos)
-            ret -= min(400, dis) - min(150, dis)
+            ghostpos = ghost.position
+            if ghost.chanting: 
+                ghostpos = ghost.teleport_destination
+            dis = distance(ghostpos, pos)
+            ret -= min(500, dis) + min(200, dis)
         #ret -= distance(get_myself().position, get_nearest_player().position)
         return ret
     
@@ -57,7 +62,7 @@ class TeamAI(AI):
             multi = 1
             for i in get_players(): 
                 if i != get_myself() and i.effect != EffectType.NONE:
-                    multi -= 0.2
+                    multi -= 0.15
             return distance(item.position, get_myself().position) * multi
         else:
             #Sorting hat
@@ -83,14 +88,14 @@ class TeamAI(AI):
         if has_golden_snitch and get_myself().effect == EffectType.CLOAK:
             return golden_snitch_pos
         
-        if len(items) > 0 and (distance(items[0].position, pos) < max(vec.length(), 150) or vec.length() > 350 or get_myself().dead):
-            #print("go to items")
+        if len(items) > 0 and (distance(items[0].position, pos) < max(vec.length()*0.8, 150) or vec.length() > 450):
             return items[0].position
         else:
-            #Case 1: Close to corner and can't run
             if vec.length() < 150 and get_myself().effect == EffectType.CLOAK:
                 return pos - vec
-            ret = min(self.candidates,
-                key=lambda x: self.evaluate_position(x),
-                default=None)
+            if vec.length() < 250:
+                ret = min(self.get_close_positions(), key=lambda x: self.evaluate_position(x), 
+                        default=None)
+            else:
+                ret = min(self.candidates, key=lambda x: self.evaluate_position(x),default=None)
             return ret

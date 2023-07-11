@@ -21,6 +21,8 @@ class GroundType(Enum):
             return GroundType.SLOW
         elif num == 2:
             return GroundType.OBSTACLE
+        elif num >= 3:
+            return GroundType.PORTKEY
         else:
             return None
 
@@ -36,12 +38,17 @@ class GroundType(Enum):
     """
     障礙物，不可通行
     """
+    PORTKEY = auto()
+    """
+    港口鑰，玩家碰到時會傳送，鬼與護法可以正常通行
+    """
 
 
 class ItemType(Enum):
     """
     道具類型
     """
+
     @staticmethod
     def get_by_name(s):
         for i in ItemType:
@@ -75,6 +82,7 @@ class EffectType(Enum):
     """
     玩家身上生效中的道具效果類型
     """
+
     @staticmethod
     def get_by_name(s):
         for i in EffectType:
@@ -126,6 +134,7 @@ class Item:
     """
     地圖上出現的可撿的道具。
     """
+
     def __init__(self, _id: int, _type: ItemType, _position: Vector2):
         self.__id = _id
         self.__type = _type
@@ -157,6 +166,7 @@ class Player:
     """
     玩家。
     """
+
     def __init__(self,
                  _id: int,
                  _position: Vector2,
@@ -245,6 +255,7 @@ class Ghost:
     """
     鬼。
     """
+
     def __init__(self,
                  _id: int,
                  _position: Vector2,
@@ -278,7 +289,7 @@ class Ghost:
     @property
     def speed(self) -> float:
         """
-        當前移動速度，會隨時間增加且受所在位置的地面類型影響。
+        當前移動速度，會隨時間增加。
         """
         return self.__speed
 
@@ -315,9 +326,11 @@ class Patronus:
     """
     玩家獲得護法道具後召喚出的護法。
     """
-    def __init__(self, _id: int, _position: Vector2, _owner: int):
+
+    def __init__(self, _id: int, _position: Vector2, _speed: float, _owner: int):
         self.__id = _id
         self.__position = _position.copy()
+        self.__speed = _speed
         self.__owner = _owner
 
     @property
@@ -335,6 +348,13 @@ class Patronus:
         return self.__position
 
     @property
+    def speed(self) -> float:
+        """
+        當前移動速度。
+        """
+        return self.__speed
+
+    @property
     def owner(self) -> int:
         """
         召喚出這個護法的玩家 ID。
@@ -346,9 +366,18 @@ class Portkey:
     """
     港口鑰。
     """
-    def __init__(self, _position: Vector2, _to: Vector2):
+
+    def __init__(self, _id, _position: Vector2, _target: Vector2):
+        self.__id = _id
         self.__position = _position.copy()
-        self.__to = _to.copy()
+        self.__target = _target.copy()
+
+    @property
+    def id(self) -> int:
+        """
+        港口鑰編號，每個港口鑰都有不同編號。
+        """
+        return self.__id
 
     @property
     def position(self) -> Vector2:
@@ -358,11 +387,11 @@ class Portkey:
         return self.__position
 
     @property
-    def to(self) -> Vector2:
+    def target(self) -> Vector2:
         """
         傳送目標。
         """
-        return self.__to
+        return self.__target
 
 
 class Helper:
@@ -378,7 +407,7 @@ class Helper:
     def get_patronuses(self, sort_key: SortKey = SortKey.ID) -> list[Patronus]:
         pass
 
-    def get_portkeys(self) -> list[Portkey]:
+    def get_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
     def get_nearest_ghost(self) -> Ghost:
@@ -415,6 +444,15 @@ class Helper:
         pass
 
     def get_map_name(self) -> str:
+        pass
+
+    def find_possible_portkeys(self, source: Vector2 | tuple[float, float],
+                               target: Vector2 | tuple[float, float],
+                               sort_key: SortKey | SortKey = SortKey.ID) -> list[Portkey]:
+        pass
+
+    def find_possible_portkeys_to(self, target: Vector2 | tuple[float, float],
+                                  sort_key: SortKey | SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
 
@@ -466,13 +504,14 @@ def get_patronuses(sort_key: SortKey = SortKey.ID) -> list[Patronus]:
     return _helper.get_patronuses(sort_key)
 
 
-def get_portkeys() -> list[Portkey]:
+def get_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
     """
     獲得所有港口鑰。
 
-    :return: 包含所有港口鑰的 `list`
+    :returns: 包含所有港口鑰的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照港口鑰編號排序，也就是說，`list` 裡第 `i` 個港口鑰的編號是 `i`
     """
-    return _helper.get_portkeys()
+    return _helper.get_portkeys(sort_key)
 
 
 def get_nearest_ghost() -> Ghost:
@@ -559,3 +598,30 @@ def get_map_name() -> str:
     取得地圖名稱。
     """
     return _helper.get_map_name()
+
+
+def find_possible_portkeys(source: Vector2 | tuple[float, float],
+                           target: Vector2 | tuple[float, float],
+                           sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+    """
+    取得從 `source` 走到 `target` 可用的所有港口鑰。
+    一個港口鑰可用代表你可以從 `source` 在不經過其他港口鑰的情況下抵達這個港口鑰的位置，
+    並且你可以從這個港口鑰的目的地，在不經過其他港口鑰的情況下抵達 `target`。
+
+    :returns: 包含所有可用港口鑰的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照港口鑰編號排序
+    """
+    return _helper.find_possible_portkeys(source, target, sort_key)
+
+
+def find_possible_portkeys_to(target: Vector2 | tuple[float, float],
+                              sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+    """
+    取得從當前所在位置走到 `target` 可用的所有港口鑰。
+    一個港口鑰可用代表你可以從當前所在位置在不經過其他港口鑰的情況下抵達這個港口鑰的位置，
+    並且你可以從這個港口鑰的目的地，在不經過其他港口鑰的情況下抵達 `target`。
+
+    :returns: 包含所有可用港口鑰的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照港口鑰編號排序
+    """
+    return _helper.find_possible_portkeys_to(target, sort_key)

@@ -27,7 +27,7 @@ def main():
 
     # Argument parser
     parser = argparse.ArgumentParser(prog='Challenge2023')
-    parser.add_argument('map')
+    parser.add_argument('map', help='The name of tmaps. It can be snow, azkaban or river(for test)')
     parser.add_argument('ai1', nargs='?', default='manual')
     parser.add_argument('ai2', nargs='?', default='manual')
     parser.add_argument('ai3', nargs='?', default='manual')

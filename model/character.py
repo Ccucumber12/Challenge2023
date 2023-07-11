@@ -1,3 +1,4 @@
+import datetime
 import heapq
 import random
 from math import ceil
@@ -31,10 +32,13 @@ class Character:
     def is_invincible(self):
         return False
 
-    # might be discard since there is a built-in pg.Vector2.distance_to()
+    #DO NOT DELETE PLS
     def get_distance(self, character):
-        """gets euclidean distance between self and character"""
-        return (self.position - character.position).length()
+        # Handles basic distance calculation between character and ghost (with port keys considered)
+        modelmap = get_game_engine().map
+        if modelmap.in_same_connected_component(self.position, character.position):
+            return (self.position - character.position).length()
+        return 10000
 
     def move(self, direction: pg.Vector2):
         """
@@ -76,6 +80,7 @@ class Character:
         Take x and y as the destination, 
         then return the first (x, y) that the character should go to.
         """
+
         def reconstruct_path(parent, current):
             path = []
             while current is not None:
@@ -98,9 +103,9 @@ class Character:
                     new_row = cell[0] + dx
                     new_col = cell[1] + dy
                     if (0 <= new_row < rows and 0 <= new_col < cols
-                            and grid[new_row][new_col] != const.MAP_OBSTACLE
-                            and grid[cell[0]][new_col] != const.MAP_OBSTACLE
-                            and grid[new_row][cell[1]] != const.MAP_OBSTACLE):
+                            and grid[new_row][new_col] not in without
+                            and grid[cell[0]][new_col] not in without
+                            and grid[new_row][cell[1]] not in without):
                         neighbors.append((new_row, new_col))
                 return neighbors
 
@@ -139,8 +144,13 @@ class Character:
         Map = get_game_engine().map
         grid = Map.map
         start = Map.convert_coordinate(self.position)
-        closest_cell = Map.closest_cell
-        connected_component = Map.connected_component
+
+        without = {const.MAP_OBSTACLE}
+        if type(self) is Player:
+            for i in range(len(Map.portals)):
+                tmp = const.MAP_PORTKEY_MIN + i
+                if tmp != Map.get_portal_id((x, y)):
+                    without.add(tmp)
 
         # Checks saved path
         while len(self.saved_path) > 0 and start == self.saved_path[0]:
@@ -150,9 +160,9 @@ class Character:
             self.saved_path = []
 
         end = Map.convert_coordinate([x, y])
-        if grid[end[0]][end[1]] == const.MAP_OBSTACLE or \
-                not Map.in_same_connected_component(self.position, (x, y)):
-            end = closest_cell[connected_component[start[0]][start[1]]][end[0]][end[1]]
+        if Map.get_type((x, y)) in without or \
+                not Map.in_same_connected_component(self.position, (x, y), without):
+            end = Map.get_closest_reachable_cell((x, y), self.position, without)
 
         if len(self.saved_path) == 0:
             path = a_star(grid, start, end)
@@ -268,7 +278,7 @@ class Player(Character):
         model = get_game_engine()
         portal = model.map.get_portal(self.position)
         if portal is not None:
-            self.position = model.map.convert_cell(portal)
+            self.position = portal
             get_event_manager().post(EventPortkey(self.position))
             # print(f"Player {self.player_id} used a portal!")
 
@@ -294,7 +304,7 @@ class Player(Character):
             model.patronus_counter += 1
             for ghost in model.ghosts:
                 while ghost.prey == self:
-                    ghost.choose_prey(1)
+                    ghost.choose_prey(1, -1)
 
     def tick(self):
         """
@@ -424,6 +434,7 @@ class Ghost(Character):
         self.__teleport_time = model.timer + const.GHOST_CHANTING_TIME
         model.register_user_event(const.GHOST_CHANTING_TIME, self.teleport_handler)
         model.register_user_event(self.teleport_cd, self.teleport_cd_handler)
+        self.teleport_cd = max(12*const.FPS, self.teleport_cd - 2 * const.FPS)
         get_event_manager().post(EventGhostTeleportChant(self.ghost_id, self.position, self.teleport_distination))
 
     def teleport_handler(self):
@@ -471,15 +482,16 @@ class Ghost(Character):
             self.wander_pos = model.map.get_random_pos(const.GHOST_RADIUS)
         self.move(self.pathfind(*self.wander_pos) - self.position)
 
-    def choose_prey(self, randomness):
+    def choose_prey(self, randomness, distance):
         #randomness: a real number which denotes how much randomness affects the result
+        #distance: 
         model = get_game_engine()
         prey_candidates = (
             [x for x in model.players if not x.dead and not x.is_invisible() and not x.is_invincible()]
             + model.patronuses)
         self.prey = min(
             prey_candidates,
-            key=lambda x: self.get_distance(x) - x.score + randomness * random.uniform(0, 100),
+            key=lambda x: distance * self.get_distance(x) - x.score + randomness * random.uniform(0, 100),
             default=None)
     
     def choose_random_pos(self, randomness):
@@ -512,22 +524,22 @@ class Ghost(Character):
             return
         if self.teleport_available:
             if self.state == const.GhostState.WANDER:
-                self.wander_pos = self.choose_random_pos(0.5)
+                self.wander_pos = self.choose_random_pos(0.2)
                 self.teleport(self.wander_pos)
-            else:
-                self.choose_prey(10)
+            elif self.prey is None or (self.position - self.prey.position).length() < self.speed * const.GHOST_CHANTING_TIME:
+                self.choose_prey(10, -1)
                 if self.prey is None:
-                    self.teleport(self.choose_random_pos(0.5))
+                    self.teleport(self.choose_random_pos(0.2))
                     return
                 self.teleport(self.prey.position)
-            return
+                return
 
         if self.state == const.GhostState.WANDER:
             self.wander()
         elif self.state == const.GhostState.CHASE:
             if (self.prey is None or self.prey.dead or self.prey.is_invisible()
-                   or self.prey.is_invincible()):
-                self.choose_prey(1)
+                   or self.prey.is_invincible() or self.get_distance(self.prey)):
+                self.choose_prey(1, 1)
                 if self.prey is None:
                     self.wander()
                     return
