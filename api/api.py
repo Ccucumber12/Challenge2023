@@ -375,7 +375,7 @@ class Portkey:
     @property
     def id(self) -> int:
         """
-        港口鑰編號，每個港口鑰都有不同的編號。
+        港口鑰編號，每個港口鑰都有不同編號。
         """
         return self.__id
 
