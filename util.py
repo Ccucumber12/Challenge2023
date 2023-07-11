@@ -1,6 +1,7 @@
 import random
 
 import pygame as pg
+from pygame import Vector2
 
 import const
 
@@ -27,3 +28,25 @@ def clamp(v, lo, hi):
         return hi
     else:
         return v
+
+
+def move_point_in_arena(source: Vector2, target: Vector2):
+    eps = 1e-5
+
+    def intersect(p1: Vector2, p2: Vector2, p3: Vector2, p4: Vector2):
+        a123 = (p2 - p1).cross(p3 - p1)
+        a124 = (p2 - p1).cross(p4 - p1)
+        return (p4 * a123 - p3 * a124) / (a123 - a124)
+
+    width, height = const.ARENA_SIZE
+
+    if target.x < -eps:
+        target = intersect(source, target, Vector2(0, 0), Vector2(0, height))
+    if target.x > width + eps:
+        target = intersect(source, target, Vector2(width, 0), Vector2(width, height))
+    if target.y < -eps:
+        target = intersect(source, target, Vector2(0, 0), Vector2(width, 0))
+    if target.y > height + eps:
+        target = intersect(source, target, Vector2(0, height), Vector2(width, height))
+
+    return target

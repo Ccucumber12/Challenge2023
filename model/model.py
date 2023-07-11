@@ -19,7 +19,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name, ai):
+    def __init__(self, map_name, ai, show_ai_target):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -30,6 +30,7 @@ class GameEngine:
         self.map = load_map(os.path.join(const.MAP_DIR, map_name))
         self.timer = 0
         self.ai = ai
+        self.show_ai_target = show_ai_target
         # print(ai)
 
     @property
@@ -41,17 +42,17 @@ class GameEngine:
         This method is called when a new game is instantiated.
         """
         self.clock = pg.time.Clock()
+        self.user_events: dict[int, list[function]] = {}
         self._state = const.STATE_MENU
         self.players: list[Player] = []
         for i in const.PlayerIds:
             self.players.append(Player(i))
         self.ghosts: list[Ghost] = [
-            Ghost(const.GhostIds.DEMENTOR, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
+            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
         self.patronuses: list[Patronus] = []
         self.patronus_counter = 0
         self.items: set[Item] = set()
         self.timer = 0
-        self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
