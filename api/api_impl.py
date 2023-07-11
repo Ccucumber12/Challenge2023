@@ -173,6 +173,7 @@ __ai = [None] * 4
 
 def init(ai_file):
     global __ai
+    global system
     _set_helper(__helper_impl)
     for i in range(0, 4):
         if ai_file[i] == 'manual':
@@ -184,7 +185,8 @@ def init(ai_file):
             print(e)
             raise
         __ai[i] = m.TeamAI()
-    if platform.system() != "Windows":
+    system = platform.system()
+    if system != "Windows":
         def handler(sig, frame):
             raise TimeoutError()
 
@@ -195,28 +197,27 @@ def call_ai(player_id: int):
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
-    destination: Vector2
-    if platform.system() != "Windows":
+    if system != "Windows":
         signal.setitimer(signal.ITIMER_REAL, 1 / (6 * const.FPS))
     else:
         def timeout_alarm(player_id: int):
             print(f"The AI of player {player_id} time out!")
 
-        timer = threading.Timer(interval=1 / (6 * const.FPS),
+        timer = threading.Timer(interval=1 / (5 * const.FPS),
                                 function=timeout_alarm, args=[player_id])
         timer.start()
     try:
         destination = __ai[player_id].player_tick()
+        if system != "Windows":
+            signal.setitimer(signal.ITIMER_REAL, 0)
+        else:
+            timer.cancel()
         if type(destination) != Vector2:
             raise WrongTypeError()
     except Exception as e:
         print(f"Exception in ai of player {player_id}.")
         print(e)
         return
-    if platform != "Windows":
-        signal.setitimer(signal.ITIMER_REAL, 0)
-    else:
-        timer.cancel()
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
@@ -226,8 +227,9 @@ def call_ai(player_id: int):
 
 class TimeoutError(Exception):
     def __str__(self) -> str:
-        return "TimeoutError: function running out of time"
+        return "function running out of time"
+
 
 class WrongTypeError(Exception):
     def __str__(self) -> str:
-        return "WrongTypeError: unexpected return value tpye"
+        return "unexpected return value type"
