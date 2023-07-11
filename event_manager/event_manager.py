@@ -29,9 +29,6 @@ class EventManager:
         Post a new event to the message queue.
         It will be broadcast to all listeners.
         """
-        # this segment use to debug
-        # if not (isinstance(event, Event_EveryTick) or isinstance(event, Event_EverySec)):
-        #     print( str(event) )
         if type(event) not in self.listeners:
             return
         for listener in self.listeners[type(event)]:

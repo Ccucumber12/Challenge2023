@@ -58,7 +58,6 @@ class Item:
             weights = [getweight(pos) for pos in golden_snitch_positions]
             self.golden_snitch_goal = golden_snitch_positions[weights.index(min(weights))]
 
-        # print("weight", getweight(self.golden_snitch_goal))
         if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED:
             new_position = self.golden_snitch_goal
             self.golden_snitch_goal = None
@@ -96,13 +95,11 @@ class Item:
                         continue
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
-                    # print(f'{player.player_id} cast petrification against {victim.player_id}')
                 else:
                     for i in const.EffectType:
                         if i.name == self.type.name:
                             player.set_effect(i)
                             break
-                    # print(f"{player.player_id} got effect: {self.type}!")
                 break
         if self.type == const.ItemType.GOLDEN_SNITCH:
             self.move_golden_snitch()
@@ -162,13 +159,11 @@ class ItemGenerator:
         for player in model.players:
             too_close = True if too_close or best.distance_to(player.position) < 150 else False
         if best == pg.Vector2(0, 0) or too_close:
-            # print("Failed to generate item!")
             return False
         else:
             generate_item = Item(best, self.id_counter, generate_type)
             model.items.add(generate_item)
             self.id_counter = self.id_counter + 1
-            # print(f"Item {generate_type} generated at {best}!")
             return True
 
     def generate_handler(self):
@@ -204,7 +199,6 @@ class ItemGenerator:
         generate_item = Item(best, self.id_counter, const.ItemType.GOLDEN_SNITCH)
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
-        # print(f"Golden snitch generated at {best}!")
 
 class Ripple:
     def __init__(self, item_type: const.ItemType, item_position: pg.Vector2):

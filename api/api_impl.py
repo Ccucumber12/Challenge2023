@@ -4,7 +4,6 @@ import signal
 import threading
 import traceback
 
-import pygame as pg
 from pygame import Vector2
 
 import const
@@ -270,4 +269,4 @@ def call_ai(player_id: int):
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
     event_manager.post(
-        EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
+        EventPlayerMove(player_id, Vector2(player.pathfind(*destination)) - player.position))

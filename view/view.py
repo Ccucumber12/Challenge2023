@@ -222,8 +222,6 @@ class GraphicalView:
         self.pictures[const.Scene.ENDGAME] = crop(
             picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
         self.fog = Fog(self.screen, self.pictures[const.Scene.FOG], const.FOG_SPEED)
-        # print(self.pictures[const.SCENE.FOG].get_width())
-        # print(self.pictures[const.SCENE.FOG].get_height())
 
         # Animation
         picture = pg.image.load(const.PICTURES_PATH[const.OtherPictures.PATRONUS]).convert_alpha()

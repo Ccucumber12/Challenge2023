@@ -31,7 +31,6 @@ class GameEngine:
         self.timer = 0
         self.ai = ai
         self.show_ai_target = show_ai_target
-        # print(ai)
 
     @property
     def state(self):
