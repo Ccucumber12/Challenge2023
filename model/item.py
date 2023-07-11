@@ -67,7 +67,7 @@ class Item:
 
         # Update
         self.position = new_position
-        self.render_position = self.position
+        self.render_position = self.position.copy()
     
     def hover(self, timer: int):
         """Only used when itemType is not golden snitch."""
