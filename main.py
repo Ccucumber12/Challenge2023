@@ -33,12 +33,13 @@ def main():
     parser.add_argument('ai3', nargs='?', default='manual')
     parser.add_argument('ai4', nargs='?', default='manual')
     parser.add_argument('-m', '--mute', action='store_true', help='mute the BGM')
+    parser.add_argument('--show-ai-target', action='store_true', help='show returned positions of AIs')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     instances_manager.register_event_manager(ev_manager)
-    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4])
+    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4], args.show_ai_target)
     instances_manager.register_game_engine(model)
     Controller()
     GraphicalView()

@@ -287,3 +287,5 @@ FLUCTUATION_RATIO = 0.3
 
 # Others
 MAP_DIR = "maps"
+
+PLAYER_COLOR = ["#FFF200", "#FFAEC9", "#C3C3C3", "#00A2E8"]

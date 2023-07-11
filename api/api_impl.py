@@ -2,6 +2,7 @@ import importlib
 import platform
 import signal
 import threading
+import traceback
 
 import pygame as pg
 from pygame import Vector2
@@ -10,6 +11,7 @@ import const
 import instances_manager
 from api.api import (EffectType, Ghost, GroundType, Helper, Item, ItemType, Patronus, Player,
                      Portkey, SortKey, _set_helper)
+from error import TimeoutError, WrongTypeError
 from event_manager.events import EventPlayerMove
 
 
@@ -190,10 +192,16 @@ class HelperImpl(Helper):
 
 __helper_impl = HelperImpl()
 __ai = [None] * 4
+__last_target = [None] * 4
+
+
+def get_last_target(player_id):
+    return __last_target[player_id]
 
 
 def init(ai_file):
     global __ai
+    global system
     _set_helper(__helper_impl)
     for i in range(0, 4):
         if ai_file[i] == 'manual':
@@ -201,11 +209,12 @@ def init(ai_file):
         file = 'ai.' + ai_file[i]
         try:
             m = importlib.import_module(file)
-        except Exception as e:
-            print(e)
+        except Exception:
+            print(traceback.format_exc())
             raise
         __ai[i] = m.TeamAI()
-    if platform.system() != "Windows":
+    system = platform.system()
+    if system != "Windows":
         def handler(sig, frame):
             raise TimeoutError()
 
@@ -213,31 +222,32 @@ def init(ai_file):
 
 
 def call_ai(player_id: int):
+    __last_target[player_id] = None
     if __ai[player_id] is None:
         return
     __helper_impl._current_player = player_id
-    destination: Vector2
-    if platform.system() != "Windows":
+    if system != "Windows":
         signal.setitimer(signal.ITIMER_REAL, 1 / (6 * const.FPS))
     else:
         def timeout_alarm(player_id: int):
             print(f"The AI of player {player_id} time out!")
 
-        timer = threading.Timer(interval=1 / (6 * const.FPS),
+        timer = threading.Timer(interval=1 / (5 * const.FPS),
                                 function=timeout_alarm, args=[player_id])
         timer.start()
     try:
         destination = __ai[player_id].player_tick()
+        if system != "Windows":
+            signal.setitimer(signal.ITIMER_REAL, 0)
+        else:
+            timer.cancel()
         if type(destination) != Vector2:
             raise WrongTypeError()
-    except Exception as e:
+    except Exception:
         print(f"Exception in ai of player {player_id}.")
-        print(e)
+        print(traceback.format_exc())
         return
-    if platform != "Windows":
-        signal.setitimer(signal.ITIMER_REAL, 0)
-    else:
-        timer.cancel()
+    __last_target[player_id] = destination
     model = instances_manager.get_game_engine()
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()
@@ -245,10 +255,3 @@ def call_ai(player_id: int):
         EventPlayerMove(player_id, pg.Vector2(player.pathfind(*destination)) - player.position))
 
 
-class TimeoutError(Exception):
-    def __str__(self) -> str:
-        return "TimeoutError: function running out of time"
-
-class WrongTypeError(Exception):
-    def __str__(self) -> str:
-        return "WrongTypeError: unexpected return value tpye"

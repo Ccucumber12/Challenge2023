@@ -1,8 +1,11 @@
 import os
 
 import pygame as pg
+from pygame import Vector2
 
 import const
+import util
+from api.api_impl import get_last_target
 from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 from view.particle import CastMagicParticleEffect, GatheringParticleEffect
@@ -609,6 +612,19 @@ class GraphicalView:
             for position in const.SCORE_POSITION[i]:
                 print_text(int(score // j % 10), position)
                 j /= 10
+
+        # debug
+        # AI target
+        if model.show_ai_target:
+            for i in range(4):
+                target = get_last_target(i)
+                if target is None:
+                    continue
+                source = model.players[i].position
+                target = util.move_point_in_arena(source, Vector2(target))
+                pg.draw.line(self.screen, const.PLAYER_COLOR[i], target, source, 5)
+                pg.draw.circle(self.screen, const.PLAYER_COLOR[i], target, 10)
+                pg.draw.circle(self.screen, "#000000", target, 10, 3)
 
         pg.display.flip()
 
