@@ -243,6 +243,7 @@ def init(ai_file):
             __ai[i] = m.TeamAI()
             timer.cancel_timer()
         except Exception:
+            timer.cancel_timer()
             print(f"Exception in ai of player {i}.")
             print(traceback.format_exc())
             raise
@@ -260,6 +261,7 @@ def call_ai(player_id: int):
         if type(destination) != Vector2:
             raise WrongTypeError()
     except Exception:
+        timer.cancel_timer()
         print(f"Exception in ai of player {player_id}.")
         print(traceback.format_exc())
         return

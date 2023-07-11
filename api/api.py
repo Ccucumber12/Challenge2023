@@ -382,7 +382,7 @@ class Portkey:
     @property
     def position(self) -> Vector2:
         """
-        港口鑰位置。
+        港口鑰位置。事實上每一個港口鑰都是一個不規則形狀區域，只要進入這個區域就會觸發，這個位置只是其中的一個點。
         """
         return self.__position
 
@@ -588,7 +588,7 @@ def connected(a: Vector2 | tuple[float, float], b: Vector2 | tuple[float, float]
 
 def connected_to(position: Vector2 | tuple[float, float]) -> bool:
     """
-    判斷一個位置是否能和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
+    判斷一個位置是否能不透過港口鑰和目前所在位置互通。如果目標位置是障礙物，會回傳 False。
     """
     return _helper.connected_to(position)
 
