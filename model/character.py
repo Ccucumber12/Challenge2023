@@ -31,10 +31,13 @@ class Character:
     def is_invincible(self):
         return False
 
-    # might be discard since there is a built-in pg.Vector2.distance_to()
+    #DO NOT DELETE PLS
     def get_distance(self, character):
-        """gets euclidean distance between self and character"""
-        return (self.position - character.position).length()
+        # Handles basic distance calculation between character and ghost (with port keys considered)
+        modelmap = get_game_engine().map
+        if modelmap.in_same_connected_component(self.position, character.position):
+            return (self.position - character.position).length()
+        return 10000
 
     def move(self, direction: pg.Vector2):
         """
@@ -512,21 +515,21 @@ class Ghost(Character):
             return
         if self.teleport_available:
             if self.state == const.GhostState.WANDER:
-                self.wander_pos = self.choose_random_pos(0.5)
+                self.wander_pos = self.choose_random_pos(0.2)
                 self.teleport(self.wander_pos)
-            else:
+            elif self.prey is None or (self.position - self.prey.position).length() < self.speed * const.GHOST_CHANTING_TIME:
                 self.choose_prey(10)
                 if self.prey is None:
-                    self.teleport(self.choose_random_pos(0.5))
+                    self.teleport(self.choose_random_pos(0.2))
                     return
                 self.teleport(self.prey.position)
-            return
+                return
 
         if self.state == const.GhostState.WANDER:
             self.wander()
         elif self.state == const.GhostState.CHASE:
             if (self.prey is None or self.prey.dead or self.prey.is_invisible()
-                   or self.prey.is_invincible()):
+                   or self.prey.is_invincible() or self.get_distance(self.prey)):
                 self.choose_prey(1)
                 if self.prey is None:
                     self.wander()
