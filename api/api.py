@@ -448,11 +448,14 @@ class Helper:
 
     def find_possible_portkeys(self, source: Vector2 | tuple[float, float],
                                target: Vector2 | tuple[float, float],
-                               sort_key: SortKey | SortKey = SortKey.ID) -> list[Portkey]:
+                               sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
     def find_possible_portkeys_to(self, target: Vector2 | tuple[float, float],
-                                  sort_key: SortKey | SortKey = SortKey.ID) -> list[Portkey]:
+                                  sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+        pass
+
+    def get_reachable_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
 
@@ -625,3 +628,13 @@ def find_possible_portkeys_to(target: Vector2 | tuple[float, float],
     預設照港口鑰編號排序
     """
     return _helper.find_possible_portkeys_to(target, sort_key)
+
+
+def get_reachable_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+    """
+    取得從當前位置可以不透過其他港口鑰到達的所有港口鑰。
+
+    :returns: 包含所有可以到達的港口鑰的 `list`，這個 `list` 中的元素會照 `sort_key` 指定的方式排序，
+    預設照港口鑰編號排序
+    """
+    return _helper.get_reachable_portkeys(sort_key)

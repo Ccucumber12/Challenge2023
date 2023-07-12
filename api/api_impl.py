@@ -189,6 +189,14 @@ class HelperImpl(Helper):
         self.__check_sort_key(sort_key, 'find_possible_portkeys_to')
         return self.find_possible_portkeys(self.get_myself().position, target)
 
+    def get_reachable_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
+        portkeys = []
+        for i in self.get_portkeys():
+            if self.connected_to(i.position):
+                portkeys.append(i)
+        self.__sort_list(sort_key, portkeys, 'get_reachable_portkeys')
+        return portkeys
+
 
 __helper_impl = HelperImpl()
 __ai = [None] * 4
