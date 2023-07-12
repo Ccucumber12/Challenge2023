@@ -458,6 +458,9 @@ class Helper:
     def get_reachable_portkeys(self, sort_key: SortKey = SortKey.ID) -> list[Portkey]:
         pass
 
+    def get_ticks_per_second(self) -> int:
+        pass
+
 
 _helper: Helper = None
 
@@ -638,3 +641,7 @@ def get_reachable_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
     預設照港口鑰編號排序
     """
     return _helper.get_reachable_portkeys(sort_key)
+
+
+def get_ticks_per_second() -> int:
+    return _helper.get_ticks_per_second()

@@ -197,6 +197,9 @@ class HelperImpl(Helper):
         self.__sort_list(sort_key, portkeys, 'get_reachable_portkeys')
         return portkeys
 
+    def get_ticks_per_second(self) -> int:
+        return const.FPS
+
 
 __helper_impl = HelperImpl()
 __ai = [None] * 4
