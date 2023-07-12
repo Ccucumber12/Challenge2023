@@ -644,4 +644,7 @@ def get_reachable_portkeys(sort_key: SortKey = SortKey.ID) -> list[Portkey]:
 
 
 def get_ticks_per_second() -> int:
+    """
+    取得每秒有幾個 tick。
+    """
     return _helper.get_ticks_per_second()
