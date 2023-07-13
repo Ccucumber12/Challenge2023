@@ -25,7 +25,7 @@ class PlayerIds(IntEnum):
 PLAYER_RADIUS = 30
 PLAYER_RESPAWN_TIME = 5 * FPS
 PLAYER_ADD_SCORE = [2, 3, 5, 5]
-PLAYER_SPEED = 100 / FPS
+PLAYER_SPEED = 140 / FPS
 NUM_OF_PLAYERS = 4
 
 # Ghost
@@ -43,13 +43,16 @@ DIRECTION_TO_VEC2 = {
     'right': pg.Vector2(1, 0),
 }
 GHOST_RADIUS = 30
-GHOST_INIT_SPEED = 100 / FPS
-GHOST_MAX_SPEED = 180 / FPS
+GHOST_INIT_SPEED = 120 / FPS
+GHOST_MAX_SPEED = 240 / FPS
+GHOST_NEW_SPEED_BONUS = 20 / FPS
+GHOST_SPEED_BONUS = 7 / FPS
 GHOST_CHANTING_TIME = 2 * FPS  # chanting time before it teleport
 GHOST_CHANTING_COLOR = pg.Color(79, 48, 114)
-GHOST_WANDER_TIME = 5 * FPS
-GHOST_CHASE_TIME = 15 * FPS
-GHOST_INIT_TP_CD = 30 * FPS
+GHOST_WANDER_TIME = 3 * FPS
+GHOST_CHASE_TIME = 10 * FPS
+GHOST_INIT_TP_CD = 25 * FPS
+GHOST_CANNOTSEE = 5 * FPS
 
 class GhostState(IntEnum):
     CHASE = 1
@@ -58,8 +61,16 @@ class GhostState(IntEnum):
 
 CACHE_CELLS = 3
 
+class GhostSkins(Enum):
+    NORMAL = 0
+    KILLING = 1
+
 # patronus
-PATRONUS_SPEED = PLAYER_SPEED
+PATRONUS_SHOCKWAVE_IMPACT = 40
+PATRONUS_SHOCKWAVE_RADIUS = 300
+PATRONUS_SHOCKWAVE_ANIMATION_DURATION = 0.3 * FPS
+PATRONUS_SHOCKWAVE_COLOR = pg.Color(199, 220, 252)
+PATRONUS_SPEED = (GHOST_INIT_SPEED + GHOST_MAX_SPEED * 2) / 3
 PATRONUS_RADIUS = PLAYER_RADIUS
 
 
@@ -67,6 +78,7 @@ PATRONUS_RADIUS = PLAYER_RADIUS
 MAP_ROAD = 0
 MAP_PUDDLE = 1
 MAP_OBSTACLE = 2
+MAP_PORTKEY_MIN = 3
 
 # state machine constants
 
@@ -99,12 +111,12 @@ ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond
 # The probability of golden snitch should be set to ZERO.
 ITEM_DURATION = {
     EffectType.PATRONUS: 15 * FPS,
-    EffectType.CLOAK: 5 * FPS,
-    EffectType.PETRIFICATION: 3 * FPS,
-    EffectType.SORTINGHAT: 10 * FPS,
+    EffectType.CLOAK: 4.5 * FPS,
+    EffectType.PETRIFICATION: 4 * FPS,
+    EffectType.SORTINGHAT: 8 * FPS,
     EffectType.REMOVED_SORTINGHAT: 5 * FPS
 }
-ITEM_LOSE_EFFECT_HINT_TIME = 2*FPS
+ITEM_LOSE_EFFECT_HINT_TIME = 2 * FPS
 ITEM_LIFETIME = {
     ItemType.GOLDEN_SNITCH: 3000 * FPS,
     ItemType.CLOAK: 60 * FPS,
@@ -115,11 +127,23 @@ ITEM_LIFETIME = {
 ITEM_GENERATE_COOLDOWN = 3 * FPS
 MAX_ITEM_NUMBER = 10
 ITEM_RADIUS = 25
-SORTINGHAT_INVINCIBLE_TIME = 5 * FPS
+SORTINGHAT_STEAL_SCORE_TIME = 3 # in seconds
 GOLDEN_SNITCH_APPEAR_TIME = 120 * FPS
-GOLDEN_SNITCH_SPEED = 250 / FPS
+GOLDEN_SNITCH_SPEED = 210 / FPS
 
-PETRIFICATION_ANIMATION_SPEED = 10
+ITEM_HOVER_LENGTH = 10
+ITEM_HOVER_LOOP_TIME = 2 * FPS
+ITEM_RIPPLE_DISPLACEMENT = {
+    ItemType.CLOAK: pg.Vector2(0, 7),
+    ItemType.PATRONUS: pg.Vector2(0, 7),
+    ItemType.PETRIFICATION: pg.Vector2(0, 35),
+    ItemType.SORTINGHAT: pg.Vector2(0, 10)
+}
+ITEM_RIPPLE_RECT = (100, 20)
+ITEM_RIPPLE_COLOR = pg.Color(232, 201, 109)
+ITEM_RIPPLE_WIDTH = 10
+
+PETRIFICATION_ANIMATION_SPEED = 1000 / FPS
 PETRIFICATION_ANIMATION_COLOR = pg.Color(169, 169, 169)
 PETRIFICATION_ANIMATION_THICKNESS = 10
 PETRIFICATION_ANIMATION_PARTICLE_RADIUS = 3
@@ -134,21 +158,26 @@ ENDGAME_SIZE = (1572, 800)
 FOG_SIZE = (1878, 800)
 FOG_TRANSPARENCY = 150
 FOG_SPEED = 150 / FPS
+HELPER_SIZE = (WINDOW_SIZE[0] - 100, WINDOW_SIZE[1] - 100)
+
 BACKGROUND_COLOR = pg.Color('black')
 CLOAK_TRANSPARENCY = 128  # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
 NEAR_VANISH_TRANSPARENCY = 64
 SORTINGHAT_ANIMATION_SPEED = 500
 SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
 MAGIC_CIRCLE_RADIUS = GHOST_RADIUS
+GHOST_KILL_ANIMATION_TIME = FPS // 3
+ANIMATION_PICTURE_LENGTH = FPS // 3
+DEMENTOR_PICTURE_NUMBER = 3
 
 class ObjectType(IntEnum):
     # The number represents the order of rendering the type.
     MAP = 0
-    # SCORE_BOARD = 1
-    GHOST = 2
+    PORTAL = 1
     ITEM = 3
     PATRONUS = 4
     PLAYER = 5
+    GHOST = 6
 
 class Scene(Enum):
     TITLE = 0
@@ -173,6 +202,7 @@ class PlayerSkins(Enum):
     NORMAL = 0
     SORTINGHAT = 1
     SHINING = 2
+    DEAD = 3
 
 class CharacterDirection(Enum):
     UP = 0
@@ -185,6 +215,13 @@ SHINING_PLAYER_SIZE = {
     CharacterDirection.LEFT: (64, 64),
     CharacterDirection.DOWN: (73, 73),
     CharacterDirection.RIGHT: (64, 64),
+}
+
+DEAD_PLAYER_SIZE = {
+    CharacterDirection.UP: (66, 66),
+    CharacterDirection.LEFT: (60, 60),
+    CharacterDirection.DOWN: (63, 63),
+    CharacterDirection.RIGHT: (60, 60),
 }
 
 PICTURES_PATH = {
@@ -200,11 +237,13 @@ PICTURES_PATH = {
     PlayerSkins.NORMAL: "normal",
     PlayerSkins.SORTINGHAT: "sortinghat",
     PlayerSkins.SHINING: "shining",
+    PlayerSkins.DEAD: "dead",
     CharacterDirection.UP: "rear.png",
     CharacterDirection.LEFT: "left.png",
     CharacterDirection.DOWN: "front.png",
     CharacterDirection.RIGHT: "right.png",
-    GhostIds.DEMENTOR: "pictures/characters/ghosts/Dementor.png",
+    GhostIds.DEMENTOR: "pictures/characters/ghosts/dementor",
+    GhostSkins.KILLING: "pictures/characters/ghosts/dementor/killing",
     Scene.TITLE: "pictures/scenes/Title.png",
     Scene.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
     Scene.FOG: "pictures/scenes/Fog.png",
@@ -221,8 +260,16 @@ FINAL_SCORE_POSITION = [(x, y - 2 * PLAYER_RADIUS - 30) for (x, y) in PODIUM_POS
 
 # sound
 MUSIC_PATH = {
-    STATE_MENU: "music/title_music_v3.wav",
-    STATE_PLAY: "music/ingame_music_all.wav"
+    STATE_MENU: "music/BGM/title_music_v3.wav",
+    STATE_PLAY: "music/BGM/Challenge_ingame_music_ver2.wav"
+}
+EFFECT_SOUND_DIR = "music/effect"
+EFFECT_SOUND_PATH = {
+    EffectType.CLOAK: "invisible_v2.wav",
+    EffectType.PATRONUS: "get_patronus_v2.wav",
+    EffectType.PETRIFICATION: "stone_v2.wav",
+    EffectType.REMOVED_SORTINGHAT: "sorting_hat.wav",
+    GhostState.TELEPORT: "teleport_v2.wav"
 }
 
 # controller
@@ -236,8 +283,14 @@ PLAYER_KEYS = {
     PlayerIds.PLAYER3: {pg.K_UP: pg.Vector2(0, -1), pg.K_DOWN: pg.Vector2(0, 1),
                         pg.K_LEFT: pg.Vector2(-1, 0), pg.K_RIGHT: pg.Vector2(1, 0)}
 }
-MUTE_KEY = pg.K_F1
+MUTE_BGM_KEY = pg.K_F1
+MUTE_EFFECT_SOUND_KEY = pg.K_F2
 
 # Utils
 
 FLUCTUATION_RATIO = 0.3
+
+# Others
+MAP_DIR = "maps"
+
+PLAYER_COLOR = ["#FFF200", "#FFAEC9", "#C3C3C3", "#00A2E8"]

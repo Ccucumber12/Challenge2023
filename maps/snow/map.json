@@ -1,0 +1,33 @@
+{
+  "width": 150,
+  "height": 100,
+  "spawn": [
+    [102, 4], [4, 25], [79, 84], [145, 48]
+  ],
+  "images": {
+    "background.png": -1,
+    "two_flat_stones_rear.png": 23,
+    "two_stones_mid1.png": 77,
+    "two_stones_mid2.png": 75,
+    "Hagrid_house.png": 64,
+    "two_flat_stones_front.png": 48,
+    "half_stone.png": 38,
+    "purple_tree_front.png": 87,
+    "forest1.png": 42,
+    "forest2.png": 35,
+    "forest3.png": 31,
+    "flat_stone_front_right.png": 78,
+    "big_stone.png": 19,
+    "two_stones_front1.png": 88,
+    "two_stones_front2.png": 92,
+    "purple_tree_mid.png": 45,
+    "purple_tree_rear.png": 14,
+    "flat_stone_rear_left.png": 60,
+    "flat_stone_front_left.png": 68,
+    "two_stones_rear1.png": 19,
+    "two_stones_rear2.png": 17,
+    "flat_stone_rear_right.png": 73
+  },
+  "portals": [],
+  "ghost_spawn": [97, 72]
+}

@@ -1,4 +1,5 @@
 import random
+import os
 
 import pygame as pg
 
@@ -18,7 +19,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name, ai):
+    def __init__(self, map_name, ai, show_ai_target, no_error_message):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -26,10 +27,11 @@ class GameEngine:
         """
         self.register_listeners()
         self._state = None
-        self.map = load_map(map_name)
+        self.map = load_map(os.path.join(const.MAP_DIR, map_name))
         self.timer = 0
         self.ai = ai
-        print(ai)
+        self.show_ai_target = show_ai_target
+        self.no_error_message = no_error_message
 
     @property
     def state(self):
@@ -40,6 +42,7 @@ class GameEngine:
         This method is called when a new game is instantiated.
         """
         self.clock = pg.time.Clock()
+        self.user_events: dict[int, list[function]] = {}
         self._state = const.STATE_MENU
         self.players: list[Player] = []
         for i in const.PlayerIds:
@@ -47,13 +50,11 @@ class GameEngine:
         self.ghosts: list[Ghost] = [
             Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
         self.patronuses: list[Patronus] = []
+        self.patronus_counter = 0
         self.items: set[Item] = set()
         self.timer = 0
-        self.user_events: dict[int, list[function]] = {}
         self.item_generator = ItemGenerator()
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
-
-        api_impl.init(self.ai)
 
     def handle_every_tick(self, event):
         cur_state = self.state
@@ -64,6 +65,9 @@ class GameEngine:
             self.update_objects()
 
             self.timer += 1
+
+            if self.timer == 1:
+                api_impl.init(self.ai)
 
             # checks if a new second has passed and calls each player to update score
             if self.timer % const.FPS == 0:

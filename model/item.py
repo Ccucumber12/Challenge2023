@@ -2,10 +2,11 @@ import random
 
 import numpy as np
 import pygame as pg
+from math import sin, pi
 
 import const
 import util
-from event_manager.events import EventCastPetrification
+from event_manager.events import (EventCastPetrification, EventPatronusShockwave)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -13,10 +14,15 @@ class Item:
     def __init__(self, position: pg.Vector2, item_id, item_type: const.ItemType):
         self.item_id = item_id
         self.type = item_type
-        self.position = position
+        self.position = pg.Vector2(position)
+        self.render_position = pg.Vector2(position)
+        self.ripple = Ripple(item_type, position)
         self.eaten = False
         self.golden_snitch_goal = None
         self.vanish_time = get_game_engine().timer + const.ITEM_LIFETIME[item_type]
+
+        if self.type == const.ItemType.GOLDEN_SNITCH:
+            model_map = get_game_engine().map
 
     def __str__(self):
         return f"item_id: {self.item_id}, position: {self.position}"
@@ -28,9 +34,15 @@ class Item:
             return min((player.position - self.position).length() for player in model.players)
 
         def getweight(pos: pg.Vector2):
-            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[1] / 2)).length() * 2
+            if model.map.name == 'azkaban' and pos[0] > 350 and pos[0] < 850:
+                return 10000
+            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2 + model.timer % 300 - 150, const.ARENA_SIZE[1] / 2)).length() * 1.5
             dis = (pos - self.position).length()
+            if dis == 0:
+                return 10000
             for player in model.players:
+                if player.is_invisible():
+                    continue
                 vec1 = player.position - self.position
                 vec2 = pos - self.position
                 dot = vec1.dot(vec2)
@@ -43,12 +55,11 @@ class Item:
 
             return ret
         if self.golden_snitch_goal is None or mindis() < 100:
-            pnts = [pg.Vector2(random.uniform(0, const.ARENA_SIZE[0]),
-                               random.uniform(0, const.ARENA_SIZE[1])) for _ in range(50)]
-            weights = [getweight(pos) for pos in pnts]
-            self.golden_snitch_goal = pnts[weights.index(min(weights))]
+            golden_snitch_positions = [pg.Vector2(random.randint(0, const.ARENA_SIZE[0]),
+                      random.randint(0, const.ARENA_SIZE[1])) for i in range(30)]
+            weights = [getweight(pos) for pos in golden_snitch_positions]
+            self.golden_snitch_goal = golden_snitch_positions[weights.index(min(weights))]
 
-        # print("weight", getweight(self.golden_snitch_goal))
         if (self.golden_snitch_goal - self.position).length() < const.GOLDEN_SNITCH_SPEED:
             new_position = self.golden_snitch_goal
             self.golden_snitch_goal = None
@@ -62,11 +73,19 @@ class Item:
 
         # Update
         self.position = new_position
+        self.render_position = self.position
+    
+    def hover(self, timer: int):
+        """Only used when itemType is not golden snitch."""
+        progress_ratio = ((self.vanish_time + timer) % const.ITEM_HOVER_LOOP_TIME) / const.ITEM_HOVER_LOOP_TIME
+        self.render_position.y = self.position.y + const.ITEM_HOVER_LENGTH / 2 * sin(progress_ratio * 2 * pi + pi / 5) # adjust pi / 6 for ripple effect
+        self.ripple.size = tuple(x * 2 * progress_ratio for x in const.ITEM_RIPPLE_RECT)
+        self.ripple.color.a = int(max(0, 255 * (1 - 2 * progress_ratio)))
 
     def tick(self):
         model = get_game_engine()
         for player in model.players:
-            if (util.overlaped(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
+            if (util.overlap_with(player.position, const.PLAYER_RADIUS, self.position, const.ITEM_RADIUS)
                     and not player.dead):
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
@@ -78,15 +97,24 @@ class Item:
                         continue
                     victim = random.choice(others)
                     get_event_manager().post(EventCastPetrification(player, victim))
-                    print(f'{player.player_id} cast petrification against {victim.player_id}')
                 else:
+                    if self.type == const.ItemType.PATRONUS:
+                        get_event_manager().post(EventPatronusShockwave(self.position))
+                        for ghost in model.ghosts:
+                            vec = ghost.position - self.position
+                            if vec.length() <= const.PATRONUS_SHOCKWAVE_RADIUS:
+                                impact_power = const.PATRONUS_SHOCKWAVE_IMPACT * (1 - vec.length() / const.PATRONUS_SHOCKWAVE_RADIUS)
+                                vec.scale_to_length(impact_power)
+                                ghost.add_shockwave(vec)
                     for i in const.EffectType:
                         if i.name == self.type.name:
                             player.set_effect(i)
                             break
-                    print(f"{player.player_id} got effect: {self.type}!")
+                break
         if self.type == const.ItemType.GOLDEN_SNITCH:
             self.move_golden_snitch()
+        else:
+            self.hover(model.timer)
 
 
 class ItemGenerator:
@@ -141,13 +169,11 @@ class ItemGenerator:
         for player in model.players:
             too_close = True if too_close or best.distance_to(player.position) < 150 else False
         if best == pg.Vector2(0, 0) or too_close:
-            # print("Failed to generate item!")
             return False
         else:
             generate_item = Item(best, self.id_counter, generate_type)
             model.items.add(generate_item)
             self.id_counter = self.id_counter + 1
-            # print(f"Item {generate_type} generated at {best}!")
             return True
 
     def generate_handler(self):
@@ -183,4 +209,12 @@ class ItemGenerator:
         generate_item = Item(best, self.id_counter, const.ItemType.GOLDEN_SNITCH)
         model.items.add(generate_item)
         self.id_counter = self.id_counter + 1
-        # print(f"Golden snitch generated at {best}!")
+
+class Ripple:
+    def __init__(self, item_type: const.ItemType, item_position: pg.Vector2):
+        self.show = item_type != const.ItemType.GOLDEN_SNITCH
+        if self.show == False:
+            return 
+        self.size = (0, 0)
+        self.color = pg.Color(const.ITEM_RIPPLE_COLOR)
+        self.position = item_position + const.ITEM_RIPPLE_DISPLACEMENT[item_type]

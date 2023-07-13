@@ -1,8 +1,12 @@
 import os
+import cv2
 
 import pygame as pg
+from pygame import Vector2
 
 import const
+import util
+from api.api_impl import get_last_target
 from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 from view.particle import CastMagicParticleEffect, GatheringParticleEffect
@@ -33,6 +37,8 @@ class GraphicalView:
         """
         self.register_listeners()
 
+        self.show_helper = False
+
         # optimization
 
         self.screen = pg.display.set_mode(size=const.WINDOW_SIZE, flags=pg.DOUBLEBUF)
@@ -47,7 +53,9 @@ class GraphicalView:
         # animations
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
         self.petrification_animation: list[CastMagicParticleEffect] = []
+        self.patronus_shockwave_animations = []
         self.sortinghat_animations = []
+        self.ghost_kill_animations = []
 
         # scale the pictures to proper size
         self.pictures = {}
@@ -56,9 +64,12 @@ class GraphicalView:
         self.transparent_player_image = {}
         self.wearing_sortinghat_image = {}
         self.shining_player_image = {}
+        self.dead_player_image = {}
         self.sortinghat_animation_picture = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
+        self.portkey_animation_image = []
+        self.portkey_animation = []
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -79,11 +90,13 @@ class GraphicalView:
                 ratio = min(desire_width/width, desire_height/height)
             cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
             return cropped_image
+
         for item in const.ItemType:
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(picture, const.ITEM_RADIUS*2, const.ITEM_RADIUS*2, True)
             self.transparent_player_image[item] = self.pictures[item].convert_alpha()
             self.transparent_player_image[item].set_alpha(const.NEAR_VANISH_TRANSPARENCY)
+
         for player in const.PlayerIds:
             # normal
             self.character_image[player] = {}
@@ -116,6 +129,7 @@ class GraphicalView:
             for direction in const.CharacterDirection:
                 self.petrified_player_image[player][direction] = pg.transform.grayscale(
                     self.character_image[player][direction])
+
             # transparent
             self.transparent_player_image[player] = {}
             for direction in const.CharacterDirection:
@@ -154,6 +168,7 @@ class GraphicalView:
 
             # sortinghat
             load_player_skin(player, self.wearing_sortinghat_image, const.PlayerSkins.SORTINGHAT)
+
             # shining player
             self.shining_player_image[player] = {}
             for direction in const.CharacterDirection:
@@ -162,16 +177,38 @@ class GraphicalView:
                                                      const.PICTURES_PATH[direction])).convert_alpha()
                 self.shining_player_image[player][direction] =\
                     crop(picture, *const.SHINING_PLAYER_SIZE[direction], True)
+            
+            #dead player
+            self.dead_player_image[player] = {}
+            for direction in const.CharacterDirection:
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[const.PlayerSkins.DEAD],
+                                                     const.PICTURES_PATH[direction])).convert_alpha()
+                self.dead_player_image[player][direction] =\
+                    crop(picture, *const.DEAD_PLAYER_SIZE[direction], True)
 
         for ghost in const.GhostIds:
-            picture = pg.image.load(const.PICTURES_PATH[ghost]).convert_alpha()
-            self.pictures[ghost] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+            if ghost == const.GhostIds.DEMENTOR:
+                self.character_image[ghost] = []
+                for i in range(const.DEMENTOR_PICTURE_NUMBER):
+                    picture = pg.image.load(os.path.join(const.PICTURES_PATH[ghost], "dementor" + 
+                                                         str(i) + ".png")).convert_alpha()
+                    self.character_image[ghost].append(crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True))
+        self.ghost_killing_image = {}
+        picture = pg.image.load(os.path.join(const.PICTURES_PATH[const.GhostSkins.KILLING], "right.png")).convert_alpha()
+        self.ghost_killing_image[const.CharacterDirection.RIGHT] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+        picture = pg.image.load(os.path.join(const.PICTURES_PATH[const.GhostSkins.KILLING], "left.png")).convert_alpha()
+        self.ghost_killing_image[const.CharacterDirection.LEFT] = crop(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
 
         self.background_images = []
         for i in model.map.images:
-            loaded_image = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
-            loaded_image = pg.transform.scale(loaded_image, const.ARENA_SIZE)
-            self.background_images.append((int(model.map.images[i]), loaded_image))
+            loaded_image = cv2.imread(os.path.join(model.map.map_dir, i), cv2.IMREAD_UNCHANGED)
+            loaded_image = cv2.resize(loaded_image, const.ARENA_SIZE, interpolation=cv2.INTER_AREA)
+            x, y, w, h = cv2.boundingRect(loaded_image[..., 3])
+            picture = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
+            picture = pg.transform.scale(picture, const.ARENA_SIZE)
+            picture = picture.subsurface(pg.Rect(x, y, w, h))
+            self.background_images.append((int(model.map.images[i]), picture, (x, y)))
 
         picture = pg.image.load(const.PICTURES_PATH[const.Scene.SCORE_BOARD]).convert_alpha()
         self.pictures[const.Scene.SCORE_BOARD] = crop(
@@ -209,6 +246,12 @@ class GraphicalView:
             self.sortinghat_animation_picture.append(
                 pg.transform.rotate(self.sortinghat_animation_picture[0], angle))
 
+        # port key
+        picture = pg.image.load("pictures/other/portal_animation.png").convert_alpha()
+        for t in range(8):
+            subpicture = picture.subsurface(pg.Rect(t * 64, 128, 64, 64))
+            self.portkey_animation_image.append(subpicture)
+
     def initialize(self, event):
         """
         This method is called when a new game is instantiated.
@@ -232,8 +275,13 @@ class GraphicalView:
             self.render_stop()
         elif cur_state == const.STATE_ENDGAME:
             self.render_endgame()
+    
+    def handle_show_helper(self, event: EventHelpMenu):
+        self.show_helper = not self.show_helper
 
     def handle_player_move(self, event: EventPlayerMove):
+        if get_game_engine().players[event.player_id].effect == const.EffectType.PETRIFICATION:
+            return
         move_direction = event.direction
         direction = const.CharacterDirection.DOWN
         if move_direction.length() == 0:
@@ -251,16 +299,28 @@ class GraphicalView:
             direction = const.CharacterDirection.UP
         self.character_direction[event.player_id] = direction
 
+    def handle_ghost_kill(self, event: EventGhostKill):
+        self.ghost_kill_animations.append((event.ghost_id, event.destination, event.victim_id, event.victim_effect,
+                                           get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME))
+    
+    def handle_portkey(self, event: EventPortkey):
+        self.portkey_animation.append(Portal(self.screen, event.destination, 
+                                             self.portkey_animation_image, int(const.FPS / 3)))
+
     def register_listeners(self):
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
-        ev_manager.register_listener(EventGhostTeleport,
+        ev_manager.register_listener(EventHelpMenu, self.handle_show_helper)
+        ev_manager.register_listener(EventGhostTeleportChant,
                                      self.add_ghost_teleport_chanting_animation)
         ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
+        ev_manager.register_listener(EventPatronusShockwave, self.add_patronus_shockwave_animation)
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
         ev_manager.register_listener(EventTimesUp, self.register_places)
         ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
+        ev_manager.register_listener(EventGhostKill, self.handle_ghost_kill)
+        ev_manager.register_listener(EventPortkey, self.handle_portkey)
 
     def display_fps(self):
         """
@@ -281,6 +341,11 @@ class GraphicalView:
                                     const.PETRIFICATION_ANIMATION_COLOR,
                                     const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
 
+    def add_patronus_shockwave_animation(self, event):
+        model = get_game_engine()
+        duration = const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION
+        self.patronus_shockwave_animations.append((event.position, model.timer + duration, duration))
+
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
         position = model.players[event.assailant.value].position
@@ -293,17 +358,44 @@ class GraphicalView:
     def render_menu(self):
         # draw background
         # self.screen.fill(Const.BACKGROUND_COLOR)
+        self.screen.fill(const.BACKGROUND_COLOR)
         self.screen.blit(self.pictures[const.Scene.TITLE],
                          ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
 
         # draw text
-        font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-        text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
-        text_center = (const.WINDOW_SIZE[0] / 2, 40)
-        self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-        text_surface = font.render("Press [F1] to mute/unmute music", 1, pg.Color('gray88'))
-        text_center = (const.WINDOW_SIZE[0] / 2, 80)
-        self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        if not self.show_helper:
+            font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
+            text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
+            text_center = (const.WINDOW_SIZE[0] / 2, 40)
+            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+            text_surface = font.render("Press [ESC] to see helper.", 1, pg.Color('gray88'))
+            text_center = (const.WINDOW_SIZE[0] / 2, 80)
+            self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
+        else:
+            background = pg.Surface((const.HELPER_SIZE[0], const.HELPER_SIZE[1]), pg.SRCALPHA)
+            background.fill((255, 255, 255, 200))
+            self.screen.blit(background, tuple((x - y)/2 for x, y in zip (const.WINDOW_SIZE, const.HELPER_SIZE)))
+            # keyboard
+            image = pg.image.load("pictures/other/keyboard.png").convert_alpha()
+            bounding_rect = image.get_bounding_rect()
+            cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
+            cropped_image.blit(image, (0, 0), bounding_rect)
+            width, height = [cropped_image.get_width(), cropped_image.get_height()]
+            ratio = min((const.HELPER_SIZE[0] * 2 / 3) / width, (const.HELPER_SIZE[1] * 2 / 3) / height)
+            cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
+            self.screen.blit(cropped_image, ((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 160))
+            # text
+            text_position = pg.Vector2((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 520)
+            font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 60)
+            text_surface = font.render("Manual", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_surface.get_rect(
+                center=(const.WINDOW_SIZE[0]/2, (const.WINDOW_SIZE[1] - const.HELPER_SIZE[1])/2 + 60)))
+            font = pg.font.Font(None, 32)
+            text_surface = font.render("F1: Mute/unmute the BGM", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_position)
+            text_position.y += 40
+            text_surface = font.render("F2: Mute/unmute effect sounds", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_position)
 
         pg.display.flip()
 
@@ -317,30 +409,45 @@ class GraphicalView:
         objects: list[Object] = []
         for item in model.items:
             coord = game_map.convert_coordinate(item.position)
-            detail = (item.vanish_time, )
+            detail = (item.vanish_time, item.ripple)
             objects.append(Object(coord[1], const.ObjectType.ITEM,
-                                  item.position, item.type, detail))
+                                  item.render_position, item.type, detail))
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
             detail = (player.effect, player.dead, player.effect_timer)
+            for kill_animation in self.ghost_kill_animations:
+                if kill_animation[2] == player.player_id:
+                    detail = (kill_animation[3], player.dead, const.GAME_LENGTH)
+                    break
             objects.append(
                 Object(coord[1], const.ObjectType.PLAYER, player.position, player.player_id, detail))
         for ghost in model.ghosts:
             coord = game_map.convert_coordinate(ghost.position)
             objects.append(
-                Object(coord[1], const.ObjectType.GHOST, ghost.position, ghost.ghost_id, tuple()))
+                Object(coord[1], const.ObjectType.GHOST, ghost.position, const.GhostIds.DEMENTOR, (ghost.ghost_id, )))
         for patronus in model.patronuses:
             coord = game_map.convert_coordinate(patronus.position)
             detail = (patronus.death_time, )
             objects.append(Object(coord[1], const.ObjectType.PATRONUS,
                                   patronus.position, None, detail))
+        for portal in self.portkey_animation:
+            coord = game_map.convert_coordinate(portal.position)
+            detail = (portal, )
+            objects.append(Object(coord[1], const.ObjectType.PORTAL, portal.position, None, detail))
 
-        for row, image in self.background_images:
-            objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(0, 0), None, (image,)))
+        for row, image, position in self.background_images:
+            objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(position), None, (image,)))
 
         objects.sort(key=lambda x: x.y)
-        half_sec = model.timer // (const.FPS // 2)
+        # half_sec = model.timer // (const.FPS // 2)
         quater_sec = model.timer // (const.FPS // 4)
+
+        def render_picture(image_dic: dict, index, direction, obj):
+            width = image_dic[index][direction].get_width()
+            height = image_dic[index][direction].get_height()
+            ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+            self.screen.blit(image_dic[index][direction], ul)
+            
         for obj in objects:
             # ul means upper left
             if obj.object_type == const.ObjectType.PLAYER:
@@ -356,6 +463,19 @@ class GraphicalView:
                 ul = [x - y for x, y in zip(obj.position, [width/2, height])]
                 if effect_timer < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
                     self.screen.blit(self.character_image[obj.image_index][direction], ul)
+                elif dead:
+                    if direction == const.CharacterDirection.DOWN or direction == const.CharacterDirection.UP:
+                        render_picture(self.dead_player_image, obj.image_index, direction, obj)
+                    if direction == const.CharacterDirection.LEFT:
+                        width = self.dead_player_image[obj.image_index][direction].get_width()
+                        height = self.dead_player_image[obj.image_index][direction].get_height()
+                        ul = [x - y for x, y in zip(obj.position, [width/2-7, height])]
+                        self.screen.blit(self.dead_player_image[obj.image_index][direction], ul)
+                    if direction == const.CharacterDirection.RIGHT:
+                        width = self.dead_player_image[obj.image_index][direction].get_width()
+                        height = self.dead_player_image[obj.image_index][direction].get_height()
+                        ul = [x - y for x, y in zip(obj.position, [width/2+7, height])]
+                        self.screen.blit(self.dead_player_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.PETRIFICATION:
                     self.screen.blit(self.petrified_player_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.CLOAK:
@@ -376,20 +496,41 @@ class GraphicalView:
             elif obj.object_type == const.ObjectType.GHOST:
                 ul = [x - y for x, y in zip(obj.position,
                                             [const.GHOST_RADIUS, const.GHOST_RADIUS*2])]
-                self.screen.blit(self.pictures[const.GhostIds.DEMENTOR], ul)
+                # if obj.image_index == const.GhostIds.DEMENTOR:
+                ghost_shown = False
+                for kill_animation in self.ghost_kill_animations:
+                    if kill_animation[0] == obj.detail[0]:
+                        if obj.position.x < kill_animation[1].x:
+                            self.screen.blit(self.ghost_killing_image[const.CharacterDirection.RIGHT], ul)
+                        else:
+                            self.screen.blit(self.ghost_killing_image[const.CharacterDirection.LEFT], ul)
+                        ghost_shown = True
+                        break
+                if not ghost_shown:
+                    self.screen.blit(self.character_image[const.GhostIds.DEMENTOR][model.timer//const.ANIMATION_PICTURE_LENGTH % const.DEMENTOR_PICTURE_NUMBER], ul)
             elif obj.object_type == const.ObjectType.PATRONUS:
                 effect_timer = obj.detail[0]
                 if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:
                     ul = [x - y for x, y in zip(obj.position,
                                                 [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
                     self.screen.blit(self.shining_patronus, ul)
+            elif obj.object_type == const.ObjectType.PORTAL:
+                obj.detail[0].tick()
             elif obj.object_type == const.ObjectType.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
             elif obj.object_type == const.ObjectType.ITEM:
+                # render ripple
+                ripple = obj.detail[1]
+                if ripple.show:
+                    ripple_surface = pg.Surface(ripple.size, pg.SRCALPHA)
+                    pg.draw.ellipse(ripple_surface, ripple.color, pg.Rect((0, 0), ripple.size), width=const.ITEM_RIPPLE_WIDTH)
+                    self.screen.blit(ripple_surface, pg.Rect(ripple.position, (0, 0)).inflate(ripple.size))
+
+                # render item
                 ul = [x - y for x, y in zip(obj.position,
                                             [const.ITEM_RADIUS, const.ITEM_RADIUS*2])]
                 # It's acually is a rectangle.
-                vanish_time = obj.detail[0]
+                # vanish_time = obj.detail[0]
                 # if half_sec % 2 == 0 or model.timer + 5*const.FPS < vanish_time:
                 #     self.screen.blit(self.pictures[obj.image_index], obj.position)
                 # else:
@@ -416,12 +557,27 @@ class GraphicalView:
         for animation in animations:
             effect = animation[0]
             victim = animation[1]
-            if effect.tick() == True:
+            if effect.tick():
                 self.petrification_animation.remove(animation)
                 get_event_manager().post(EventPetrify(victim))
                 continue
             for particle in effect.particles:
                 pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
+        
+        # Patronus shockwave animation
+        animations = self.patronus_shockwave_animations.copy()
+        for animation in animations:
+            position = animation[0]
+            disappear_time = animation[1]
+            duration = animation[2]
+            for i in range(5):
+                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - (disappear_time - (model.timer - i)) / duration)
+                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
+                color.a = 50 + 50 * i
+                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
+            if model.timer > disappear_time:
+                self.patronus_shockwave_animations.remove(animation)
+
 
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()
@@ -441,6 +597,21 @@ class GraphicalView:
             position = position + \
                 (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
             self.sortinghat_animations.append((position, victim, index))
+
+        # Ghost Killing Animation
+        # for kill_animation in self.ghost_kill_animations:
+        #     pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, -20 - 35),
+        #                  kill_animation[1] + pg.Vector2(15, 20 - 35), 10)
+        #     pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, 20 - 35),
+        #                  kill_animation[1] + pg.Vector2(15, -20 - 35), 10)
+        kill_animation_end_list = []
+        for kill_animation in self.ghost_kill_animations:
+            if model.timer > kill_animation[4]:
+                kill_animation_end_list.append(kill_animation)
+        for kill_animation in kill_animation_end_list:
+            self.ghost_kill_animations.remove(kill_animation)
+
+        self.portkey_animation = [x for x in self.portkey_animation if x.tick()]
 
         # Fog
         self.fog.tick()
@@ -469,6 +640,19 @@ class GraphicalView:
                 print_text(int(score // j % 10), position)
                 j /= 10
 
+        # debug
+        # AI target
+        if model.show_ai_target:
+            for i in range(4):
+                target = get_last_target(i)
+                if target is None:
+                    continue
+                source = model.players[i].position
+                target = util.move_point_in_arena(source, Vector2(target))
+                pg.draw.line(self.screen, const.PLAYER_COLOR[i], target, source, 5)
+                pg.draw.circle(self.screen, const.PLAYER_COLOR[i], target, 10)
+                pg.draw.circle(self.screen, "#000000", target, 10, 3)
+
         pg.display.flip()
 
     def render_stop(self):
@@ -495,6 +679,28 @@ class GraphicalView:
             self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
+
+
+class Portal:
+    def __init__(self, screen, position: pg.Vector2, animation_image, image_duration):
+        self.screen = screen
+        self.animation_image = animation_image
+        self.image_duration = image_duration
+        self.position = position.copy()
+        self.position.y -= 32
+        self.animation_index = 0
+        self.animation_life = 0
+
+    def tick(self):
+        ul = self.position + pg.Vector2(-32, 0)
+        self.screen.blit(self.animation_image[self.animation_index], ul)
+        self.animation_life += 1
+        if self.animation_life == self.image_duration:
+            self.animation_index += 1
+            self.animation_life = 0
+        if self.animation_index == 8:
+            return False # del
+        return True
 
 
 class Fog:

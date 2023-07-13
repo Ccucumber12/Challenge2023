@@ -23,6 +23,15 @@ class EventStateChange(BaseEvent):
     def __str__(self):
         return f'{self.name} => StateTo: {self.state}'
 
+class EventHelpMenu(BaseEvent):
+    name = 'HelpMenu Event'
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        return f'Show help menu'
+
 
 class EventEveryTick(BaseEvent):
     name = 'Tick event'
@@ -39,7 +48,7 @@ class EventTimesUp(BaseEvent):
 class EventPlayerMove(BaseEvent):
     name = 'PlayerMove event'
 
-    def __init__(self, player_id: int, direction: pg.Vector2, full_length: bool = False):
+    def __init__(self, player_id, direction: pg.Vector2, full_length: bool = False):
         super().__init__()
         self.player_id = player_id
         if full_length:
@@ -49,6 +58,26 @@ class EventPlayerMove(BaseEvent):
 
     def __str__(self):
         return f'{self.name} => player_id {self.player_id} move {self.direction}'
+
+
+class EventPlayerGetItem(BaseEvent):
+    name = 'PlayerGetItem event'
+
+    def __init__(self, player_id, effect_type: const.EffectType):
+        super().__init__()
+        self.player_id = player_id
+        self.effect_type = effect_type
+
+    def __str__(self):
+        return f'{self.name} => player_id {self.player_id} get {self.effect_type}'
+
+
+class EventPortkey:
+    name = 'Portkey event'
+    
+    def __init__(self, destination):
+        super().__init__()
+        self.destination = destination
 
 
 class EventGhostMove(BaseEvent):
@@ -87,6 +116,19 @@ class EventPetrify(BaseEvent):
         return f'{self.name} => {self.victim.player_id} is petrified'
 
 
+class EventGhostTeleportChant(BaseEvent):
+    name = 'GhostTeleportChant event'
+
+    def __init__(self, ghost_id, position: pg.Vector2, destination: pg.Vector2):
+        super().__init__()
+        self.ghost_id = ghost_id
+        self.position = position
+        self.destination = destination
+
+    def __str__(self):
+        return f'{self.name} => ghost_id {self.ghost_id} start chatting and will teleport from {self.position} to {self.destination}'
+
+
 class EventGhostTeleport(BaseEvent):
     name = 'GhostTeleport event'
 
@@ -100,6 +142,16 @@ class EventGhostTeleport(BaseEvent):
         return f'{self.name} => ghost_id {self.ghost_id} teleport from {self.position} to {self.destination}'
 
 
+class EventPatronusShockwave(BaseEvent):
+    name = 'Patronus shockwave event'
+
+    def __init__(self, position: pg.Vector2):
+        super().__init__()
+        self.position = position
+
+    def __str__(self):
+        return f'{self.name} => shockwave occurred at {self.position}'
+
 class EventSortinghat(BaseEvent):
     name = 'Sortinghat event'
 
@@ -112,5 +164,19 @@ class EventSortinghat(BaseEvent):
         return f'{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}'
 
 
+class EventGhostKill(BaseEvent):
+    name = 'GhostKill event'
+
+    def __init__(self, ghost_id, victim_position: pg.Vector2, victim_id = 'Patronus', victim_effect = None):
+        super().__init__()
+        self.ghost_id = ghost_id
+        self.victim_id = victim_id
+        self.destination = victim_position
+        self.victim_effect = victim_effect
+
 class EventMuteMusic(BaseEvent):
     name = 'MuteMusic event'
+
+    def __init__(self, type):
+        super().__init__()
+        self.type = type
