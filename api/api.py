@@ -140,6 +140,9 @@ class Item:
         self.__type = _type
         self.__position = _position.copy()
 
+    def __repr__(self):
+        return f'Item(id={self.id}, type={self.type}, position={self.position})'
+
     @property
     def id(self) -> int:
         """
@@ -186,6 +189,12 @@ class Player:
         self.__effect = _effect
         self.__effect_remain = _effect_remain
         self.__caught_golden_snitch = _caught_golden_snitch
+
+    def __repr__(self):
+        return f'Player(id={self.id}, position={self.position}, dead={self.dead}, ' \
+               f'respawn_after={self.respawn_after}, speed={self.speed:.2f}, score={self.score}, ' \
+               f'effect={self.effect}, effect_remain={self.effect_remain}, ' \
+               f'caught_golden_snitch={self.caught_golden_snitch})'
 
     @property
     def id(self) -> int:
@@ -272,6 +281,11 @@ class Ghost:
         self.__teleport_after = _teleport_after
         self.__teleport_cooldown_remain = _teleport_cooldown_remain
 
+    def __repr__(self):
+        return f'Ghost(id={self.id}, position={self.position}, speed={self.speed:.2f}, chanting={self.chanting}, ' \
+               f'teleport_destination={self.teleport_destination}, teleport_after={self.teleport_after}, ' \
+               f'teleport_cooldown_remain={self.teleport_cooldown_remain})'
+
     @property
     def id(self) -> int:
         """
@@ -333,6 +347,9 @@ class Patronus:
         self.__speed = _speed
         self.__owner = _owner
 
+    def __repr__(self):
+        return f'Patronus(id={self.id}, position={self.position}, speed={self.speed:.2f}, owner={self.owner})'
+
     @property
     def id(self) -> int:
         """
@@ -371,6 +388,9 @@ class Portkey:
         self.__id = _id
         self.__position = _position.copy()
         self.__target = _target.copy()
+
+    def __repr__(self):
+        return f'Portkey(id={self.id}, position={self.position}, target={self.target})'
 
     @property
     def id(self) -> int:
