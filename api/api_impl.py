@@ -250,8 +250,8 @@ def init(ai_file):
             continue
         file = 'ai.' + ai_file[i]
         try:
-            m = importlib.import_module(file)
             __timer.set_timer(1, i)
+            m = importlib.import_module(file)
             __ai[i] = m.TeamAI()
             __timer.cancel_timer()
         except Exception as e:
