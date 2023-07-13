@@ -82,8 +82,8 @@ class Particle:
         self.destination = position
         self.position: pg.Vector2 = position + self.displacement
         if color == None:
-            self.color = (random.randint(50, 255), 
-                          random.randint(50, 255), 
+            self.color = (random.randint(50, 255),
+                          random.randint(50, 255),
                           random.randint(50, 255))
         else:
             color_random_range = 50

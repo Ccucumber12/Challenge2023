@@ -96,7 +96,7 @@ class GameEngine:
                     event()
                 self.user_events.pop(self.timer)
 
-            for i in range(0, 4):
+            for i in const.PlayerIds:
                 api_impl.call_ai(i)
 
         elif cur_state == const.STATE_ENDGAME:
