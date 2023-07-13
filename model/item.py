@@ -34,7 +34,9 @@ class Item:
             return min((player.position - self.position).length() for player in model.players)
 
         def getweight(pos: pg.Vector2):
-            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2, const.ARENA_SIZE[1] / 2)).length() * 1
+            if model.map.name == 'azkaban' and pos[0] > 350 and pos[0] < 850:
+                return 10000
+            ret = (pos - pg.Vector2(const.ARENA_SIZE[0] / 2 + model.timer % 300 - 150, const.ARENA_SIZE[1] / 2)).length() * 1.5
             dis = (pos - self.position).length()
             if dis == 0:
                 return 10000

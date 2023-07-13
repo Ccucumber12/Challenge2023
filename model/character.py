@@ -128,6 +128,10 @@ class Character:
                     if closed[neighbor[0]][neighbor[1]]:
                         continue
                     tentative_g = g + 1
+                    if neighbor[0] != current[0] and neighbor[1] != current[1]:
+                        tentative_g += 0.4
+                    if grid[neighbor[0]][neighbor[1]] == const.MAP_PUDDLE:
+                        tentative_g *= 1.3
                     if (parent[neighbor[0]][neighbor[1]] is None
                             or tentative_g < dis[neighbor[0]][neighbor[1]]):
                         parent[neighbor[0]][neighbor[1]] = (
@@ -552,7 +556,7 @@ class Ghost(Character):
             self.wander()
         elif self.state == const.GhostState.CHASE:
             if (self.prey is None or self.prey.dead or self.prey.is_invisible()
-                   or self.prey.is_invincible() or self.get_distance(self.prey)):
+                   or self.prey.is_invincible() or self.get_distance(self.prey) == 10000):
                 self.choose_prey(1, 1)
                 if self.prey is None:
                     self.wander()
