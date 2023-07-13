@@ -7,29 +7,36 @@ import math
 class TeamAI(AI):
 
     def __init__(self):
+        """
         self.candidates = []
-        while len(self.candidates) < 100:
+        while len(self.candidates) < 75:
             i = Vector2(random.uniform(0, 1200), random.uniform(0, 800))
             if get_ground_type(i) != GroundType.OBSTACLE:
                 self.candidates.append(i)
+        """
         self.portkey_eval = None
+        self.previous_target = None
+        self.me = get_myself()
+        self.ghosts = []
     
-    def get_close_positions(self):
-        return [pos for pos in self.candidates if distance(pos, get_myself().position) < 350] 
-    def evaluate_position(self, pos):
+    def get_close_positions(self, radius):
+        ret = [self.me.position + Vector2(random.uniform(-radius, radius), random.uniform(-radius, radius)) for i in range(50)]
+        if self.previous_target is not None:
+            ret.append(self.previous_target)
+        return ret
+    def evaluate_position(self, pos, far):
         #tries to find the most "empty" position that is nearby
+        if get_ground_type(pos) == GroundType.OBSTACLE:
+            return 10000
         portkey = False
         if not connected_to(pos):
             if self.portkey_eval is not None:
                 return self.portkey_eval
             portkey = True
             pos = find_possible_portkeys_to(pos)[0].target
-        ghosts = get_ghosts()
         ret = 0
-        if get_ground_type(pos) == GroundType.OBSTACLE:
-            ret += 10000
         same_side = False
-        for ghost in ghosts:
+        for ghost in self.ghosts:
             ghostpos = ghost.position
             if connected(pos, ghostpos):
                 same_side = True
@@ -41,14 +48,15 @@ class TeamAI(AI):
             ret -= 10000
         if portkey:
             self.portkey_eval = ret
-        #ret -= distance(get_myself().position, get_nearest_player().position)
+        if ret > -5000 and get_time() < 120 * 60 and far:
+            ret -= sum(distance(pos, player.position) for player in get_players()) / 4
         return ret
     
     def evaluate_items(self, item):
         #evaluates the value of an item
         ret = 0
         if item.type == ItemType.GOLDEN_SNITCH:
-            if get_myself().effect == EffectType.CLOAK: 
+            if self.me.effect == EffectType.CLOAK: 
                 return -10000
             else:
                 return 10000
@@ -58,39 +66,53 @@ class TeamAI(AI):
             for i in get_items():
                 if i.type == ItemType.GOLDEN_SNITCH:
                     has_golden_snitch = True
-            dis = distance(item.position, get_myself().position)
+            dis = distance(item.position, self.me.position)
             if has_golden_snitch: 
                 if dis < 500:
                     return dis * 0.1
                 else:
                     return dis * 0.3
             else:
-                ret = distance(item.position, get_myself().position) * 0.6
-                ret += min(distance(ghost.position, item.position) for ghost in get_ghosts()) * 0.2
+                ret = distance(item.position, self.me.position) * 0.6
+                #ret += min(distance(ghost.position, item.position) for ghost in get_ghosts()) * 0.2
                 return ret
         elif item.type == ItemType.PATRONUS:
-            return distance(item.position, get_myself().position)
+            return 0.6 * distance(item.position, self.me.position) + 0.5 * distance_to(get_nearest_ghost().position)
         elif item.type == ItemType.PETRIFICATION:
-            multi = 1
+            multi = 1.2
             for i in get_players(): 
-                if i != get_myself() and i.effect != EffectType.NONE:
-                    multi -= 0.15
-            return distance(item.position, get_myself().position) * multi
+                if i != self.me and i.effect != EffectType.NONE:
+                    multi -= 0.2
+            return distance(item.position, self.me.position) * multi
         else:
             #Sorting hat
-            ret = distance(item.position, get_myself().position) * 0.2
-            ret += min(distance(ghost.position, item.position) for ghost in get_ghosts()) * 0.1
+            ret = distance(item.position, self.me.position) * 0.25
             return ret
 
+    def reachable(self, pos):
+        #guesses if pos is reachable without gettting tagged
+        dis = distance_to(pos)
+        extra = distance(pos, get_nearest_ghost().position)
+        if self.me.dead:
+            return self.me.respawn_after * self.me.speed + extra > dis
+        if self.me.effect == EffectType.REMOVED_SORTINGHAT:
+            return self.me.effect_remain * self.me.speed + extra > dis
+        return dis * get_nearest_ghost().speed < extra * self.me.speed
+        
     def player_tick(self) -> Vector2:
-        pos = get_myself().position
+        self.me = get_myself()
+        pos = self.me.position
         vec = get_nearest_ghost().position - pos
         self.portkey_eval = None
+        self.ghosts = get_ghosts()
 
         def convert_point(p):
-            if connected_to(p):
+
+            if get_ground_type(p) == GroundType.OBSTACLE or connected_to(p):
+                self.previous_target = p
                 return p
             else:
+                self.previous_target = find_possible_portkeys_to(p)[0].position
                 return find_possible_portkeys_to(p)[0].position
 
         has_golden_snitch = False
@@ -102,19 +124,31 @@ class TeamAI(AI):
 
         items = get_items()
         best_item = min(items, key=lambda x: self.evaluate_items(x), default=None)
-        if get_myself().effect == EffectType.SORTINGHAT:
+        if self.me.effect == EffectType.SORTINGHAT:
             return convert_point(pos + vec)
-        if has_golden_snitch and get_myself().effect == EffectType.CLOAK:
+        if has_golden_snitch and self.me.effect == EffectType.CLOAK:
+            if vec.length() < 150:
+                return pos - vec
             return golden_snitch_pos
         
-        if best_item is not None and (distance(best_item.position, pos) < max(vec.length()*0.8,150) or vec.length() > 450):
+        if best_item is not None and (self.reachable(best_item.position)):
             return convert_point(best_item.position)
         else:
+            if get_time() % 10 != 0 and self.previous_target != None:
+                return convert_point(self.previous_target)
+            else:
+                self.previous_target = None
             if vec.length() < 150 and get_myself().effect == EffectType.CLOAK:
                 return pos - vec
-            if vec.length() < 250 and not get_myself().dead:
-                ret = min(self.get_close_positions(), key=lambda x: self.evaluate_position(x), 
-                        default=None)
-            else:
-                ret = min(self.candidates, key=lambda x: self.evaluate_position(x),default=None)
+            if vec.length() > 450 or self.me.respawn_after > 120 or self.me.effect == EffectType.REMOVED_SORTINGHAT:
+                ret = min(self.get_close_positions(1000), key=lambda x: self.evaluate_position(x,1),default=None)
+
+                if self.previous_target != None and self.evaluate_position(self.previous_target,1) - 50 < self.evaluate_position(ret,1):
+                    ret = self.previous_target
+                return convert_point(ret)
+            if self.previous_target != None and distance_to(self.previous_target) > 350:
+                self.previous_target = None
+            ret = min(self.get_close_positions(max(150, vec.length()+100)), key=lambda x: self.evaluate_position(x,0),default=None)
+            if ret == None:
+                return pos - vec
             return convert_point(ret)

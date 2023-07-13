@@ -271,7 +271,7 @@ def call_ai(player_id: int):
         return
     __helper_impl._current_player = player_id
     try:
-        __timer.set_timer(1 / (5 * const.FPS), player_id)
+        __timer.set_timer(1 / (3 * const.FPS), player_id)
         destination = __ai[player_id].player_tick()
         __timer.cancel_timer()
         if type(destination) != Vector2:
