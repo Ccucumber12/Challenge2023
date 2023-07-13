@@ -3,6 +3,10 @@ from api.api import *
 
 class TeamAI(AI):
     def __init__(self) -> None:
+        # while True:
+        #     pass
+        # super(
+        # ItemType.CLOAK = 10
         super().__init__()
 
         self.weight = {ItemType.GOLDEN_SNITCH: 10, ItemType.CLOAK: 20,
@@ -52,13 +56,13 @@ class TeamAI(AI):
 
     def escaped_ghost(self) -> Ghost | None:
         myself = get_myself()
-        nearest_ghost = get_nearest_ghost()
+        nearest = get_nearest_ghost()
         escaped = None
         if myself.effect_remain > 2 and myself.effect == EffectType.SORTINGHAT:
             return None
-        if (not nearest_ghost.chanting
-                and (myself.position - nearest_ghost.position).length() < 5 * nearest_ghost.speed):
-            escaped = nearest_ghost
+        if (not nearest.chanting
+                and distance_to(nearest.position) < 5 * get_ticks_per_second() * nearest.speed):
+            escaped = nearest
         return escaped
 
     def move_along(self, direction: Vector2) -> Vector2 | None:
@@ -75,19 +79,18 @@ class TeamAI(AI):
             return self.move_along(direction.rotate(10))
 
     def player_tick(self) -> Vector2:
+        # while True:
+        #     pass
+        # ItemType.CLOAK = 10
+        # super(
         myself = get_myself()
         chosen_item = self.choose_item()
         escaped_ghost = self.escaped_ghost()
         if escaped_ghost is not None:
             direction = -(escaped_ghost.position - myself.position)
-            # print(f"Escaped ghost!")
             return self.move_along(direction)
         elif chosen_item is not None:
-            # direction = chosen_item.position - myself.position
-            # print(f"Chased item!")
             return chosen_item.position
         else:
             self.update_random_dest()
-            # direction = self.random_dest - myself.position
-            # print(f"Wandered!")
             return self.random_dest
