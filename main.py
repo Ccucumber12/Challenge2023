@@ -40,6 +40,7 @@ def main():
     parser.add_argument('-m', '--mute', action='store_true', help='mute the BGM')
     parser.add_argument('--show-ai-target', action='store_true', help='show returned positions of AIs')
     parser.add_argument('--no-error-message', action='store_true', help='disable the traceback message')
+    parser.add_argument('--r18g', action='store_true', help='add some violent taste...')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
@@ -48,7 +49,7 @@ def main():
     model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4], args.show_ai_target, args.no_error_message)
     instances_manager.register_game_engine(model)
     Controller()
-    GraphicalView()
+    GraphicalView(args.r18g)
     if not args.mute:
         BackGroundMusic()
 
