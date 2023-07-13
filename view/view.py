@@ -570,13 +570,14 @@ class GraphicalView:
             position = animation[0]
             disappear_time = animation[1]
             duration = animation[2]
-            for i in range(5):
-                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - (disappear_time - (model.timer - i)) / duration)
-                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
-                color.a = 50 + 50 * i
-                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
             if model.timer > disappear_time:
                 self.patronus_shockwave_animations.remove(animation)
+                continue
+            for i in range(5):
+                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - min(1, (disappear_time - model.timer + i) / duration))
+                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
+                color.a = int(255 * (1 - radius / const.PATRONUS_SHOCKWAVE_RADIUS))
+                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
 
 
         # Sortinghat animation
