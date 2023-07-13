@@ -67,8 +67,9 @@ class CastMagicParticleEffect:
         for _ in range(int(util.random_fluctuation(self.thickness))):
             self.particles.append(Particle(self.current_position, self.color,
                                            const.PETRIFICATION_ANIMATION_PARTICLE_RADIUS))
-        self.current_position += (self.victim.position
-                                  - self.current_position).normalize() * self.speed
+        if self.victim.position != self.current_position:
+            self.current_position += (self.victim.position
+                                    - self.current_position).normalize() * self.speed
         return (self.current_position - self.victim.position).length() <= self.speed*0.6
 
 
