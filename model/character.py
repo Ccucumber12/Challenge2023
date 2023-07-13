@@ -391,7 +391,7 @@ class Ghost(Character):
         # teleport
         self.teleport_available = True
         self.teleport_cd = teleport_cd
-        self.teleport_chanting = False  # if it is chantting
+        self.teleport_chanting = False  # if it is chanting
         self.teleport_destination = pg.Vector2(0, 0)
         self.prey = None
         self.__teleport_time = 0
@@ -511,6 +511,10 @@ class Ghost(Character):
             default=None)
         return ret
     
+    def add_shockwave(self, velocity: pg.Vector2):
+        if self.unfreeze_timer == 0 and not self.teleport_chanting:
+            self.velocity += velocity
+
     def update_velocity(self, model):
         for degree in range(100):
             new_position = self.position + self.velocity.rotate(degree)

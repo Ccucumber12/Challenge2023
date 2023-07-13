@@ -343,7 +343,8 @@ class GraphicalView:
 
     def add_patronus_shockwave_animation(self, event):
         model = get_game_engine()
-        self.patronus_shockwave_animations.append((event.position, model.timer + const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION))
+        duration = const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION
+        self.patronus_shockwave_animations.append((event.position, model.timer + duration, duration))
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
@@ -568,9 +569,15 @@ class GraphicalView:
         for animation in animations:
             position = animation[0]
             disappear_time = animation[1]
+            duration = animation[2]
+            for i in range(5):
+                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - (disappear_time - (model.timer - i)) / duration)
+                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
+                color.a = 50 + 50 * i
+                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
             if model.timer > disappear_time:
                 self.patronus_shockwave_animations.remove(animation)
-            pg.draw.circle(self.screen, const.PATRONUS_SHOCKWAVE_COLOR, position, radius=const.PATRONUS_SHOCKWAVE_RADIUS, width=10)
+
 
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()
