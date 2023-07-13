@@ -49,7 +49,7 @@ class HelperImpl(Helper):
 
     def get_players(self, sort_key: SortKey = SortKey.ID) -> list[Player]:
         model = instances_manager.get_game_engine()
-        players = [Player(i.player_id,
+        players = [Player(int(i.player_id),
                           i.position,
                           i.dead,
                           i.respawn_time - model.timer if i.dead else -1,
