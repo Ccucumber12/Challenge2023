@@ -105,6 +105,7 @@ class TeamAI(AI):
         vec = get_nearest_ghost().position - pos
         self.portkey_eval = None
         self.ghosts = get_ghosts()
+        portkey = get_reachable_portkeys()
 
         def convert_point(p):
 
@@ -113,7 +114,7 @@ class TeamAI(AI):
                 return p
             else:
                 self.previous_target = find_possible_portkeys_to(p)[0].position
-                return find_possible_portkeys_to(p)[0].position
+                return portkey[0].position
 
         has_golden_snitch = False
         golden_snitch_pos = (0, 0)
@@ -131,6 +132,9 @@ class TeamAI(AI):
                 return pos - vec
             return golden_snitch_pos
         
+        if len(portkey) > 0:
+            self.portkey_eval = self.evaluate_position(portkey[0].target, 1)
+
         if best_item is not None and (self.reachable(best_item.position)):
             return convert_point(best_item.position)
         else:
@@ -138,10 +142,12 @@ class TeamAI(AI):
                 return convert_point(self.previous_target)
             else:
                 self.previous_target = None
+            if self.portkey_eval != None and self.portkey_eval <= -9000:
+                return convert_point(portkey[0].position)
             if vec.length() < 150 and get_myself().effect == EffectType.CLOAK:
                 return pos - vec
             if vec.length() > 450 or self.me.respawn_after > 120 or self.me.effect == EffectType.REMOVED_SORTINGHAT:
-                ret = min(self.get_close_positions(1000), key=lambda x: self.evaluate_position(x,1),default=None)
+                ret = min(self.get_close_positions(600), key=lambda x: self.evaluate_position(x,1),default=None)
 
                 if self.previous_target != None and self.evaluate_position(self.previous_target,1) - 50 < self.evaluate_position(ret,1):
                     ret = self.previous_target

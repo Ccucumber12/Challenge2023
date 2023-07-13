@@ -80,6 +80,7 @@ class Character:
         then return the first (x, y) that the character should go to.
         """
 
+        is_player = type(self) is Player
         def reconstruct_path(parent, current):
             path = []
             while current is not None:
@@ -130,7 +131,7 @@ class Character:
                     tentative_g = g + 1
                     if neighbor[0] != current[0] and neighbor[1] != current[1]:
                         tentative_g += 0.4
-                    if grid[neighbor[0]][neighbor[1]] == const.MAP_PUDDLE:
+                    if is_player and grid[neighbor[0]][neighbor[1]] == const.MAP_PUDDLE:
                         tentative_g *= 1.3
                     if (parent[neighbor[0]][neighbor[1]] is None
                             or tentative_g < dis[neighbor[0]][neighbor[1]]):
