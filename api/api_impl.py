@@ -274,7 +274,7 @@ def call_ai(player_id: int):
         __timer.set_timer(1 / (3 * const.FPS), player_id)
         destination = __ai[player_id].player_tick()
         __timer.cancel_timer()
-        if type(destination) != Vector2:
+        if type(destination) != Vector2 and type(destination) != tuple:
             raise error.WrongTypeError()
     except Exception as e:
         __timer.cancel_timer()
