@@ -267,11 +267,13 @@ MUSIC_PATH = {
 }
 EFFECT_SOUND_DIR = "music/effect"
 EFFECT_SOUND_PATH = {
-    EffectType.CLOAK: "invisible_v2.wav",
-    EffectType.PATRONUS: "get_patronus_v2.wav",
-    EffectType.PETRIFICATION: "stone_v2.wav",
-    EffectType.REMOVED_SORTINGHAT: "sorting_hat.wav",
-    GhostState.TELEPORT: "teleport_v2.wav"
+    EffectType.CLOAK: ["invisible_v2.wav"],
+    EffectType.PATRONUS: ["get_patronus_v2.wav", "patronus_spell.wav"],
+    EffectType.PETRIFICATION: ["stone_v2.wav"],
+    EffectType.SORTINGHAT: ["sorting_hat_spell.wav"],
+    EffectType.REMOVED_SORTINGHAT: ["sorting_hat.wav"],
+    GhostState.TELEPORT: ["teleport_v2.wav"],
+    ItemType.PETRIFICATION: ["petrification_spell.wav"]
 }
 
 # controller
