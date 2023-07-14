@@ -43,8 +43,7 @@ def main():
     parser.add_argument('-n', '--no-error-message', action='store_true',
                         help='disable the traceback message')
     parser.add_argument('-r', '--r18g', action='store_true', help='add some violent taste...')
-    parser.add_argument('-c', '--coordinate', type=int, 
-                        help='set the interval of the coordinate and show it when playing (can be canceled using F3)')
+    parser.add_argument('-c', '--coordinate', type=int, metavar='interval', help='set the interval of the coordinate and show it when playing (can be canceled using F3)')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
