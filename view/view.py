@@ -3,6 +3,7 @@ import cv2
 
 import pygame as pg
 from pygame import Vector2
+from math import pi
 
 import const
 import util
@@ -28,13 +29,14 @@ class GraphicalView:
     """
     background = pg.Surface(const.ARENA_SIZE)
 
-    def __init__(self):
+    def __init__(self, r18g):
         model = get_game_engine()
         """
         This function is called when the GraphicalView is created.
         For more specific objects related to a game instance
             , they should be initialized in GraphicalView.initialize()
         """
+        self.r18g = r18g
         self.register_listeners()
 
         self.show_helper = False
@@ -68,8 +70,10 @@ class GraphicalView:
         self.sortinghat_animation_picture = []
         self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
-        self.portkey_animation_image = []
-        self.portkey_animation = []
+        self.portkey_animation_image: list[pg.Surface] = []
+        self.portkey_animation: list[GIFAnimation] = []
+        self.bleed_animation_images: list[pg.Surface] = []
+        self.bleed_animations: list[GIFAnimation] = []
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -251,6 +255,14 @@ class GraphicalView:
         for t in range(8):
             subpicture = picture.subsurface(pg.Rect(t * 64, 128, 64, 64))
             self.portkey_animation_image.append(subpicture)
+        
+        # bleed animation
+        picture = pg.transform.smoothscale(pg.image.load("pictures/other/bleed_animation.png").convert_alpha(), (128*3, 160*2))
+        for y in range(2):
+            for x in range(3):
+                subpicture = picture.subsurface(pg.Rect(128 * x, 160 * y, 128, 160))
+                self.bleed_animation_images.append(subpicture)
+
 
     def initialize(self, event):
         """
@@ -304,7 +316,7 @@ class GraphicalView:
                                            get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME))
     
     def handle_portkey(self, event: EventPortkey):
-        self.portkey_animation.append(Portal(self.screen, event.destination, 
+        self.portkey_animation.append(GIFAnimation(self.screen, event.destination, 
                                              self.portkey_animation_image, int(const.FPS / 3)))
 
     def register_listeners(self):
@@ -320,6 +332,7 @@ class GraphicalView:
         ev_manager.register_listener(EventTimesUp, self.register_places)
         ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
         ev_manager.register_listener(EventGhostKill, self.handle_ghost_kill)
+        ev_manager.register_listener(EventGhostKill, self.add_player_killed_animation)
         ev_manager.register_listener(EventPortkey, self.handle_portkey)
 
     def display_fps(self):
@@ -351,6 +364,11 @@ class GraphicalView:
         position = model.players[event.assailant.value].position
         victim = event.victim
         self.sortinghat_animations.append((position, victim, 0))
+    
+    def add_player_killed_animation(self, event: EventGhostKill):
+        if self.r18g:
+            self.bleed_animations.append(GIFAnimation(self.screen, event.destination + pg.Vector2(0, -50), 
+                                        self.bleed_animation_images, int(const.FPS / 10), const.GHOST_KILL_ANIMATION_TIME))
 
     def register_places(self, event: EventTimesUp):
         self.places = event.places
@@ -414,11 +432,11 @@ class GraphicalView:
                                   item.render_position, item.type, detail))
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
-            detail = (player.effect, player.dead, player.effect_timer)
-            for kill_animation in self.ghost_kill_animations:
-                if kill_animation[2] == player.player_id:
-                    detail = (kill_animation[3], player.dead, const.GAME_LENGTH)
-                    break
+            detail = (player.effect, player.dead, player.effect_timer, player.respawn_time - model.timer)
+            # for kill_animation in self.ghost_kill_animations:
+            #     if kill_animation[2] == player.player_id:
+            #         detail = (kill_animation[3], player.dead, const.GAME_LENGTH)
+            #         break
             objects.append(
                 Object(coord[1], const.ObjectType.PLAYER, player.position, player.player_id, detail))
         for ghost in model.ghosts:
@@ -440,19 +458,19 @@ class GraphicalView:
 
         objects.sort(key=lambda x: x.y)
         # half_sec = model.timer // (const.FPS // 2)
-        quater_sec = model.timer // (const.FPS // 4)
+        quarter_sec = model.timer // (const.FPS // 4)
 
         def render_picture(image_dic: dict, index, direction, obj):
             width = image_dic[index][direction].get_width()
             height = image_dic[index][direction].get_height()
             ul = [x - y for x, y in zip(obj.position, [width/2, height])]
             self.screen.blit(image_dic[index][direction], ul)
-            
+        
         for obj in objects:
             # ul means upper left
             if obj.object_type == const.ObjectType.PLAYER:
                 direction = self.character_direction[obj.image_index]
-                effect, dead, effect_timer = obj.detail
+                effect, dead, effect_timer, dead_time = obj.detail
                 # if dead:
                 #     if half_sec % 2 == 0:
                 #         self.screen.blit(self.transparent_player_image[obj[2]], obj[3])
@@ -461,9 +479,7 @@ class GraphicalView:
                 width = self.character_image[obj.image_index][direction].get_width()
                 height = self.character_image[obj.image_index][direction].get_height()
                 ul = [x - y for x, y in zip(obj.position, [width/2, height])]
-                if effect_timer < const.ITEM_LOSE_EFFECT_HINT_TIME and quater_sec % 2 == 0:
-                    self.screen.blit(self.character_image[obj.image_index][direction], ul)
-                elif dead:
+                if dead:
                     if direction == const.CharacterDirection.DOWN or direction == const.CharacterDirection.UP:
                         render_picture(self.dead_player_image, obj.image_index, direction, obj)
                     if direction == const.CharacterDirection.LEFT:
@@ -476,6 +492,12 @@ class GraphicalView:
                         height = self.dead_player_image[obj.image_index][direction].get_height()
                         ul = [x - y for x, y in zip(obj.position, [width/2+7, height])]
                         self.screen.blit(self.dead_player_image[obj.image_index][direction], ul)
+                    angle = (dead_time / const.PLAYER_RESPAWN_TIME) * 2 * pi
+                    radius = const.PLAYER_REVIVE_CIRCLE_RADIUS * 2
+                    rect = pg.Rect((obj.position+pg.Vector2(0, -30)), (0, 0)).inflate(radius, radius)
+                    pg.draw.arc(self.screen, const.PLAYER_COLOR[obj.image_index], rect, pi/2-angle, pi/2, width=6)
+                elif effect_timer < const.ITEM_LOSE_EFFECT_HINT_TIME and quarter_sec % 2 == 0:
+                    self.screen.blit(self.character_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.PETRIFICATION:
                     self.screen.blit(self.petrified_player_image[obj.image_index][direction], ul)
                 elif effect == const.EffectType.CLOAK:
@@ -510,7 +532,7 @@ class GraphicalView:
                     self.screen.blit(self.character_image[const.GhostIds.DEMENTOR][model.timer//const.ANIMATION_PICTURE_LENGTH % const.DEMENTOR_PICTURE_NUMBER], ul)
             elif obj.object_type == const.ObjectType.PATRONUS:
                 effect_timer = obj.detail[0]
-                if quater_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:
+                if quarter_sec % 2 == 0 or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= effect_timer:
                     ul = [x - y for x, y in zip(obj.position,
                                                 [const.PATRONUS_RADIUS, const.PATRONUS_RADIUS*2])]
                     self.screen.blit(self.shining_patronus, ul)
@@ -570,13 +592,14 @@ class GraphicalView:
             position = animation[0]
             disappear_time = animation[1]
             duration = animation[2]
-            for i in range(5):
-                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - (disappear_time - (model.timer - i)) / duration)
-                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
-                color.a = 50 + 50 * i
-                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
             if model.timer > disappear_time:
                 self.patronus_shockwave_animations.remove(animation)
+                continue
+            for i in range(5):
+                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - min(1, (disappear_time - model.timer + i) / duration))
+                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
+                color.a = int(255 * (1 - radius / const.PATRONUS_SHOCKWAVE_RADIUS))
+                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
 
 
         # Sortinghat animation
@@ -599,19 +622,13 @@ class GraphicalView:
             self.sortinghat_animations.append((position, victim, index))
 
         # Ghost Killing Animation
-        # for kill_animation in self.ghost_kill_animations:
-        #     pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, -20 - 35),
-        #                  kill_animation[1] + pg.Vector2(15, 20 - 35), 10)
-        #     pg.draw.line(self.screen, pg.Color('red'), kill_animation[1] + pg.Vector2(-15, 20 - 35),
-        #                  kill_animation[1] + pg.Vector2(15, -20 - 35), 10)
-        kill_animation_end_list = []
-        for kill_animation in self.ghost_kill_animations:
+        kill_animations = self.ghost_kill_animations.copy()
+        for kill_animation in kill_animations:
             if model.timer > kill_animation[4]:
-                kill_animation_end_list.append(kill_animation)
-        for kill_animation in kill_animation_end_list:
-            self.ghost_kill_animations.remove(kill_animation)
+                self.ghost_kill_animations.remove(kill_animation)
 
         self.portkey_animation = [x for x in self.portkey_animation if x.tick()]
+        self.bleed_animations = [x for x in self.bleed_animations if x.tick()]
 
         # Fog
         self.fog.tick()
@@ -681,26 +698,29 @@ class GraphicalView:
         pg.display.flip()
 
 
-class Portal:
-    def __init__(self, screen, position: pg.Vector2, animation_image, image_duration):
+class GIFAnimation:
+    def __init__(self, screen, position: pg.Vector2, animation_image: list[pg.Surface], image_duration, delay: int = 0):
         self.screen = screen
         self.animation_image = animation_image
+        self.animation_length = len(animation_image)
         self.image_duration = image_duration
         self.position = position.copy()
-        self.position.y -= 32
+        self.delay = delay
         self.animation_index = 0
         self.animation_life = 0
 
     def tick(self):
-        ul = self.position + pg.Vector2(-32, 0)
-        self.screen.blit(self.animation_image[self.animation_index], ul)
+        if self.delay > 0:
+            self.delay -= 1
+            return True
+        image = self.animation_image[self.animation_index]
+        rect = pg.Rect(self.position, (0, 0)).inflate(image.get_size())
+        self.screen.blit(image, rect)
         self.animation_life += 1
         if self.animation_life == self.image_duration:
             self.animation_index += 1
             self.animation_life = 0
-        if self.animation_index == 8:
-            return False # del
-        return True
+        return self.animation_index < self.animation_length
 
 
 class Fog:

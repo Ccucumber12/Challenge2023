@@ -28,6 +28,8 @@ PLAYER_ADD_SCORE = [2, 3, 5, 5]
 PLAYER_SPEED = 140 / FPS
 NUM_OF_PLAYERS = 4
 
+PLAYER_REVIVE_CIRCLE_RADIUS = 50
+
 # Ghost
 
 class GhostIds(Enum):
