@@ -3,9 +3,7 @@ import os
 import platform
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-
 import pygame as pg
-
 del os.environ['PYGAME_HIDE_SUPPORT_PROMPT']
 
 import event_manager.events
@@ -32,21 +30,25 @@ def main():
 
     # Argument parser
     parser = argparse.ArgumentParser(prog='Challenge2023')
-    parser.add_argument('map', help='The name of tmaps. It can be snow, azkaban or river(for test)')
+    parser.add_argument(
+        'map', help='The name of tmaps. It can be snow, azkaban or river(for test)')
     parser.add_argument('ai1', nargs='?', default='manual')
     parser.add_argument('ai2', nargs='?', default='manual')
     parser.add_argument('ai3', nargs='?', default='manual')
     parser.add_argument('ai4', nargs='?', default='manual')
     parser.add_argument('-m', '--mute', action='store_true', help='mute the BGM')
-    parser.add_argument('--show-ai-target', action='store_true', help='show returned positions of AIs')
-    parser.add_argument('--no-error-message', action='store_true', help='disable the traceback message')
-    parser.add_argument('--r18g', action='store_true', help='add some violent taste...')
+    parser.add_argument('-s', '--show-ai-target', action='store_true',
+                        help='show returned positions of AIs')
+    parser.add_argument('-n', '--no-error-message', action='store_true',
+                        help='disable the traceback message')
+    parser.add_argument('-r', '--r18g', action='store_true', help='add some violent taste...')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     instances_manager.register_event_manager(ev_manager)
-    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4], args.show_ai_target, args.no_error_message)
+    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4],
+                       args.show_ai_target, args.no_error_message)
     instances_manager.register_game_engine(model)
     Controller()
     GraphicalView(args.r18g)
