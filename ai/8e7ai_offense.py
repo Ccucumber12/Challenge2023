@@ -7,27 +7,22 @@ import math
 class TeamAI(AI):
 
     def __init__(self):
-        self.candidates = [(937,33), (882,48), (923,91), (985,127), (974,171), (894,176), (866,134), (807,126), (797,76), (750,36), (628,40), (582,46), (613,106), (634,140), (680,155), (612,184), (571,208), (511,217), (453,222), (430,188), (389,158), (519,155), (345,109), (283,91), (243,91), (191,126), (268,159), (122,161), (94,182), (230,200), (254,244), (299,282), (346,313), (300,361), (241,347), (175,314), (140,286), (109,273), (114,379), (177,417), (245,423), (285,400), (220,505), (294,523), (231,575), (127,528), (357,389), (385,392), (422,387), (473,365), (492,326), (436,328), (395,356), (550,401), (586,415), (622,436), (612,487), (588,530), (519,541), (538,589), (542,625), (575,664), (659,683), (735,701), (798,725), (881,706), (713,641), (807,643), (744,602), (770,553), (811,580), (880,585), (926,557), (929,519), (888,461), (759,431), (859,409), (765,391), (718,359), (683,324), (773,290), (861,293), (905,328), (869,358), (946,333), (1012,338), (1076,337), (1129,382), (1152,418), (1060,438), (1081,490), (1135,518), (1158,548), (1155,631), (1080,660), (1041,710), (1047,216), (990,165), (1156,207), (1103, 278)]
-        self.candidates = [Vector2(x) for x in self.candidates]
-        for point in self.candidates:
-            if get_ground_type(point) == GroundType.OBSTACLE:
-                print("illegal", point)
-
+        self.candidates = []
+        while len(self.candidates) < 100:
+            i = Vector2(random.uniform(0, 1200), random.uniform(0, 800))
+            if get_ground_type(i) != GroundType.OBSTACLE:
+                self.candidates.append(i)
         self.portkey_eval = None
         self.me = get_myself()
         self.ghosts = []
         self.directions = []
-        # corners that should be avoided
-        self.corners = [Vector2(422, 729), Vector2(24, 727), Vector2(26, 182), Vector2(1143, 114), Vector2(1193, 788)]
-
-        
-    def get_close_positions(self, radius, run):
+        init_vec = Vector2(100, 0)
+        for i in range(36):
+            self.directions.append(init_vec)
+            init_vec.rotate(10)
+    
+    def get_close_positions(self, radius):
         ret = [x for x in self.candidates if distance(x, self.me.position) < radius]
-        if run:
-            init_vec = Vector2(radius/3, 0)
-            for i in range(36):
-                ret.append(init_vec)
-                init_vec.rotate(10)
         return ret
     def evaluate_position(self, pos, line):
         #tries to find the most "empty" position that is nearby
@@ -55,73 +50,16 @@ class TeamAI(AI):
                 else:
                     dis = distance(ghostpos, pos)
                     ret -= min(1000, dis)
-              
-        if not line:
-            ret -= sum(min(350, distance(pos, corner)) for corner in self.corners) * 2
         if same_side is False:
             ret -= 10000
         if portkey:
             self.portkey_eval = ret
+        """
+        if ret > -5000 and get_time() < 120 * 60 and far:
+            ret -= sum(distance(pos, player.position) for player in get_players()) / 4
+        """
         return ret
-
-    def get_ghost_positions(self, ghost_positions):
-        ghosts = get_ghosts(SortKey.DISTANCE)
-        same_side = False
-        for ghost in ghosts:
-            ghostpos = ghost.position
-            if ghost.chanting: 
-                ghostpos = ghost.teleport_destination
-            ghost_positions.append(ghostpos) 
-            if connected_to(ghostpos):
-                same_side = True
-        return same_side
-
-    def defense(self):
-        vec = get_nearest_ghost().position - self.me.position
-        ghosts = get_ghosts(SortKey.DISTANCE)
-        ghost_positions = []
-        same_side = self.get_ghost_positions(ghost_positions)
-        
-        def reachable(pos):
-            #guesses if pos is reachable without getting tagged
-            dis = distance_to(pos)
-            extra = distance(pos, ghost_positions[0])
-            if self.me.dead:
-                return self.me.respawn_after * self.me.speed + extra > dis
-            if self.me.effect == EffectType.REMOVED_SORTINGHAT:
-                return self.me.effect_remain * self.me.speed + extra > dis
-            return dis * ghosts[0].speed < extra * self.me.speed
-
-        has_golden_snitch = False
-        golden_snitch_pos = (0, 0)
-            
-        items = [] 
-        for item in get_items(SortKey.DISTANCE):
-            if item.type == ItemType.GOLDEN_SNITCH:
-                has_golden_snitch = True
-                golden_snitch_pos = item.position
-            if item.type != ItemType.GOLDEN_SNITCH and item.type != ItemType.PETRIFICATION:
-                items.append(item)
-                if reachable(item.position): 
-                    return item.position
-        has_golden_snitch = False
-        golden_snitch_pos = (0, 0)
-        if has_golden_snitch and self.me.effect == EffectType.CLOAK:
-            if vec.length() < 150:
-                return self.me.position - vec
-            return Vector2(600, 400)
-
-        mindis = distance_to(ghost_positions[0])
-        points = []
-        if mindis > 350:
-            points = self.get_close_positions(600, False)
-            ret = min(points, key=lambda x: self.evaluate_position(x, 0),default=None)
-            return ret
-        else:
-            points = self.get_close_positions(350, True)
-            ret = min(points, key=lambda x: self.evaluate_position(x, 1),default=None)
-            return ret
-
+    
     def evaluate_items(self, item):
         #evaluates the value of an item
         ret = 0
@@ -159,13 +97,50 @@ class TeamAI(AI):
             ret = distance(item.position, self.me.position) * 0.25
             return ret
 
-    def offense(self):
-        items = get_items()
+    def defense(self):
+        vec = get_nearest_ghost().position - self.me.position
 
         ghosts = get_ghosts(SortKey.DISTANCE)
         ghost_positions = []
-        same_side = self.get_ghost_positions(ghost_positions)
-        vec = ghost_positions[0] - self.me.position
+        same_side = False
+        for ghost in ghosts:
+            ghostpos = ghost.position
+            if ghost.chanting: 
+                ghostpos = ghost.teleport_destination
+            ghost_positions.append(ghostpos) 
+            if connected_to(ghostpos):
+                same_side = True
+        
+        def reachable(pos):
+            #guesses if pos is reachable without getting tagged
+            dis = distance_to(pos)
+            extra = distance(pos, ghost_positions[0])
+            if self.me.dead:
+                return self.me.respawn_after * self.me.speed + extra > dis
+            if self.me.effect == EffectType.REMOVED_SORTINGHAT:
+                return self.me.effect_remain * self.me.speed + extra > dis
+            return dis * ghosts[0].speed < extra * self.me.speed
+
+        items = [] 
+        for item in get_items(SortKey.DISTANCE):
+            if item.type != ItemType.GOLDEN_SNITCH and item.type != ItemType.PETRIFICATION:
+                items.append(item)
+                if reachable(item.position): 
+                    return item.position
+        mindis = distance_to(ghost_positions[0])
+        points = []
+        if mindis > 350:
+            points = self.get_close_positions(600)
+            ret = min(points, key=lambda x: self.evaluate_position(x, 0),default=None)
+            return ret
+        else:
+            points = self.get_close_positions(350)
+            ret = min(points, key=lambda x: self.evaluate_position(x, 1),default=None)
+            return ret
+
+    def offense(self):
+        vec = get_nearest_ghost().position - self.me.position
+        items = get_items()
 
         has_golden_snitch = False
         golden_snitch_pos = (0, 0)
@@ -179,17 +154,17 @@ class TeamAI(AI):
             return Vector2(600, 400)
 
         best_item = min(items, key=lambda x: self.evaluate_items(x), default=None)
-        if len(items) > 0 and (distance_to(best_item.position) < max(vec.length()*0.8, 150) or vec.length() > 450 or self.me.dead or self.me.effect == EffectType.REMOVED_SORTINGHAT):
+        if len(items) > 0 and (distance_to(best_item.position) < max(vec.length(), 150) or vec.length() > 350 or self.me.dead or self.me.effect == EffectType.REMOVED_SORTINGHAT):
             return best_item.position 
         else:
             mindis = vec.length()
             points = []
             if mindis > 350:
-                points = self.get_close_positions(600, False)
+                points = self.get_close_positions(600)
                 ret = min(points, key=lambda x: self.evaluate_position(x, 0),default=None)
                 return ret
             else:
-                points = self.get_close_positions(350, True)
+                points = self.get_close_positions(350)
                 ret = min(points, key=lambda x: self.evaluate_position(x, 1),default=None)
                 return ret
             
@@ -208,13 +183,10 @@ class TeamAI(AI):
             
         if self.me.effect == EffectType.SORTINGHAT:
             return convert_point(self.me.position + vec)
-        return convert_point(self.defense())
-        """
         if get_time() < 120 * 60:
             return convert_point(self.defense())
         else:
             return convert_point(self.offense())
-        """
          
 
        
