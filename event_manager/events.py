@@ -180,3 +180,10 @@ class EventMuteMusic(BaseEvent):
     def __init__(self, type):
         super().__init__()
         self.type = type
+
+class EventShowCoordinate(BaseEvent):
+    name = 'ShowCoordinate event'
+
+    def __init__(self, unit):
+        super().__init__()
+        self.unit = unit

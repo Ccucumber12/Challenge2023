@@ -8,6 +8,7 @@ import pygame as pg
 
 del os.environ['PYGAME_HIDE_SUPPORT_PROMPT']
 
+import const
 import event_manager.events
 import instances_manager
 from controller.controller import Controller
@@ -41,6 +42,7 @@ def main():
     parser.add_argument('--show-ai-target', action='store_true', help='show returned positions of AIs')
     parser.add_argument('--no-error-message', action='store_true', help='disable the traceback message')
     parser.add_argument('--r18g', action='store_true', help='add some violent taste...')
+    parser.add_argument('-c', '--coordinate', type=int, help='set the interval of the coordinate and show it when playing (can be canceled using F3)')
     args = parser.parse_args()
 
     # EventManager listen to events and notice model, controller, view
@@ -53,9 +55,9 @@ def main():
     if not args.mute:
         BackGroundMusic()
 
-    if args.mute:
-        ev_manager.post(event_manager.events.EventMuteMusic("BGM"))
-        ev_manager.post(event_manager.events.EventMuteMusic("effect"))
+    if args.coordinate is not None:
+        const.COORDINATE_UNIT = args.coordinate
+        ev_manager.post(event_manager.events.EventShowCoordinate(args.coordinate))
 
     # Main loop
     model.run()

@@ -74,6 +74,7 @@ class GraphicalView:
         self.portkey_animation: list[GIFAnimation] = []
         self.bleed_animation_images: list[pg.Surface] = []
         self.bleed_animations: list[GIFAnimation] = []
+        self.coordinate_unit = 0 # it won't show the coordinate if the variable is set to zero
 
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -334,6 +335,7 @@ class GraphicalView:
         ev_manager.register_listener(EventGhostKill, self.handle_ghost_kill)
         ev_manager.register_listener(EventGhostKill, self.add_player_killed_animation)
         ev_manager.register_listener(EventPortkey, self.handle_portkey)
+        ev_manager.register_listener(EventShowCoordinate, self.handle_show_coordinate)
 
     def display_fps(self):
         """
@@ -372,6 +374,12 @@ class GraphicalView:
 
     def register_places(self, event: EventTimesUp):
         self.places = event.places
+
+    def handle_show_coordinate(self, event: EventShowCoordinate):
+        if self.coordinate_unit == 0:
+            self.coordinate_unit = event.unit
+        else:
+            self.coordinate_unit = 0
 
     def render_menu(self):
         # draw background
@@ -413,6 +421,9 @@ class GraphicalView:
             self.screen.blit(text_surface, text_position)
             text_position.y += 40
             text_surface = font.render("F2: Mute/unmute effect sounds", 1, pg.Color('black'))
+            self.screen.blit(text_surface, text_position)
+            text_position.y += 40
+            text_surface = font.render("F3: Show/hide the coordinate (default interval: 25)", 1, pg.Color('black'))
             self.screen.blit(text_surface, text_position)
 
         pg.display.flip()
@@ -669,6 +680,27 @@ class GraphicalView:
                 pg.draw.line(self.screen, const.PLAYER_COLOR[i], target, source, 5)
                 pg.draw.circle(self.screen, const.PLAYER_COLOR[i], target, 10)
                 pg.draw.circle(self.screen, "#000000", target, 10, 3)
+
+        # Coordinate
+        if self.coordinate_unit != 0:
+            z = 0
+            while z < const.ARENA_SIZE[0]:
+                if z % 400 == 0:
+                    pg.draw.line(self.screen, "white", (z, 0), (z, const.ARENA_SIZE[1]-1), 1)
+                elif z % 100 == 0:
+                    pg.draw.line(self.screen, "black", (z, 0), (z, const.ARENA_SIZE[1]-1), 1)
+                else:
+                    pg.draw.line(self.screen, "gold", (z, 0), (z, const.ARENA_SIZE[1]-1), 1)
+                z += self.coordinate_unit
+            z = 0
+            while z < const.ARENA_SIZE[1]:
+                if z % 400 == 0:
+                    pg.draw.line(self.screen, "white", (0, z), (const.ARENA_SIZE[0]-1, z), 1)
+                elif z % 100 == 0:
+                    pg.draw.line(self.screen, "black", (0, z), (const.ARENA_SIZE[0]-1, z), 1)
+                else:
+                    pg.draw.line(self.screen, "gold", (0, z), (const.ARENA_SIZE[0]-1, z), 1)
+                z += self.coordinate_unit
 
         pg.display.flip()
 

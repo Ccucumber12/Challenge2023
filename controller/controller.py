@@ -2,7 +2,7 @@ import pygame as pg
 
 import const
 from event_manager.events import (EventEveryTick, EventInitialize, EventMuteMusic, EventPlayerMove,
-                                  EventQuit, EventStateChange, EventHelpMenu)
+                                  EventQuit, EventStateChange, EventHelpMenu, EventShowCoordinate)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -38,6 +38,8 @@ class Controller:
                     ev_manager.post(EventMuteMusic("BGM"))
                 if event_pg.key == const.MUTE_EFFECT_SOUND_KEY:
                     ev_manager.post(EventMuteMusic("effect"))
+                if event_pg.key == const.SHOW_COORDINATE_KEY:
+                    ev_manager.post(EventShowCoordinate(const.COORDINATE_UNIT))
                 key_down_events.append(event_pg)
             # for orientating
             if event_pg.type == pg.MOUSEBUTTONDOWN:
