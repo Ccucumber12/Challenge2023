@@ -189,7 +189,9 @@ SORTINGHAT_ANIMATION_SPEED = 500
 SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
 MAGIC_CIRCLE_RADIUS = GHOST_RADIUS
 GHOST_KILL_ANIMATION_TIME = FPS // 3
-ANIMATION_PICTURE_LENGTH = FPS // 3
+GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH = FPS // 45
+GOLDEN_SNITCH_PICTURE_NUMBER = 2
+DEMENTOR_ANIMATION_PICTURE_LENGTH = FPS // 3
 DEMENTOR_PICTURE_NUMBER = 3
 
 
@@ -256,7 +258,7 @@ DEAD_PLAYER_SIZE = {
 
 PICTURES_PATH = {
     ItemType.CLOAK: pathlib.Path("pictures/items/Cloak.png"),
-    ItemType.GOLDEN_SNITCH: pathlib.Path("pictures/items/GoldenSnitch.png"),
+    ItemType.GOLDEN_SNITCH: pathlib.Path("pictures/items"),
     ItemType.PATRONUS: pathlib.Path("pictures/items/Patronus.png"),
     ItemType.PETRIFICATION: pathlib.Path("pictures/items/Petrification.png"),
     ItemType.SORTINGHAT: pathlib.Path("pictures/items/SortingHat.png"),

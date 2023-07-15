@@ -55,8 +55,23 @@ class Item(__ObjectBase):
             const.ITEM_RADIUS * 2,
             True,
         )
-        for item in const.ItemType
+        for item in const.ItemType if item != const.ItemType.GOLDEN_SNITCH
     }
+
+    @classmethod
+    def init_convert(cls):
+        super().init_convert()
+        cls.images[const.ItemType.GOLDEN_SNITCH] = tuple(
+            crop_image(
+                pg.image.load(const.PICTURES_PATH[const.ItemType.GOLDEN_SNITCH] / f'GoldenSnitch_{i}.png'),
+                const.ITEM_RADIUS * 2,
+                const.ITEM_RADIUS * 2,
+                True,
+                bounding_rect=pg.Rect(254, 150, 385, 270),
+            ).convert_alpha()
+            for i in (0, 1)
+        )
+        cls.image_initialized = True
 
     def __init__(self, item):
         super().__init__()
@@ -85,7 +100,11 @@ class Item(__ObjectBase):
             )
 
         # render item
-        img = self.images[self.item.type]
+        if self.item.type == const.ItemType.GOLDEN_SNITCH:
+            model = get_game_engine()
+            img = self.images[self.item.type][model.timer // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH % const.GOLDEN_SNITCH_PICTURE_NUMBER]
+        else:
+            img = self.images[self.item.type]
         screen.blit(img, img.get_rect(midbottom=self.item.render_position))
 
 
@@ -141,7 +160,7 @@ class Ghost(__ObjectBase):
         else:
             img = self.images[
                 model.timer
-                // const.ANIMATION_PICTURE_LENGTH
+                // const.DEMENTOR_ANIMATION_PICTURE_LENGTH
                 % const.DEMENTOR_PICTURE_NUMBER
             ]
             screen.blit(img, img.get_rect(midbottom=ghost.position))
@@ -257,6 +276,7 @@ class Player(__ObjectBase):
                             cls.images[player][skin][face_dir] = crop_image(
                                 img, *const.DEAD_PLAYER_SIZE[face_dir], True
                             )
+            cls.image_initialized == True
 
         # other skins that is not contained in const.PlayerSkins
         for player in const.PlayerIds:
