@@ -224,9 +224,7 @@ class GraphicalView:
                                     const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
 
     def add_patronus_shockwave_animation(self, event):
-        model = get_game_engine()
-        duration = const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION
-        self.patronus_shockwave_animations.append((event.position, model.timer + duration, duration))
+        self.patronus_shockwave_animations.append(AnimationPatronousShockwave(event.position))
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
@@ -374,19 +372,11 @@ class GraphicalView:
                 pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
 
         # Patronus shockwave animation
-        animations = self.patronus_shockwave_animations.copy()
-        for animation in animations:
-            position = animation[0]
-            disappear_time = animation[1]
-            duration = animation[2]
-            if model.timer > disappear_time:
-                self.patronus_shockwave_animations.remove(animation)
-                continue
-            for i in range(5):
-                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - min(1, (disappear_time - model.timer + i) / duration))
-                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
-                color.a = int(255 * (1 - radius / const.PATRONUS_SHOCKWAVE_RADIUS))
-                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
+        for animation in self.patronus_shockwave_animations:
+            animation.draw(self.screen)
+            animation.update()
+        self.patronus_shockwave_animations = [ani for ani in self.patronus_shockwave_animations if not ani.expired]
+
 
 
         # Sortinghat animation
@@ -589,7 +579,7 @@ class GSAnimation:
         x = (1-t)*((1-t)*P[0][0] + t*P[1][0]) + t*((1-t)*P[1][0] + t*P[2][0])
         y = (1-t)*((1-t)*P[0][1] + t*P[1][1]) + t*((1-t)*P[1][1] + t*P[2][1])
         return x, y
-    
+
     def tick(self):
         # self.now_tick += self.tick_dist
         self.now_tick += (self.tick_dist ** 3) // 50000
@@ -611,3 +601,23 @@ class GSAnimation:
         index = self.tick_dist // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH % const.GOLDEN_SNITCH_PICTURE_NUMBER
         self.screen.blit(self.pics[index], self.pics[index].get_rect(center=center))
         return True
+
+
+class AnimationPatronousShockwave:
+    def __init__(self, position):
+        self.timer = 0
+        self.duration = const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION
+        self.expired = False
+        self.position = position
+
+    def update(self):
+        self.timer += 1
+        if self.timer > self.duration:
+            self.expired = True
+
+    def draw(self, screen: pg.Surface):
+        for i in range(5):
+            radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - min(1, (self.duration - self.timer + i) / self.duration))
+            color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
+            color.a = int(255 * (1 - radius / const.PATRONUS_SHOCKWAVE_RADIUS))
+            pg.draw.circle(screen, color, self.position, radius=radius, width=1+i)
