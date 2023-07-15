@@ -1,3 +1,4 @@
+import pathlib
 from enum import Enum, IntEnum, auto
 
 import pygame as pg
@@ -253,31 +254,31 @@ DEAD_PLAYER_SIZE = {
 }
 
 PICTURES_PATH = {
-    ItemType.CLOAK: "pictures/items/Cloak.png",
-    ItemType.GOLDEN_SNITCH: "pictures/items/GoldenSnitch.png",
-    ItemType.PATRONUS: "pictures/items/Patronus.png",
-    ItemType.PETRIFICATION: "pictures/items/Petrification.png",
-    ItemType.SORTINGHAT: "pictures/items/SortingHat.png",
-    PlayerIds.PLAYER0: "pictures/characters/players/player0",
-    PlayerIds.PLAYER1: "pictures/characters/players/player1",
-    PlayerIds.PLAYER2: "pictures/characters/players/player2",
-    PlayerIds.PLAYER3: "pictures/characters/players/player3",
-    PlayerSkins.NORMAL: "normal",
-    PlayerSkins.SORTINGHAT: "sortinghat",
-    PlayerSkins.SHINING: "shining",
-    PlayerSkins.DEAD: "dead",
-    CharacterDirection.UP: "rear.png",
-    CharacterDirection.LEFT: "left.png",
-    CharacterDirection.DOWN: "front.png",
-    CharacterDirection.RIGHT: "right.png",
-    GhostIds.DEMENTOR: "pictures/characters/ghosts/dementor",
-    GhostSkins.KILLING: "pictures/characters/ghosts/dementor/killing",
-    Scene.TITLE: "pictures/scenes/Title.png",
-    Scene.SCORE_BOARD: "pictures/scenes/Scoreboard.png",
-    Scene.FOG: "pictures/scenes/Fog.png",
-    Scene.ENDGAME: "pictures/scenes/Ending.png",
-    OtherPictures.PATRONUS: "pictures/characters/shining_patronus.png",
-    OtherPictures.MAGIC_CIRCLE: "pictures/characters/ghosts/MagicCircle.png",
+    ItemType.CLOAK: pathlib.Path("pictures/items/Cloak.png"),
+    ItemType.GOLDEN_SNITCH: pathlib.Path("pictures/items/GoldenSnitch.png"),
+    ItemType.PATRONUS: pathlib.Path("pictures/items/Patronus.png"),
+    ItemType.PETRIFICATION: pathlib.Path("pictures/items/Petrification.png"),
+    ItemType.SORTINGHAT: pathlib.Path("pictures/items/SortingHat.png"),
+    PlayerIds.PLAYER0: pathlib.Path("pictures/characters/players/player0"),
+    PlayerIds.PLAYER1: pathlib.Path("pictures/characters/players/player1"),
+    PlayerIds.PLAYER2: pathlib.Path("pictures/characters/players/player2"),
+    PlayerIds.PLAYER3: pathlib.Path("pictures/characters/players/player3"),
+    PlayerSkins.NORMAL: pathlib.Path("normal"),
+    PlayerSkins.SORTINGHAT: pathlib.Path("sortinghat"),
+    PlayerSkins.SHINING: pathlib.Path("shining"),
+    PlayerSkins.DEAD: pathlib.Path("dead"),
+    CharacterDirection.UP: pathlib.Path("rear.png"),
+    CharacterDirection.LEFT: pathlib.Path("left.png"),
+    CharacterDirection.DOWN: pathlib.Path("front.png"),
+    CharacterDirection.RIGHT: pathlib.Path("right.png"),
+    GhostIds.DEMENTOR: pathlib.Path("pictures/characters/ghosts/dementor"),
+    GhostSkins.KILLING: pathlib.Path("pictures/characters/ghosts/dementor/killing"),
+    Scene.TITLE: pathlib.Path("pictures/scenes/Title.png"),
+    Scene.SCORE_BOARD: pathlib.Path("pictures/scenes/Scoreboard.png"),
+    Scene.FOG: pathlib.Path("pictures/scenes/Fog.png"),
+    Scene.ENDGAME: pathlib.Path("pictures/scenes/Ending.png"),
+    OtherPictures.PATRONUS: pathlib.Path("pictures/characters/shining_patronus.png"),
+    OtherPictures.MAGIC_CIRCLE: pathlib.Path("pictures/characters/ghosts/MagicCircle.png"),
 }
 FONT_PATH = "fonts"
 

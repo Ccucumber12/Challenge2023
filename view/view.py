@@ -56,11 +56,6 @@ class GraphicalView:
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
 
-        # characters' directions
-        self.character_direction = {}
-        for player in const.PlayerIds:
-            self.character_direction[player] = const.CharacterDirection.DOWN
-
         # animations
         self.ghost_teleport_chanting_animations: list[GatheringParticleEffect] = []
         self.petrification_animation: list[CastMagicParticleEffect] = []
@@ -87,6 +82,7 @@ class GraphicalView:
             0  # it won't show the coordinate if the variable is set to zero
         )
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
@@ -358,6 +354,8 @@ class GraphicalView:
                     util.crop_image(picture, *const.DEAD_PLAYER_SIZE[direction], True)
 >>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
+=======
+>>>>>>> 1510e82 (refactor: move players into view.objects)
         for ghost in const.GhostIds:
             if ghost == const.GhostIds.DEMENTOR:
                 self.character_image[ghost] = []
@@ -522,6 +520,7 @@ class GraphicalView:
         # Objects and animations should be initialized after pygame is initialized.
         # Therefore, they should be created in initialize() instead of __init__().
         self.scoreboard = view_objects.ScoreBoard()
+        self.players = [view_objects.Player(player) for player in model.players]
 
     def last_stage_handler(self):
         self.fog.start = True
@@ -544,27 +543,20 @@ class GraphicalView:
         self.show_helper = not self.show_helper
 
     def handle_player_move(self, event: EventPlayerMove):
+<<<<<<< HEAD
         if (
             get_game_engine().players[event.player_id].effect
             == const.EffectType.PETRIFICATION
         ):
+=======
+        model = get_game_engine()
+        if model.players[event.player_id].effect == const.EffectType.PETRIFICATION:
+>>>>>>> 1510e82 (refactor: move players into view.objects)
             return
-        move_direction = event.direction
-        direction = const.CharacterDirection.DOWN
-        if move_direction.length() == 0:
-            return
-        down = move_direction.dot((0, 1))
-        up = move_direction.dot((0, -1))
-        left = move_direction.dot((-1, 0))
-        right = move_direction.dot((1, 0))
-        mx = max(down, up, left, right)
-        if left == mx:
-            direction = const.CharacterDirection.LEFT
-        elif right == mx:
-            direction = const.CharacterDirection.RIGHT
-        elif up == mx:
-            direction = const.CharacterDirection.UP
-        self.character_direction[event.player_id] = direction
+        for player in self.players:
+            if player.player.player_id == event.player_id:
+                break
+        player.update_face_dir()
 
     def handle_ghost_kill(self, event: EventGhostKill):
 <<<<<<< HEAD
@@ -800,7 +792,9 @@ class GraphicalView:
 =======
 
         objects += [view_objects.Item(item) for item in model.items]
+        objects += self.players
 
+<<<<<<< HEAD
 >>>>>>> fb322f5 (refactor: move items into view.objects)
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
@@ -823,6 +817,8 @@ class GraphicalView:
                     detail,
                 )
             )
+=======
+>>>>>>> 1510e82 (refactor: move players into view.objects)
         for ghost in model.ghosts:
             coord = game_map.convert_coordinate(ghost.position)
             objects.append(
@@ -858,16 +854,19 @@ class GraphicalView:
         # half_sec = model.timer // (const.FPS // 2)
         quarter_sec = model.timer // (const.FPS // 4)
 
+<<<<<<< HEAD
         def render_picture(image_dic: dict, index, direction, obj):
             width = image_dic[index][direction].get_width()
             height = image_dic[index][direction].get_height()
             ul = [x - y for x, y in zip(obj.position, [width / 2, height])]
             self.screen.blit(image_dic[index][direction], ul)
 
+=======
+>>>>>>> 1510e82 (refactor: move players into view.objects)
         for obj in objects:
-            # ul means upper left
             if isinstance(obj, view_objects.Item):
                 obj.draw(self.screen)
+<<<<<<< HEAD
             elif obj.object_type == const.ObjectType.PLAYER:
                 direction = self.character_direction[obj.image_index]
                 effect, dead, effect_timer, dead_time = obj.detail
@@ -978,6 +977,11 @@ class GraphicalView:
                     self.screen.blit(
                         self.character_image[obj.image_index][direction], ul
                     )
+=======
+            elif isinstance(obj, view_objects.Player):
+                obj.draw(self.screen)
+
+>>>>>>> 1510e82 (refactor: move players into view.objects)
             elif obj.object_type == const.ObjectType.GHOST:
                 ul = [
                     x - y
