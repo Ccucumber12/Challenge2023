@@ -49,11 +49,16 @@ def main():
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     instances_manager.register_event_manager(ev_manager)
-    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4],
+    name_of_ai = [args.ai1, args.ai2, args.ai3, args.ai4]
+    model = GameEngine(args.map, name_of_ai,
                        args.show_ai_target, args.no_error_message)
     instances_manager.register_game_engine(model)
     Controller()
-    GraphicalView(args.r18g)
+
+    player_names = const.PLAYER_NAME.copy()
+    for i in range(const.NUM_OF_PLAYERS):
+        player_names[i] = name_of_ai[i].replace('manual', 'Hermione') + " " + player_names[i]
+    GraphicalView(args.r18g, player_names)
     if not args.mute:
         BackGroundMusic()
 

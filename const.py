@@ -194,7 +194,7 @@ class OtherPictures(Enum):
 SCOREBOARD_FONT_SIZE = 32
 SCOREBOARD_COL = [54, 112, 171, 229]
 TIME_POSITION = [(x + ARENA_SIZE[0], 160) for x in SCOREBOARD_COL]
-PLAYER_NAME = ["Hermione Yellow", "Hermione Pink", "Hermione Gray", "Hermione Blue"]
+PLAYER_NAME = ["Yellow", "Pink", "Gray", "Blue"]
 NAME_ROW = [238, 365, 490, 620]
 NAME_POSITION = [(140 + ARENA_SIZE[0], y) for y in NAME_ROW]
 SCORE_ROW = [287, 414, 540, 670]

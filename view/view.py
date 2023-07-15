@@ -29,7 +29,7 @@ class GraphicalView:
     """
     background = pg.Surface(const.ARENA_SIZE)
 
-    def __init__(self, r18g):
+    def __init__(self, r18g, player_names):
         model = get_game_engine()
         """
         This function is called when the GraphicalView is created.
@@ -37,6 +37,7 @@ class GraphicalView:
             , they should be initialized in GraphicalView.initialize()
         """
         self.r18g = r18g
+        self.player_names = player_names
         self.register_listeners()
 
         self.show_helper = False
@@ -653,7 +654,7 @@ class GraphicalView:
             self.screen.blit(text_surface, text_surface.get_rect(center=position))
         # Name
         for i in range(const.NUM_OF_PLAYERS):
-            print_text(const.PLAYER_NAME[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20)
+            print_text(self.player_names[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20)
         # Time
         count_down = (const.GAME_LENGTH - model.timer) // const.FPS
         print_text(count_down // 60 // 10, const.TIME_POSITION[0])
