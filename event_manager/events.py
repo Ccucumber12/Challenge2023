@@ -204,3 +204,11 @@ class EventPauseModel(BaseEvent):
 
 class EventContinueModel(BaseEvent):
     name = 'ContinueModel event'
+
+class EventGetGoldenSnitch(BaseEvent):
+    name = "player get Golden snitch"
+
+    def __init__(self, item_pos, player_id):
+        super().__init__()
+        self.item_pos = item_pos
+        self.player_id = player_id

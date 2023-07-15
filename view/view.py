@@ -70,6 +70,7 @@ class GraphicalView:
         self.portkey_animation: list[GIFAnimation] = []
         self.bleed_animation_images: list[pg.Surface] = []
         self.bleed_animations: list[GIFAnimation] = []
+        self.golden_snitch_animations: list[GSAnimation] = []
         self.coordinate_unit = 0 # it won't show the coordinate if the variable is set to zero
 
         self.background_images = []
@@ -174,6 +175,17 @@ class GraphicalView:
         self.portkey_animation.append(GIFAnimation(self.screen, event.destination,
                                              self.portkey_animation_image, int(const.FPS / 3)))
 
+    def handle_get_golden_snitch(self, event: EventGetGoldenSnitch):
+        self.screen_copy = self.screen.copy()
+        self.golden_snitch_animations.append(
+            GSAnimation(
+                self.screen,
+                event.item_pos,
+                event.player_id,
+                view_objects.Item.images[const.ItemType.GOLDEN_SNITCH],
+            )
+        )
+
     def register_listeners(self):
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
@@ -190,6 +202,7 @@ class GraphicalView:
         ev_manager.register_listener(EventGhostKill, self.add_player_killed_animation)
         ev_manager.register_listener(EventPortkey, self.handle_portkey)
         ev_manager.register_listener(EventShowCoordinate, self.handle_show_coordinate)
+        ev_manager.register_listener(EventGetGoldenSnitch, self.handle_get_golden_snitch)
 
     def display_fps(self):
         """
@@ -285,7 +298,11 @@ class GraphicalView:
     def render_play(self):
         model = get_game_engine()
         if model.forced_paused:
-            # TODO: handle the case
+            self.screen.blit(self.screen_copy, (0, 0))
+            self.golden_snitch_animations = [x for x in self.golden_snitch_animations if x.tick()]
+            if len(self.golden_snitch_animations) == 0:
+                get_event_manager().post(EventContinueModel())
+            pg.display.flip()
             return
 
         self.screen.fill(const.BACKGROUND_COLOR)
@@ -528,3 +545,35 @@ class Fog:
         self.position = self.position + pg.Vector2(self.speed, 0)
         if self.position.x > const.WINDOW_SIZE[0]:
             self.position.x -= const.FOG_SIZE[0]
+
+
+class GSAnimation:
+    def __init__(self, screen, item_pos, player_id, pic):
+        self.start_pos = item_pos
+        self.end_pos = const.SCORE_POSITION[player_id][2]
+        self.middle_pos = (int(self.start_pos[0] - 0.2*(self.end_pos[0]-self.start_pos[0])), int((self.start_pos[0]+self.end_pos[0])/2)+20)
+        self.now_tick = 0
+        self.screen = screen
+        self.pic = pic
+
+    def get_B_curve_pos(self, tick):
+        # Quadratic Bézier curves
+        # B(t) = (1-t)[(1-t)P0 + tP1] + t[(1-t)P1 + tP2]
+        length = const.GOLDEN_SNITCH_ANIMATION_LENGTH
+        P = (self.start_pos, self.middle_pos, self.end_pos)
+        t = tick / length
+        x = (1-t)*((1-t)*P[0][0] + t*P[1][0]) + t*((1-t)*P[1][0] + t*P[2][0])
+        y = (1-t)*((1-t)*P[0][1] + t*P[1][1]) + t*((1-t)*P[1][1] + t*P[2][1])
+        return x, y
+    
+    def tick(self):
+        if self.now_tick > const.GOLDEN_SNITCH_ANIMATION_LENGTH*2//3:
+            self.now_tick += 2
+        if self.now_tick > const.GOLDEN_SNITCH_ANIMATION_LENGTH//3:
+            self.now_tick += 1.5
+        else:
+            self.now_tick += 1
+        if self.now_tick >= const.GOLDEN_SNITCH_ANIMATION_LENGTH:
+            return False
+        self.screen.blit(self.pic, self.pic.get_rect(center=self.get_B_curve_pos(self.now_tick)))
+        return True
