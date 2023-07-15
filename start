@@ -30,6 +30,4 @@ fi
 
 game=$(("$1" - 1))
 
-source ./venv/bin/activate
 python3 main.py -nsr "${map[$game]}" "${p1[$game]}" "${p2[$game]}" "${p3[$game]}" "${p4[$game]}"
-deactivate
