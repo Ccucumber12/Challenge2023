@@ -24,11 +24,11 @@ class __ObjectBase:
             raise Exception(
                 f"type({cls.__name__}.images) should be either tuple or dict"
             )
+        cls.image_initialized = True
 
     def __init__(self):
         if not self.image_initialized:
             self.init_convert()
-            self.image_initialized = True
 
     def draw(self, screen: pg.Surface):
         pass
