@@ -553,6 +553,7 @@ class GSAnimation:
         self.end_pos = const.SCORE_POSITION[player_id][2]
         self.middle_pos = (int(self.start_pos[0] - 0.2*(self.end_pos[0]-self.start_pos[0])), int((self.start_pos[0]+self.end_pos[0])/2)+20)
         self.now_tick = 0
+        self.tick_dist = 1
         self.screen = screen
         self.pic = pic
 
@@ -567,12 +568,8 @@ class GSAnimation:
         return x, y
     
     def tick(self):
-        if self.now_tick > const.GOLDEN_SNITCH_ANIMATION_LENGTH*2//3:
-            self.now_tick += 2
-        if self.now_tick > const.GOLDEN_SNITCH_ANIMATION_LENGTH//3:
-            self.now_tick += 1.5
-        else:
-            self.now_tick += 1
+        self.now_tick += self.tick_dist
+        self.tick_dist += 1
         if self.now_tick >= const.GOLDEN_SNITCH_ANIMATION_LENGTH:
             return False
         self.screen.blit(self.pic, self.pic.get_rect(center=self.get_B_curve_pos(self.now_tick)))
