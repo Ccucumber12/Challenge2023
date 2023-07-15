@@ -4,6 +4,7 @@ import cv2
 import pygame as pg
 from pygame import Vector2
 from math import pi
+import numpy as np
 
 import const
 import view.objects as view_objects
@@ -298,6 +299,14 @@ class GraphicalView:
     def render_play(self):
         model = get_game_engine()
         if model.forced_paused:
+            source_arr = pg.surfarray.array3d(self.screen_copy)
+            hsv = cv2.cvtColor(source_arr, cv2.COLOR_RGB2HSV)
+            h, s, v = cv2.split(hsv)
+            hnew = np.mod(h + 2, 180).astype(np.uint8)
+            snew = np.mod(s + 2, 180).astype(np.uint8)
+            hsv_new = cv2.merge([hnew,snew,v])
+            bgr_new = cv2.cvtColor(hsv_new, cv2.COLOR_HSV2RGB)
+            self.screen_copy = pg.surfarray.make_surface(bgr_new)
             self.screen.blit(self.screen_copy, (0, 0))
             self.golden_snitch_animations = [x for x in self.golden_snitch_animations if x.tick()]
             if len(self.golden_snitch_animations) == 0:
