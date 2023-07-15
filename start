@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+map=(snow azkaban azkaban snow snow azkaban azkaban snow snow azkaban)
+p1=(3 5 1 2 1 2 1 2 1 2)
+p2=(4 8 3 5 4 8 5 3 5 3)
+p3=(6 10 8 4 10 6 6 10 8 4)
+p4=(7 9 10 6 9 7 9 7 7 9)
+
+function proc() {
+    for i in {0..9}; do
+        local tmp=$(eval "echo \"\${$1[$i]}\"")
+        local owo="$tmp"
+        if [[ "${#tmp}" == 1 ]]; then
+            owo="0$owo"
+        fi
+        owo="team$owo"
+        eval "$1[$i]=\"$owo\""
+    done
+}
+proc "p1"
+proc "p2"
+proc "p3"
+proc "p4"
+
+if [[ "$#" == 0 ]]; then
+    echo "Game # required!"
+    echo "# is 1~10"
+    exit 1
+fi
+
+game=$(("$1" - 1))
+
+source ./venv/bin/activate
+python3 main.py -nsr "${map[$game]}" "${p1[$game]}" "${p2[$game]}" "${p3[$game]}" "${p4[$game]}"
+deactivate

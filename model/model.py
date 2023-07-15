@@ -27,7 +27,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name, ai, show_ai_target, no_error_message):
+    def __init__(self, map_name, ai, show_ai_target, no_error_message, player_names):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -40,6 +40,7 @@ class GameEngine:
         self.ai = ai
         self.show_ai_target = show_ai_target
         self.no_error_message = no_error_message
+        self.player_names = player_names
 
     @property
     def state(self):
@@ -101,6 +102,11 @@ class GameEngine:
                         places.append([players_[i]])
 
                 ev_manager.post(EventTimesUp(places))
+
+                print("Result:")
+                result = sorted([(-self.players[player].score, self.player_names[player]) for player in range(const.NUM_OF_PLAYERS)])
+                for i, r in enumerate(result):
+                    print(f"Rank {i + 1} is {r[1]} with score {-r[0]}")
 
             # Check if a item is eaten
             item_deletions = []

@@ -46,18 +46,19 @@ def main():
     parser.add_argument('-c', '--coordinate', type=int, metavar='interval', help='set the interval of the coordinate and show it when playing (can be canceled using F3)')
     args = parser.parse_args()
 
-    # EventManager listen to events and notice model, controller, view
-    ev_manager = EventManager()
-    instances_manager.register_event_manager(ev_manager)
     name_of_ai = [args.ai1, args.ai2, args.ai3, args.ai4]
-    model = GameEngine(args.map, name_of_ai,
-                       args.show_ai_target, args.no_error_message)
-    instances_manager.register_game_engine(model)
-    Controller()
-
     player_names = const.PLAYER_NAME.copy()
     for i in range(const.NUM_OF_PLAYERS):
         player_names[i] = name_of_ai[i].replace('manual', 'Hermione') + " " + player_names[i]
+
+    # EventManager listen to events and notice model, controller, view
+    ev_manager = EventManager()
+    instances_manager.register_event_manager(ev_manager)
+    model = GameEngine(args.map, name_of_ai,
+                       args.show_ai_target, args.no_error_message, player_names)
+    instances_manager.register_game_engine(model)
+    Controller()
+
     GraphicalView(args.r18g, player_names)
     if not args.mute:
         BackGroundMusic()
