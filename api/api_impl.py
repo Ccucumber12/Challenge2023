@@ -233,10 +233,13 @@ class Timer():
             self.timer.start()
 
     def cancel_timer(self):
-        if self.system != 'Windows':
-            signal.setitimer(signal.ITIMER_REAL, 0)
-        else:
-            self.timer.cancel()
+        try:
+            if self.system != 'Windows':
+                signal.setitimer(signal.ITIMER_REAL, 0)
+            else:
+                self.timer.cancel()
+        except:
+            print("Perhaps some very slightly timeout.")
 
 
 def init(ai_file):
