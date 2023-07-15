@@ -61,7 +61,7 @@ class GraphicalView:
         self.petrification_animation: list[CastMagicParticleEffect] = []
         self.patronus_shockwave_animations = []
         self.sortinghat_animations = []
-        self.ghost_kill_animations = []
+        self.ghost_kill_animations = {}
 
         # scale the pictures to proper size
         self.pictures = {}
@@ -82,6 +82,7 @@ class GraphicalView:
             0  # it won't show the coordinate if the variable is set to zero
         )
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
@@ -398,6 +399,8 @@ class GraphicalView:
         self.ghost_killing_image[const.CharacterDirection.LEFT] = util.crop_image(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
 >>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
+=======
+>>>>>>> e8343d2 (refactor: move ghosts into view.objects)
         self.background_images = []
         for i in model.map.images:
             loaded_image = cv2.imread(
@@ -560,6 +563,7 @@ class GraphicalView:
 
     def handle_ghost_kill(self, event: EventGhostKill):
 <<<<<<< HEAD
+<<<<<<< HEAD
         self.ghost_kill_animations.append(
             (
                 event.ghost_id,
@@ -582,6 +586,10 @@ class GraphicalView:
 =======
         self.ghost_kill_animations.append((event.ghost_id, event.destination, event.victim_id, event.victim_effect,
                                            get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME))
+=======
+        self.ghost_kill_animations[event.ghost_id] = (event.destination, event.victim_id, event.victim_effect,
+                                           get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME)
+>>>>>>> e8343d2 (refactor: move ghosts into view.objects)
 
     def handle_portkey(self, event: EventPortkey):
         self.portkey_animation.append(GIFAnimation(self.screen, event.destination,
@@ -793,7 +801,9 @@ class GraphicalView:
 
         objects += [view_objects.Item(item) for item in model.items]
         objects += self.players
+        objects += [view_objects.Ghost(ghost) for ghost in model.ghosts]
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> fb322f5 (refactor: move items into view.objects)
         for player in model.players:
@@ -830,6 +840,8 @@ class GraphicalView:
                     (ghost.ghost_id,),
                 )
             )
+=======
+>>>>>>> e8343d2 (refactor: move ghosts into view.objects)
         for patronus in model.patronuses:
             coord = game_map.convert_coordinate(patronus.position)
             detail = (patronus.death_time,)
@@ -980,7 +992,10 @@ class GraphicalView:
 =======
             elif isinstance(obj, view_objects.Player):
                 obj.draw(self.screen)
+            elif isinstance(obj, view_objects.Ghost):
+                obj.draw(self.screen, self.ghost_kill_animations)
 
+<<<<<<< HEAD
 >>>>>>> 1510e82 (refactor: move players into view.objects)
             elif obj.object_type == const.ObjectType.GHOST:
                 ul = [
@@ -1016,6 +1031,8 @@ class GraphicalView:
                         ],
                         ul,
                     )
+=======
+>>>>>>> e8343d2 (refactor: move ghosts into view.objects)
             elif obj.object_type == const.ObjectType.PATRONUS:
                 effect_timer = obj.detail[0]
                 if (
@@ -1151,9 +1168,9 @@ class GraphicalView:
 
         # Ghost Killing Animation
         kill_animations = self.ghost_kill_animations.copy()
-        for kill_animation in kill_animations:
-            if model.timer > kill_animation[4]:
-                self.ghost_kill_animations.remove(kill_animation)
+        for k, v in kill_animations.items():
+            if model.timer > v[3]:
+                del self.ghost_kill_animations[k]
 
         self.portkey_animation = [x for x in self.portkey_animation if x.tick()]
         self.bleed_animations = [x for x in self.bleed_animations if x.tick()]

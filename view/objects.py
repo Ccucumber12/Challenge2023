@@ -89,6 +89,64 @@ class Item(__ObjectBase):
         screen.blit(img, img.get_rect(midbottom=self.item.render_position))
 
 
+class Ghost(__ObjectBase):
+    images = {
+        **{
+            i: crop_image(
+                pg.image.load(
+                    const.PICTURES_PATH[const.GhostIds.DEMENTOR] / f"dementor{i}.png"
+                ),
+                const.GHOST_RADIUS * 2,
+                const.GHOST_RADIUS * 2,
+                True,
+            )
+            for i in range(const.DEMENTOR_PICTURE_NUMBER)
+        },
+        "left": crop_image(
+            pg.image.load(const.PICTURES_PATH[const.GhostSkins.KILLING] / "left.png"),
+            const.GHOST_RADIUS * 2,
+            const.GHOST_RADIUS * 2,
+            True,
+        ),
+        "right": crop_image(
+            pg.image.load(const.PICTURES_PATH[const.GhostSkins.KILLING] / "right.png"),
+            const.GHOST_RADIUS * 2,
+            const.GHOST_RADIUS * 2,
+            True,
+        ),
+    }
+
+    def __init__(self, ghost):
+        super().__init__()
+        self.ghost = ghost
+
+    # TODO: change this property's name to `depth`
+    @property
+    def y(self):
+        model = get_game_engine()
+        _, y = model.map.convert_coordinate(self.ghost.position)
+        return y
+
+    def draw(self, screen: pg.Surface, kill_animation: dict):
+        model = get_game_engine()
+        ghost = self.ghost
+        if ghost.ghost_id in kill_animation:
+            face_dir = (
+                "right"
+                if ghost.position.x < kill_animation[ghost.ghost_id][0].x
+                else "left"
+            )
+            img = self.images[face_dir]
+            screen.blit(img, img.get_rect(midbottom=ghost.position))
+        else:
+            img = self.images[
+                model.timer
+                // const.ANIMATION_PICTURE_LENGTH
+                % const.DEMENTOR_PICTURE_NUMBER
+            ]
+            screen.blit(img, img.get_rect(midbottom=ghost.position))
+
+
 class Player(__ObjectBase):
     images = {
         player: {
