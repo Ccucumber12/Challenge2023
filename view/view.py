@@ -6,6 +6,7 @@ from pygame import Vector2
 from math import pi
 
 import const
+import view.objects as view_objects
 import util
 from api.api_impl import get_last_target
 from event_manager.events import *
@@ -55,6 +56,8 @@ class GraphicalView:
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
 
+        print('display inited')
+
         # characters' directions
         self.character_direction = {}
         for player in const.PlayerIds:
@@ -86,6 +89,7 @@ class GraphicalView:
             0  # it won't show the coordinate if the variable is set to zero
         )
 
+<<<<<<< HEAD
         def crop(picture: pg.Surface, desire_width, desire_height, large=False):
             """
             Will scale the image to desire size without changing the ratio of the width and height.
@@ -113,6 +117,11 @@ class GraphicalView:
             self.pictures[item] = crop(
                 picture, const.ITEM_RADIUS * 2, const.ITEM_RADIUS * 2, True
             )
+=======
+        for item in const.ItemType:
+            picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
+            self.pictures[item] = util.crop_image(picture, const.ITEM_RADIUS*2, const.ITEM_RADIUS*2, True)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
             self.transparent_player_image[item] = self.pictures[item].convert_alpha()
             self.transparent_player_image[item].set_alpha(
                 const.NEAR_VANISH_TRANSPARENCY
@@ -121,6 +130,7 @@ class GraphicalView:
         for player in const.PlayerIds:
             # normal
             self.character_image[player] = {}
+<<<<<<< HEAD
             picture = pg.image.load(
                 os.path.join(
                     const.PICTURES_PATH[player],
@@ -173,6 +183,31 @@ class GraphicalView:
                     const.CharacterDirection.DOWN
                 ].get_height(),
             )
+=======
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PlayerSkins.NORMAL],
+                                                 "front.png")).convert_alpha()
+            self.character_image[player][const.CharacterDirection.DOWN] =\
+                util.crop_image(picture, const.PLAYER_RADIUS*2, const.PLAYER_RADIUS*2, True)
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PlayerSkins.NORMAL],
+                                                 "left.png")).convert_alpha()
+            self.character_image[player][const.CharacterDirection.LEFT] =\
+                util.crop_image(picture, const.WINDOW_SIZE[0],
+                     self.character_image[player][const.CharacterDirection.DOWN].get_height())
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PlayerSkins.NORMAL],
+                                                 "rear.png")).convert_alpha()
+            self.character_image[player][const.CharacterDirection.UP] =\
+                util.crop_image(picture, const.WINDOW_SIZE[0],
+                     self.character_image[player][const.CharacterDirection.DOWN].get_height())
+            picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                 const.PICTURES_PATH[const.PlayerSkins.NORMAL],
+                                                 "right.png")).convert_alpha()
+            self.character_image[player][const.CharacterDirection.RIGHT] =\
+                util.crop_image(picture, const.WINDOW_SIZE[0],
+                     self.character_image[player][const.CharacterDirection.DOWN].get_height())
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
             # grayscale
             self.petrified_player_image[player] = {}
@@ -193,6 +228,7 @@ class GraphicalView:
 
             def load_player_skin(player, imgdic: dict, skin: const.PlayerSkins):
                 imgdic[player] = {}
+<<<<<<< HEAD
                 picture = pg.image.load(
                     os.path.join(
                         const.PICTURES_PATH[player],
@@ -243,6 +279,33 @@ class GraphicalView:
                     const.WINDOW_SIZE[0],
                     imgdic[player][const.CharacterDirection.DOWN].get_height(),
                 )
+=======
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
+                                                     "front.png")).convert_alpha()
+                imgdic[player][const.CharacterDirection.DOWN] = util.crop_image(
+                    picture, self.character_image[player][const.CharacterDirection.DOWN].get_width(
+                    ),
+                    const.PLAYER_RADIUS*5)
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
+                                                     "left.png")).convert_alpha()
+                imgdic[player][const.CharacterDirection.LEFT] =\
+                    util.crop_image(picture, const.WINDOW_SIZE[0],
+                         imgdic[player][const.CharacterDirection.DOWN].get_height())
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
+                                                     "rear.png")).convert_alpha()
+                imgdic[player][const.CharacterDirection.UP] =\
+                    util.crop_image(picture, const.WINDOW_SIZE[0],
+                         imgdic[player][const.CharacterDirection.DOWN].get_height())
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[skin],
+                                                     "right.png")).convert_alpha()
+                imgdic[player][const.CharacterDirection.RIGHT] =\
+                    util.crop_image(picture, const.WINDOW_SIZE[0],
+                         imgdic[player][const.CharacterDirection.DOWN].get_height())
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
             # sortinghat
             load_player_skin(
@@ -252,6 +315,7 @@ class GraphicalView:
             # shining player
             self.shining_player_image[player] = {}
             for direction in const.CharacterDirection:
+<<<<<<< HEAD
                 picture = pg.image.load(
                     os.path.join(
                         const.PICTURES_PATH[player],
@@ -276,11 +340,28 @@ class GraphicalView:
                 self.dead_player_image[player][direction] = crop(
                     picture, *const.DEAD_PLAYER_SIZE[direction], True
                 )
+=======
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[const.PlayerSkins.SHINING],
+                                                     const.PICTURES_PATH[direction])).convert_alpha()
+                self.shining_player_image[player][direction] =\
+                    util.crop_image(picture, *const.SHINING_PLAYER_SIZE[direction], True)
+
+            #dead player
+            self.dead_player_image[player] = {}
+            for direction in const.CharacterDirection:
+                picture = pg.image.load(os.path.join(const.PICTURES_PATH[player],
+                                                     const.PICTURES_PATH[const.PlayerSkins.DEAD],
+                                                     const.PICTURES_PATH[direction])).convert_alpha()
+                self.dead_player_image[player][direction] =\
+                    util.crop_image(picture, *const.DEAD_PLAYER_SIZE[direction], True)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
         for ghost in const.GhostIds:
             if ghost == const.GhostIds.DEMENTOR:
                 self.character_image[ghost] = []
                 for i in range(const.DEMENTOR_PICTURE_NUMBER):
+<<<<<<< HEAD
                     picture = pg.image.load(
                         os.path.join(
                             const.PICTURES_PATH[ghost], "dementor" + str(i) + ".png"
@@ -307,6 +388,16 @@ class GraphicalView:
         self.ghost_killing_image[const.CharacterDirection.LEFT] = crop(
             picture, const.GHOST_RADIUS * 2, const.GHOST_RADIUS * 2, True
         )
+=======
+                    picture = pg.image.load(os.path.join(const.PICTURES_PATH[ghost], "dementor" +
+                                                         str(i) + ".png")).convert_alpha()
+                    self.character_image[ghost].append(util.crop_image(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True))
+        self.ghost_killing_image = {}
+        picture = pg.image.load(os.path.join(const.PICTURES_PATH[const.GhostSkins.KILLING], "right.png")).convert_alpha()
+        self.ghost_killing_image[const.CharacterDirection.RIGHT] = util.crop_image(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+        picture = pg.image.load(os.path.join(const.PICTURES_PATH[const.GhostSkins.KILLING], "left.png")).convert_alpha()
+        self.ghost_killing_image[const.CharacterDirection.LEFT] = util.crop_image(picture, const.GHOST_RADIUS*2, const.GHOST_RADIUS*2, True)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
         self.background_images = []
         for i in model.map.images:
@@ -322,6 +413,7 @@ class GraphicalView:
             picture = picture.subsurface(pg.Rect(x, y, w, h))
             self.background_images.append((int(model.map.images[i]), picture, (x, y)))
 
+<<<<<<< HEAD
         picture = pg.image.load(
             const.PICTURES_PATH[const.Scene.SCORE_BOARD]
         ).convert_alpha()
@@ -343,11 +435,24 @@ class GraphicalView:
         self.pictures[const.Scene.ENDGAME] = crop(
             picture, 2 * const.ARENA_SIZE[0], const.ARENA_SIZE[1]
         )
+=======
+        picture = pg.image.load(const.PICTURES_PATH[const.Scene.TITLE]).convert_alpha()
+        self.pictures[const.Scene.TITLE] = util.crop_image(
+            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+        picture = pg.image.load(const.PICTURES_PATH[const.Scene.FOG]).convert_alpha()
+        picture.set_alpha(const.FOG_TRANSPARENCY)
+        self.pictures[const.Scene.FOG] = util.crop_image(
+            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+        picture = pg.image.load(const.PICTURES_PATH[const.Scene.ENDGAME]).convert_alpha()
+        self.pictures[const.Scene.ENDGAME] = util.crop_image(
+            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
         self.fog = Fog(self.screen, self.pictures[const.Scene.FOG], const.FOG_SPEED)
         # print(self.pictures[const.SCENE.FOG].get_width())
         # print(self.pictures[const.SCENE.FOG].get_height())
 
         # Animation
+<<<<<<< HEAD
         picture = pg.image.load(
             const.PICTURES_PATH[const.OtherPictures.PATRONUS]
         ).convert_alpha()
@@ -360,13 +465,26 @@ class GraphicalView:
         self.magic_circle = crop(
             picture, const.MAGIC_CIRCLE_RADIUS * 2, const.MAGIC_CIRCLE_RADIUS * 2, True
         )
+=======
+        picture = pg.image.load(const.PICTURES_PATH[const.OtherPictures.PATRONUS]).convert_alpha()
+        self.shining_patronus = util.crop_image(
+            picture, const.PATRONUS_RADIUS*2, const.PATRONUS_RADIUS*2, True)
+        picture = pg.image.load(
+            const.PICTURES_PATH[const.OtherPictures.MAGIC_CIRCLE]).convert_alpha()
+        self.magic_circle = util.crop_image(
+            picture, const.MAGIC_CIRCLE_RADIUS*2, const.MAGIC_CIRCLE_RADIUS*2, True)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
         self.magic_circle.set_alpha(127)
         picture = pg.image.load(
             const.PICTURES_PATH[const.ItemType.SORTINGHAT]
         ).convert_alpha()
         self.sortinghat_animation_picture.append(
+<<<<<<< HEAD
             crop(picture, const.ITEM_RADIUS, const.ITEM_RADIUS)
         )
+=======
+            util.crop_image(picture, const.ITEM_RADIUS, const.ITEM_RADIUS))
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
         angle = 0
         while angle < 360:
@@ -399,6 +517,10 @@ class GraphicalView:
         model.register_user_event(
             const.GOLDEN_SNITCH_APPEAR_TIME, self.last_stage_handler
         )
+
+        # Objects and animations should be initialized after pygame is initialized.
+        # Therefore, they should be created in initialize() instead of __init__().
+        self.scoreboard = view_objects.ScoreBoard()
 
     def last_stage_handler(self):
         self.fog.start = True
@@ -444,6 +566,7 @@ class GraphicalView:
         self.character_direction[event.player_id] = direction
 
     def handle_ghost_kill(self, event: EventGhostKill):
+<<<<<<< HEAD
         self.ghost_kill_animations.append(
             (
                 event.ghost_id,
@@ -463,6 +586,14 @@ class GraphicalView:
                 int(const.FPS / 3),
             )
         )
+=======
+        self.ghost_kill_animations.append((event.ghost_id, event.destination, event.victim_id, event.victim_effect,
+                                           get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME))
+
+    def handle_portkey(self, event: EventPortkey):
+        self.portkey_animation.append(GIFAnimation(self.screen, event.destination,
+                                             self.portkey_animation_image, int(const.FPS / 3)))
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -537,6 +668,7 @@ class GraphicalView:
 
     def add_player_killed_animation(self, event: EventGhostKill):
         if self.r18g:
+<<<<<<< HEAD
             self.bleed_animations.append(
                 GIFAnimation(
                     self.screen,
@@ -546,6 +678,10 @@ class GraphicalView:
                     const.GHOST_KILL_ANIMATION_TIME,
                 )
             )
+=======
+            self.bleed_animations.append(GIFAnimation(self.screen, event.destination + pg.Vector2(0, -50),
+                                        self.bleed_animation_images, int(const.FPS / 10), const.GHOST_KILL_ANIMATION_TIME))
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
     def register_places(self, event: EventTimesUp):
         self.places = event.places
@@ -808,6 +944,7 @@ class GraphicalView:
                         self.wearing_sortinghat_image[obj.image_index][direction], ul
                     )
                 elif effect == const.EffectType.REMOVED_SORTINGHAT:
+<<<<<<< HEAD
                     width = self.shining_player_image[obj.image_index][
                         direction
                     ].get_width()
@@ -821,6 +958,13 @@ class GraphicalView:
                     self.screen.blit(
                         self.shining_player_image[obj.image_index][direction], ul
                     )
+=======
+                    width = self.shining_player_image[obj.image_index][direction].get_width()
+                    height = (self.character_image[obj.image_index][direction].get_height() +
+                              self.shining_player_image[obj.image_index][direction].get_height()) / 2
+                    ul = [x - y for x, y in zip(obj.position, [width/2, height])]
+                    self.screen.blit(self.shining_player_image[obj.image_index][direction], ul)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
                 else:
                     self.screen.blit(
                         self.character_image[obj.image_index][direction], ul
@@ -939,9 +1083,13 @@ class GraphicalView:
                 get_event_manager().post(EventPetrify(victim))
                 continue
             for particle in effect.particles:
+<<<<<<< HEAD
                 pg.draw.circle(
                     self.screen, particle.color, particle.position, particle.radius
                 )
+=======
+                pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
         # Patronus shockwave animation
         animations = self.patronus_shockwave_animations.copy()
@@ -998,9 +1146,13 @@ class GraphicalView:
         self.fog.tick()
 
         # Scoreboard
+<<<<<<< HEAD
         self.screen.blit(
             self.pictures[const.Scene.SCORE_BOARD], (const.ARENA_SIZE[0], 0)
         )
+=======
+        self.scoreboard.draw(self.screen)
+>>>>>>> 209d0eb (refactor: move scoreboard into view.objects)
 
         def print_text(text, position, font="magic-school.one.ttf", size=36):
             font = pg.font.Font(os.path.join(const.FONT_PATH, font), size)
