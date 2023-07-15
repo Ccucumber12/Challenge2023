@@ -1010,7 +1010,7 @@ class GraphicalView:
         # Name
         for i in range(const.NUM_OF_PLAYERS):
             print_text(
-                const.PLAYER_NAME[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20
+                self.player_names[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20
             )
         # Time
         count_down = (const.GAME_LENGTH - model.timer) // const.FPS

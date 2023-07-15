@@ -5,7 +5,7 @@ import pygame as pg
 # model
 
 FPS = 60  # frame per second
-GAME_LENGTH = 5 * FPS
+GAME_LENGTH = 180 * FPS
 
 
 # Characters

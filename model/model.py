@@ -215,7 +215,9 @@ class GameEngine:
         self.ghosts.append(new_ghost)
 
     def create_ghost_handler(self):
-        self.create_ghost()
+        # Do not create ghost at the end of game
+        if len(self.ghosts) < 3:
+            self.create_ghost()
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
     def run(self):
