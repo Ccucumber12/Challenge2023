@@ -198,3 +198,9 @@ class EventShowCoordinate(BaseEvent):
     def __init__(self, unit):
         super().__init__()
         self.unit = unit
+
+class EventPauseModel(BaseEvent):
+    name = 'PauseModel event'
+
+class EventContinueModel(BaseEvent):
+    name = 'ContinueModel event'

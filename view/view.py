@@ -779,12 +779,14 @@ class GraphicalView:
         pg.display.flip()
 
     def render_play(self):
-        # draw background
-        self.screen.fill(const.BACKGROUND_COLOR)
         model = get_game_engine()
+        if model.forced_paused:
+            # TODO: handle the case
+            return
 
-        # draw players
+        self.screen.fill(const.BACKGROUND_COLOR)
         game_map = model.map
+<<<<<<< HEAD
         objects: list[Object] = []
 <<<<<<< HEAD
         for item in model.items:
@@ -800,9 +802,12 @@ class GraphicalView:
                 )
             )
 =======
+=======
+>>>>>>> ec39d75 (add event to pause model)
 
-        objects += [view_objects.Item(item) for item in model.items]
+        objects = []
         objects += self.players
+        objects += [view_objects.Item(item) for item in model.items]
         objects += [view_objects.Ghost(ghost) for ghost in model.ghosts]
         objects += [view_objects.Patronus(patronus) for patronus in model.patronuses]
 
@@ -869,6 +874,7 @@ class GraphicalView:
             )
 
         objects.sort(key=lambda x: x.y)
+<<<<<<< HEAD
         # half_sec = model.timer // (const.FPS // 2)
         quarter_sec = model.timer // (const.FPS // 4)
 
@@ -881,6 +887,8 @@ class GraphicalView:
 
 =======
 >>>>>>> 1510e82 (refactor: move players into view.objects)
+=======
+>>>>>>> ec39d75 (add event to pause model)
         for obj in objects:
             if isinstance(obj, view_objects.Item):
                 obj.draw(self.screen)

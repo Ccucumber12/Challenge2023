@@ -7,8 +7,10 @@ import api.api_impl as api_impl
 import const
 from event_manager.event_manager import *
 from event_manager.events import (
+    EventContinueModel,
     EventEveryTick,
     EventInitialize,
+    EventPauseModel,
     EventPlayerMove,
     EventQuit,
     EventStateChange,
@@ -47,6 +49,7 @@ class GameEngine:
         """
         This method is called when a new game is instantiated.
         """
+        self.forced_paused = False
         self.clock = pg.time.Clock()
         self.user_events: dict[int, list[function]] = {}
         self._state = const.STATE_MENU
@@ -64,6 +67,9 @@ class GameEngine:
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
     def handle_every_tick(self, event):
+        if self.forced_paused:
+            return
+
         cur_state = self.state
         ev_manager = get_event_manager()
         if cur_state == const.STATE_MENU:
@@ -139,11 +145,20 @@ class GameEngine:
         self.running = False
 
     def handle_move(self, event: EventPlayerMove):
+        if self.forced_paused:
+            return
+
         player = self.players[event.player_id]
         player.move(event.direction)
 
     def handle_times_up(self, event):
         get_event_manager().post(EventStateChange(const.STATE_ENDGAME))
+
+    def handle_pause_model(self, event):
+        self.forced_paused = True
+
+    def handle_continue_model(self, event):
+        self.forced_paused = False
 
     def register_listeners(self):
         ev_manager = get_event_manager()
@@ -153,6 +168,8 @@ class GameEngine:
         ev_manager.register_listener(EventQuit, self.handle_quit)
         ev_manager.register_listener(EventPlayerMove, self.handle_move)
         ev_manager.register_listener(EventTimesUp, self.handle_times_up)
+        ev_manager.register_listener(EventPauseModel, self.handle_pause_model)
+        ev_manager.register_listener(EventContinueModel, self.handle_continue_model)
 
     def update_menu(self):
         """
