@@ -138,9 +138,14 @@ class TeamAI(AI):
             ret = min(points, key=lambda x: self.evaluate_position(x, 1),default=None)
             return ret
 
+   
     def offense(self):
-        vec = get_nearest_ghost().position - self.me.position
         items = get_items()
+
+        ghosts = get_ghosts(SortKey.DISTANCE)
+        ghost_positions = []
+        same_side = self.get_ghost_positions(ghost_positions)
+        vec = ghost_positions[0] - self.me.position
 
         has_golden_snitch = False
         golden_snitch_pos = (0, 0)
@@ -154,20 +159,20 @@ class TeamAI(AI):
             return Vector2(600, 400)
 
         best_item = min(items, key=lambda x: self.evaluate_items(x), default=None)
-        if len(items) > 0 and (distance_to(best_item.position) < max(vec.length(), 150) or vec.length() > 350 or self.me.dead or self.me.effect == EffectType.REMOVED_SORTINGHAT):
+        if len(items) > 0 and (distance_to(best_item.position) < max(vec.length()*0.8, 150) or vec.length() > 450 or self.me.dead or self.me.effect == EffectType.REMOVED_SORTINGHAT):
             return best_item.position 
         else:
             mindis = vec.length()
             points = []
             if mindis > 350:
-                points = self.get_close_positions(600)
+                points = self.get_close_positions(600, False)
                 ret = min(points, key=lambda x: self.evaluate_position(x, 0),default=None)
                 return ret
             else:
-                points = self.get_close_positions(350)
+                points = self.get_close_positions(350, True)
                 ret = min(points, key=lambda x: self.evaluate_position(x, 1),default=None)
                 return ret
-            
+           
     def player_tick(self) -> Vector2:
         self.me = get_myself()
         pos = self.me.position
