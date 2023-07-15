@@ -147,6 +147,40 @@ class Ghost(__ObjectBase):
             screen.blit(img, img.get_rect(midbottom=ghost.position))
 
 
+class Patronus(__ObjectBase):
+    images = (
+        crop_image(
+            pg.image.load(const.PICTURES_PATH[const.OtherPictures.PATRONUS]),
+            const.PATRONUS_RADIUS * 2,
+            const.PATRONUS_RADIUS * 2,
+            True,
+        ),
+    )
+
+    def __init__(self, patronus):
+        super().__init__()
+        self.patronus = patronus
+
+    # TODO: change this property's name to `depth`
+    @property
+    def y(self):
+        model = get_game_engine()
+        _, y = model.map.convert_coordinate(self.patronus.position)
+        return y
+
+    def draw(self, screen: pg.Surface):
+        model = get_game_engine()
+        quarter_sec = model.timer // (const.FPS // 4)
+        patronus = self.patronus
+
+        if (
+            quarter_sec % 2 == 0
+            or model.timer + const.ITEM_LOSE_EFFECT_HINT_TIME <= patronus.death_time
+        ):
+            img = self.images[0]
+            screen.blit(img, img.get_rect(midbottom=patronus.position))
+
+
 class Player(__ObjectBase):
     images = {
         player: {

@@ -72,7 +72,6 @@ class GraphicalView:
         self.shining_player_image = {}
         self.dead_player_image = {}
         self.sortinghat_animation_picture = []
-        self.shining_patronus: pg.Surface
         self.magic_circle: pg.Surface
         self.portkey_animation_image: list[pg.Surface] = []
         self.portkey_animation: list[GIFAnimation] = []
@@ -453,6 +452,7 @@ class GraphicalView:
         # print(self.pictures[const.SCENE.FOG].get_width())
         # print(self.pictures[const.SCENE.FOG].get_height())
 
+<<<<<<< HEAD
         # Animation
 <<<<<<< HEAD
         picture = pg.image.load(
@@ -471,6 +471,8 @@ class GraphicalView:
         picture = pg.image.load(const.PICTURES_PATH[const.OtherPictures.PATRONUS]).convert_alpha()
         self.shining_patronus = util.crop_image(
             picture, const.PATRONUS_RADIUS*2, const.PATRONUS_RADIUS*2, True)
+=======
+>>>>>>> e885f00 (refactor: move patronus into view.objects)
         picture = pg.image.load(
             const.PICTURES_PATH[const.OtherPictures.MAGIC_CIRCLE]).convert_alpha()
         self.magic_circle = util.crop_image(
@@ -802,7 +804,9 @@ class GraphicalView:
         objects += [view_objects.Item(item) for item in model.items]
         objects += self.players
         objects += [view_objects.Ghost(ghost) for ghost in model.ghosts]
+        objects += [view_objects.Patronus(patronus) for patronus in model.patronuses]
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> fb322f5 (refactor: move items into view.objects)
@@ -850,6 +854,8 @@ class GraphicalView:
                     coord[1], const.ObjectType.PATRONUS, patronus.position, None, detail
                 )
             )
+=======
+>>>>>>> e885f00 (refactor: move patronus into view.objects)
         for portal in self.portkey_animation:
             coord = game_map.convert_coordinate(portal.position)
             detail = (portal,)
@@ -994,7 +1000,10 @@ class GraphicalView:
                 obj.draw(self.screen)
             elif isinstance(obj, view_objects.Ghost):
                 obj.draw(self.screen, self.ghost_kill_animations)
+            elif isinstance(obj, view_objects.Patronus):
+                obj.draw(self.screen)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> 1510e82 (refactor: move players into view.objects)
             elif obj.object_type == const.ObjectType.GHOST:
@@ -1047,6 +1056,8 @@ class GraphicalView:
                         )
                     ]
                     self.screen.blit(self.shining_patronus, ul)
+=======
+>>>>>>> e885f00 (refactor: move patronus into view.objects)
             elif obj.object_type == const.ObjectType.PORTAL:
                 obj.detail[0].tick()
             elif obj.object_type == const.ObjectType.MAP:
