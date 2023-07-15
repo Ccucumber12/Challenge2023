@@ -11,17 +11,18 @@ import util
 
 
 class Map:
-
-    def __init__(self,
-                 name,
-                 size,
-                 map_list,
-                 portals,
-                 images,
-                 spawn,
-                 ghost_spawn_point,
-                 map_dir,
-                 portkey_map):
+    def __init__(
+        self,
+        name: str,
+        size: tuple[int, int],
+        map_list: list[list[int]],
+        portals: list[tuple[int, int, int]],
+        images: dict[str, int],
+        spawn: list[tuple[int]],
+        ghost_spawn_point,
+        map_dir,
+        portkey_map,
+    ):
         self.name = name
         self.size = size
         self.map = map_list
@@ -50,24 +51,36 @@ class Map:
         Return the coordinate based on self.size of position.
         position is a coordinate based on const.ARENA_SIZE.
         """
-        x = util.clamp(int(position[0] * self.size[0] / const.ARENA_SIZE[0]), 0, self.size[0] - 1)
-        y = util.clamp(int(position[1] * self.size[1] / const.ARENA_SIZE[1]), 0, self.size[1] - 1)
+        x = util.clamp(
+            int(position[0] * self.size[0] / const.ARENA_SIZE[0]), 0, self.size[0] - 1
+        )
+        y = util.clamp(
+            int(position[1] * self.size[1] / const.ARENA_SIZE[1]), 0, self.size[1] - 1
+        )
         return x, y
 
     def convert_cell(self, position: tuple | pg.Vector2) -> pg.Vector2:
         """Similar to convert_coordinate(), but is the reverse version."""
-        x = util.clamp(position[0] * const.ARENA_SIZE[0] / self.size[0], 0, const.ARENA_SIZE[0] - 1)
-        y = util.clamp(position[1] * const.ARENA_SIZE[1] / self.size[1], 0, const.ARENA_SIZE[1] - 1)
+        x = util.clamp(
+            position[0] * const.ARENA_SIZE[0] / self.size[0], 0, const.ARENA_SIZE[0] - 1
+        )
+        y = util.clamp(
+            position[1] * const.ARENA_SIZE[1] / self.size[1], 0, const.ARENA_SIZE[1] - 1
+        )
         return pg.Vector2(x, y)
 
     def get_random_pos(self, r: int) -> pg.Vector2:
-        ret = pg.Vector2(random.randint(r, const.ARENA_SIZE[0] - r),
-                      random.randint(r, const.ARENA_SIZE[1] - r))
+        ret = pg.Vector2(
+            random.randint(r, const.ARENA_SIZE[0] - r),
+            random.randint(r, const.ARENA_SIZE[1] - r),
+        )
         while self.get_type(ret) == const.MAP_OBSTACLE:
-            ret = pg.Vector2(random.randint(r, const.ARENA_SIZE[0] - r),
-                        random.randint(r, const.ARENA_SIZE[1] - r))
+            ret = pg.Vector2(
+                random.randint(r, const.ARENA_SIZE[0] - r),
+                random.randint(r, const.ARENA_SIZE[1] - r),
+            )
         return ret
-            
+
     def get_type(self, position: pg.Vector2) -> int:
         x, y = self.convert_coordinate(position)
         return self.map[x][y]
@@ -130,11 +143,13 @@ class Map:
         if without is None:
             without = {const.MAP_OBSTACLE}
         without = frozenset(without)
-        assert(without in self.connected_component)
+        assert without in self.connected_component
         g1 = self.convert_coordinate(p1)
         g2 = self.convert_coordinate(p2)
-        return self.connected_component[without][g1[0]][g1[1]] \
+        return (
+            self.connected_component[without][g1[0]][g1[1]]
             == self.connected_component[without][g2[0]][g2[1]]
+        )
 
     def find_closest_cells(self, without):
         without = frozenset(without)
@@ -143,7 +158,9 @@ class Map:
 
         width, height = self.size
         cnt = self.number_of_connected_components[without]
-        closest_distance = [[[(-1, -1)] * height for _ in range(0, width)] for _ in range(0, cnt)]
+        closest_distance = [
+            [[(-1, -1)] * height for _ in range(0, width)] for _ in range(0, cnt)
+        ]
 
         def calculate_closest_distance(ccid):
             q = Queue()
@@ -174,7 +191,7 @@ class Map:
         if without is None:
             without = {const.MAP_OBSTACLE}
         without = frozenset(without)
-        assert(without in self.closest_cell)
+        assert without in self.closest_cell
         g = self.convert_coordinate(p)
         gs = self.convert_coordinate(source)
         cc = self.connected_component[without][gs[0]][gs[1]]
@@ -183,19 +200,19 @@ class Map:
 
 
 def load_map(map_dir):
-    json_file = os.path.join(map_dir, 'map.json')
-    map_file = os.path.join(map_dir, 'map.csv')
+    json_file = os.path.join(map_dir, "map.json")
+    map_file = os.path.join(map_dir, "map.csv")
 
     with open(json_file) as f:
         data = json.load(f)
-    images = data['images']
+    images = data["images"]
 
     name = os.path.basename(os.path.dirname(json_file))
-    size = (data['width'], data['height'])
-    spawn = [tuple(i) for i in data['spawn']]
+    size = (data["width"], data["height"])
+    spawn = [tuple(i) for i in data["spawn"]]
     portals = []
-    ghost_spawn = tuple(data['ghost_spawn'])
-    portkey_cells = [[] for i in range(len(data['portals']))]
+    ghost_spawn = tuple(data["ghost_spawn"])
+    portkey_cells = [[] for i in range(len(data["portals"]))]
 
     with open(map_file) as f:
         rows = csv.reader(f)
@@ -212,14 +229,14 @@ def load_map(map_dir):
                     portkey_cells[portkey_map[x][y]].append((x, y))
             y += 1
 
-    for i in range(len(data['portals'])):
+    for i in range(len(data["portals"])):
         sx = 0
         sy = 0
         for x, y in portkey_cells[i]:
             sx += x
             sy += y
-        sx /= len(data['portals'])
-        sy /= len(data['portals'])
+        sx /= len(data["portals"])
+        sy /= len(data["portals"])
         ax = -1
         ay = -1
 
@@ -231,6 +248,8 @@ def load_map(map_dir):
         for x, y in portkey_cells[i]:
             if ax == -1 or dis((ax, ay), (sx, sy)) > dis((x, y), (sx, sy)):
                 ax, ay = x, y
-        portals.append(((ax, ay), (data['portals'][i][0], data['portals'][i][1])))
+        portals.append(((ax, ay), (data["portals"][i][0], data["portals"][i][1])))
 
-    return Map(name, size, map_list, portals, images, spawn, ghost_spawn, map_dir, portkey_map)
+    return Map(
+        name, size, map_list, portals, images, spawn, ghost_spawn, map_dir, portkey_map
+    )

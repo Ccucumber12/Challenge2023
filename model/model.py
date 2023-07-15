@@ -6,8 +6,14 @@ import pygame as pg
 import api.api_impl as api_impl
 import const
 from event_manager.event_manager import *
-from event_manager.events import (EventEveryTick, EventInitialize, EventPlayerMove, EventQuit,
-                                  EventStateChange, EventTimesUp)
+from event_manager.events import (
+    EventEveryTick,
+    EventInitialize,
+    EventPlayerMove,
+    EventQuit,
+    EventStateChange,
+    EventTimesUp,
+)
 from instances_manager import get_event_manager
 from model.character import Ghost, Patronus, Player
 from model.item import Item, ItemGenerator
@@ -48,7 +54,8 @@ class GameEngine:
         for i in const.PlayerIds:
             self.players.append(Player(i))
         self.ghosts: list[Ghost] = [
-            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
+            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())
+        ]
         self.patronuses: list[Patronus] = []
         self.patronus_counter = 0
         self.items: set[Item] = set()
@@ -73,11 +80,20 @@ class GameEngine:
             if self.timer % const.FPS == 0:
                 for player in self.players:
                     if not player.dead:
-                        player.add_score(const.PLAYER_ADD_SCORE[(self.timer // const.FPS) // 60])
+                        player.add_score(
+                            const.PLAYER_ADD_SCORE[(self.timer // const.FPS) // 60]
+                        )
 
             if self.timer == const.GAME_LENGTH:
-                places = self.players.copy()
-                places.sort(key=lambda x: x.score, reverse=True)
+                players_ = self.players.copy()
+                players_.sort(key=lambda x: x.score, reverse=True)
+                places = [[players_[0]]]
+                for i in range(1, len(players_)):
+                    if places[-1][0].score == players_[i].score:
+                        places[-1].append(players_[i])
+                    else:
+                        places.append([players_[i]])
+
                 ev_manager.post(EventTimesUp(places))
 
             # Check if a item is eaten
@@ -133,8 +149,7 @@ class GameEngine:
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
-        ev_manager.register_listener(
-            EventStateChange, self.handle_state_change)
+        ev_manager.register_listener(EventStateChange, self.handle_state_change)
         ev_manager.register_listener(EventQuit, self.handle_quit)
         ev_manager.register_listener(EventPlayerMove, self.handle_move)
         ev_manager.register_listener(EventTimesUp, self.handle_times_up)
@@ -180,12 +195,22 @@ class GameEngine:
 
     def create_ghost(self):
         candidate = pg.Vector2(
-            random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
-            random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
+            random.randint(
+                const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS
+            ),
+            random.randint(
+                const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS
+            ),
+        )
         while self.map.get_type(candidate) == const.MAP_OBSTACLE:
             candidate = pg.Vector2(
-                random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
-                random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
+                random.randint(
+                    const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS
+                ),
+                random.randint(
+                    const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS
+                ),
+            )
         new_ghost = Ghost(len(self.ghosts), const.GHOST_INIT_TP_CD, candidate)
         self.ghosts.append(new_ghost)
 

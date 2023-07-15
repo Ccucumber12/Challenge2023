@@ -5,12 +5,13 @@ import pygame as pg
 # model
 
 FPS = 60  # frame per second
-GAME_LENGTH = 180 * FPS
+GAME_LENGTH = 5 * FPS
 
 
 # Characters
 
 # Player
+
 
 class PlayerIds(IntEnum):
     def __str__(self):
@@ -32,17 +33,19 @@ PLAYER_REVIVE_CIRCLE_RADIUS = 50
 
 # Ghost
 
+
 class GhostIds(Enum):
     def __str__(self):
         return f"{self.name}"
 
     DEMENTOR = 0
 
+
 DIRECTION_TO_VEC2 = {
-    'up': pg.Vector2(0, -1),
-    'left': pg.Vector2(-1, 0),
-    'down': pg.Vector2(0, 1),
-    'right': pg.Vector2(1, 0),
+    "up": pg.Vector2(0, -1),
+    "left": pg.Vector2(-1, 0),
+    "down": pg.Vector2(0, 1),
+    "right": pg.Vector2(1, 0),
 }
 GHOST_RADIUS = 30
 GHOST_INIT_SPEED = 120 / FPS
@@ -56,16 +59,20 @@ GHOST_CHASE_TIME = 10 * FPS
 GHOST_INIT_TP_CD = 25 * FPS
 GHOST_CANNOTSEE = 5 * FPS
 
+
 class GhostState(IntEnum):
     CHASE = 1
     WANDER = 2
     TELEPORT = 4
 
+
 CACHE_CELLS = 3
+
 
 class GhostSkins(Enum):
     NORMAL = 0
     KILLING = 1
+
 
 # patronus
 PATRONUS_SHOCKWAVE_IMPACT = 40
@@ -92,15 +99,17 @@ STATE_ENDGAME = 4
 
 # item
 
+
 class ItemType(Enum):
     def __str__(self):
         return f"{self.name}"
-    
+
     GOLDEN_SNITCH = auto()
     CLOAK = auto()
     PATRONUS = auto()
     PETRIFICATION = auto()
     SORTINGHAT = auto()
+
 
 class EffectType(Enum):
     CLOAK = auto()
@@ -109,14 +118,21 @@ class EffectType(Enum):
     SORTINGHAT = auto()
     REMOVED_SORTINGHAT = auto()
 
-ITEM_GENERATE_PROBABILITY = [0, 1 / 4, 1 / 4, 1 / 4, 1 / 4]  # should correspond to ITEM_SET
+
+ITEM_GENERATE_PROBABILITY = [
+    0,
+    1 / 4,
+    1 / 4,
+    1 / 4,
+    1 / 4,
+]  # should correspond to ITEM_SET
 # The probability of golden snitch should be set to ZERO.
 ITEM_DURATION = {
     EffectType.PATRONUS: 15 * FPS,
     EffectType.CLOAK: 4.5 * FPS,
     EffectType.PETRIFICATION: 4 * FPS,
     EffectType.SORTINGHAT: 8 * FPS,
-    EffectType.REMOVED_SORTINGHAT: 5 * FPS
+    EffectType.REMOVED_SORTINGHAT: 5 * FPS,
 }
 ITEM_LOSE_EFFECT_HINT_TIME = 2 * FPS
 ITEM_LIFETIME = {
@@ -124,12 +140,12 @@ ITEM_LIFETIME = {
     ItemType.CLOAK: 60 * FPS,
     ItemType.PATRONUS: 60 * FPS,
     ItemType.PETRIFICATION: 60 * FPS,
-    ItemType.SORTINGHAT: 60 * FPS
+    ItemType.SORTINGHAT: 60 * FPS,
 }
 ITEM_GENERATE_COOLDOWN = 3 * FPS
 MAX_ITEM_NUMBER = 10
 ITEM_RADIUS = 25
-SORTINGHAT_STEAL_SCORE_TIME = 3 # in seconds
+SORTINGHAT_STEAL_SCORE_TIME = 3  # in seconds
 GOLDEN_SNITCH_APPEAR_TIME = 120 * FPS
 GOLDEN_SNITCH_SPEED = 210 / FPS
 
@@ -139,7 +155,7 @@ ITEM_RIPPLE_DISPLACEMENT = {
     ItemType.CLOAK: pg.Vector2(0, 7),
     ItemType.PATRONUS: pg.Vector2(0, 7),
     ItemType.PETRIFICATION: pg.Vector2(0, 35),
-    ItemType.SORTINGHAT: pg.Vector2(0, 10)
+    ItemType.SORTINGHAT: pg.Vector2(0, 10),
 }
 ITEM_RIPPLE_RECT = (100, 20)
 ITEM_RIPPLE_COLOR = pg.Color(232, 201, 109)
@@ -151,7 +167,7 @@ PETRIFICATION_ANIMATION_THICKNESS = 10
 PETRIFICATION_ANIMATION_PARTICLE_RADIUS = 3
 
 # view
-WINDOW_CAPTION = 'Challenge 2023'
+WINDOW_CAPTION = "Challenge 2023"
 ARENA_SIZE = (1200, 800)
 SCORE_BOARD_SIZE = (282, 800)
 WINDOW_SIZE = (ARENA_SIZE[0] + SCORE_BOARD_SIZE[0], ARENA_SIZE[1])
@@ -162,8 +178,10 @@ FOG_TRANSPARENCY = 150
 FOG_SPEED = 150 / FPS
 HELPER_SIZE = (WINDOW_SIZE[0] - 100, WINDOW_SIZE[1] - 100)
 
-BACKGROUND_COLOR = pg.Color('black')
-CLOAK_TRANSPARENCY = 128  # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
+BACKGROUND_COLOR = pg.Color("black")
+CLOAK_TRANSPARENCY = (
+    128  # Adjust the value between 0 (fully transparent) and 255 (fully opaque)
+)
 NEAR_VANISH_TRANSPARENCY = 64
 SORTINGHAT_ANIMATION_SPEED = 500
 SORTINGHAT_ANIMATION_ROTATE_SPEED = 60
@@ -171,6 +189,7 @@ MAGIC_CIRCLE_RADIUS = GHOST_RADIUS
 GHOST_KILL_ANIMATION_TIME = FPS // 3
 ANIMATION_PICTURE_LENGTH = FPS // 3
 DEMENTOR_PICTURE_NUMBER = 3
+
 
 class ObjectType(IntEnum):
     # The number represents the order of rendering the type.
@@ -181,15 +200,18 @@ class ObjectType(IntEnum):
     PLAYER = 5
     GHOST = 6
 
+
 class Scene(Enum):
     TITLE = 0
     SCORE_BOARD = 1
     FOG = 2
     ENDGAME = 3
 
+
 class OtherPictures(Enum):
     PATRONUS = 0
     MAGIC_CIRCLE = 1
+
 
 SCOREBOARD_FONT_SIZE = 32
 SCOREBOARD_COL = [54, 112, 171, 229]
@@ -201,17 +223,20 @@ SCORE_ROW = [287, 414, 540, 670]
 SCORE_POSITION = [[(x + ARENA_SIZE[0], y) for x in SCOREBOARD_COL] for y in SCORE_ROW]
 COORDINATE_UNIT = 25
 
+
 class PlayerSkins(Enum):
     NORMAL = 0
     SORTINGHAT = 1
     SHINING = 2
     DEAD = 3
 
+
 class CharacterDirection(Enum):
     UP = 0
     LEFT = 1
     DOWN = 2
     RIGHT = 3
+
 
 SHINING_PLAYER_SIZE = {
     CharacterDirection.UP: (78, 78),
@@ -257,14 +282,21 @@ PICTURES_PATH = {
 FONT_PATH = "fonts"
 
 # end game
-PODIUM_POSITION = [(WINDOW_SIZE[0] / 2, 330), (WINDOW_SIZE[0] / 2 - 247, 470), 
-                   (WINDOW_SIZE[0] / 2 + 260, 496)]
-FINAL_SCORE_POSITION = [(x, y - 2 * PLAYER_RADIUS - 30) for (x, y) in PODIUM_POSITION]
+PODIUM_POSITION = [
+    (WINDOW_SIZE[0] / 2, 330),
+    (WINDOW_SIZE[0] / 2 - 247, 470),
+    (WINDOW_SIZE[0] / 2 + 260, 496),
+    (WINDOW_SIZE[0] / 2, 700),
+]
+PODIUM_DIST = 50
+FINAL_SCORE_POSITION = [
+    (x, y - 2 * PLAYER_RADIUS - 30) for (x, y) in PODIUM_POSITION[:3]
+] + [(x, y + PLAYER_RADIUS + 30) for (x, y) in PODIUM_POSITION[3:]]
 
 # sound
 MUSIC_PATH = {
     STATE_MENU: "music/BGM/title_music_v3.wav",
-    STATE_PLAY: "music/BGM/Challenge_ingame_music_ver2.wav"
+    STATE_PLAY: "music/BGM/Challenge_ingame_music_ver2.wav",
 }
 EFFECT_SOUND_DIR = "music/effect"
 EFFECT_SOUND_PATH = {
@@ -274,19 +306,35 @@ EFFECT_SOUND_PATH = {
     EffectType.SORTINGHAT: ["sorting_hat_spell.wav"],
     EffectType.REMOVED_SORTINGHAT: ["sorting_hat.wav"],
     GhostState.TELEPORT: ["teleport_v2.wav"],
-    ItemType.PETRIFICATION: ["petrification_spell.wav"]
+    ItemType.PETRIFICATION: ["petrification_spell.wav"],
 }
 
 # controller
 PLAYER_KEYS = {
-    PlayerIds.PLAYER0: {pg.K_w: pg.Vector2(0, -1), pg.K_s: pg.Vector2(0, 1),
-                        pg.K_a: pg.Vector2(-1, 0), pg.K_d: pg.Vector2(1, 0)},
-    PlayerIds.PLAYER1: {pg.K_t: pg.Vector2(0, -1), pg.K_g: pg.Vector2(0, 1),
-                        pg.K_f: pg.Vector2(-1, 0), pg.K_h: pg.Vector2(1, 0)},
-    PlayerIds.PLAYER2: {pg.K_i: pg.Vector2(0, -1), pg.K_k: pg.Vector2(0, 1),
-                        pg.K_j: pg.Vector2(-1, 0), pg.K_l: pg.Vector2(1, 0)},
-    PlayerIds.PLAYER3: {pg.K_UP: pg.Vector2(0, -1), pg.K_DOWN: pg.Vector2(0, 1),
-                        pg.K_LEFT: pg.Vector2(-1, 0), pg.K_RIGHT: pg.Vector2(1, 0)}
+    PlayerIds.PLAYER0: {
+        pg.K_w: pg.Vector2(0, -1),
+        pg.K_s: pg.Vector2(0, 1),
+        pg.K_a: pg.Vector2(-1, 0),
+        pg.K_d: pg.Vector2(1, 0),
+    },
+    PlayerIds.PLAYER1: {
+        pg.K_t: pg.Vector2(0, -1),
+        pg.K_g: pg.Vector2(0, 1),
+        pg.K_f: pg.Vector2(-1, 0),
+        pg.K_h: pg.Vector2(1, 0),
+    },
+    PlayerIds.PLAYER2: {
+        pg.K_i: pg.Vector2(0, -1),
+        pg.K_k: pg.Vector2(0, 1),
+        pg.K_j: pg.Vector2(-1, 0),
+        pg.K_l: pg.Vector2(1, 0),
+    },
+    PlayerIds.PLAYER3: {
+        pg.K_UP: pg.Vector2(0, -1),
+        pg.K_DOWN: pg.Vector2(0, 1),
+        pg.K_LEFT: pg.Vector2(-1, 0),
+        pg.K_RIGHT: pg.Vector2(1, 0),
+    },
 }
 MUTE_BGM_KEY = pg.K_F1
 MUTE_EFFECT_SOUND_KEY = pg.K_F2
