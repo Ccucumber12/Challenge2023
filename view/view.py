@@ -56,8 +56,6 @@ class GraphicalView:
         pg.display.set_caption(const.WINDOW_CAPTION)
         self.background.fill(const.BACKGROUND_COLOR)
 
-        print('display inited')
-
         # characters' directions
         self.character_direction = {}
         for player in const.PlayerIds:
@@ -112,6 +110,7 @@ class GraphicalView:
             )
             return cropped_image
 
+<<<<<<< HEAD
         for item in const.ItemType:
             picture = pg.image.load(const.PICTURES_PATH[item]).convert_alpha()
             self.pictures[item] = crop(
@@ -127,6 +126,8 @@ class GraphicalView:
                 const.NEAR_VANISH_TRANSPARENCY
             )
 
+=======
+>>>>>>> fb322f5 (refactor: move items into view.objects)
         for player in const.PlayerIds:
             # normal
             self.character_image[player] = {}
@@ -783,6 +784,7 @@ class GraphicalView:
         # draw players
         game_map = model.map
         objects: list[Object] = []
+<<<<<<< HEAD
         for item in model.items:
             coord = game_map.convert_coordinate(item.position)
             detail = (item.vanish_time, item.ripple)
@@ -795,6 +797,11 @@ class GraphicalView:
                     detail,
                 )
             )
+=======
+
+        objects += [view_objects.Item(item) for item in model.items]
+
+>>>>>>> fb322f5 (refactor: move items into view.objects)
         for player in model.players:
             coord = game_map.convert_coordinate(player.position)
             detail = (
@@ -859,7 +866,9 @@ class GraphicalView:
 
         for obj in objects:
             # ul means upper left
-            if obj.object_type == const.ObjectType.PLAYER:
+            if isinstance(obj, view_objects.Item):
+                obj.draw(self.screen)
+            elif obj.object_type == const.ObjectType.PLAYER:
                 direction = self.character_direction[obj.image_index]
                 effect, dead, effect_timer, dead_time = obj.detail
                 # if dead:
@@ -1021,6 +1030,7 @@ class GraphicalView:
                 obj.detail[0].tick()
             elif obj.object_type == const.ObjectType.MAP:
                 self.screen.blit(obj.detail[0], obj.position)
+<<<<<<< HEAD
             elif obj.object_type == const.ObjectType.ITEM:
                 # render ripple
                 ripple = obj.detail[1]
@@ -1051,6 +1061,8 @@ class GraphicalView:
                 # else:
                 #     self.screen.blit(self.transparent_player_image[Object[2]], Object[3])
                 self.screen.blit(self.pictures[obj.image_index], ul)
+=======
+>>>>>>> fb322f5 (refactor: move items into view.objects)
 
         # Ghost teleport chanting animation
         animations = self.ghost_teleport_chanting_animations.copy()
