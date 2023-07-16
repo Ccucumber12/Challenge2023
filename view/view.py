@@ -494,14 +494,28 @@ class GraphicalView:
         text_surface = font.render("Game Over", 1, pg.Color('black'))
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-        for place in range(3):
-            ul = [x - y for x, y in zip(const.PODIUM_POSITION[place],
-                                        [const.PLAYER_RADIUS, const.PLAYER_RADIUS*2])]
-            self.screen.blit(
-                self.character_image[self.places[place].player_id][const.CharacterDirection.DOWN], ul)
+        for i in range(len(self.places)):
+            player_pos = (
+                const.PODIUM_POSITION[i][0]
+                - (len(self.places[i]) - 1) * const.PODIUM_DIST // 2,
+                const.PODIUM_POSITION[i][1],
+            )
+            for player in self.places[i]:
+                if i == 3:
+                    surface = view_objects.Player.images[player.player_id][const.PlayerSkins.NORMAL][
+                        const.CharacterDirection.UP
+                    ]
+                else:
+                    surface = view_objects.Player.images[player.player_id][const.PlayerSkins.NORMAL][
+                        const.CharacterDirection.DOWN
+                    ]
+                self.screen.blit(surface, surface.get_rect(center=player_pos))
+                player_pos = (player_pos[0] + const.PODIUM_DIST, player_pos[1])
             font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-            text_surface = font.render(str(self.places[place].score), 1, pg.Color('black'))
-            text_center = const.FINAL_SCORE_POSITION[place]
+            text_surface = font.render(
+                str(self.places[i][0].score), 1, pg.Color("black")
+            )
+            text_center = const.FINAL_SCORE_POSITION[i]
             self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
 
         pg.display.flip()
