@@ -1,6 +1,6 @@
 import os
 import cv2
-
+import numpy as np
 import pygame as pg
 from pygame import Vector2
 from math import pi
@@ -137,6 +137,7 @@ class GraphicalView:
         # Therefore, they should be created in initialize() instead of __init__().
         self.scoreboard = view_objects.ScoreBoard()
         self.players = [view_objects.Player(player) for player in model.players]
+        AnimationPatronousShockwave.init_convert()
 
     def last_stage_handler(self):
         self.fog.start = True
@@ -377,8 +378,6 @@ class GraphicalView:
             animation.update()
         self.patronus_shockwave_animations = [ani for ani in self.patronus_shockwave_animations if not ani.expired]
 
-
-
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()
         for animation in animations:
@@ -604,18 +603,70 @@ class GSAnimation:
 
 
 class AnimationPatronousShockwave:
+    radius = int(const.PATRONUS_SHOCKWAVE_RADIUS * 0.7)
+    duration = int(const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION)
+    transformedxi = []
+    transformedyi = []
+
     def __init__(self, position):
         self.timer = 0
-        self.duration = const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION
         self.expired = False
         self.position = position
 
+    @classmethod
+    def init_convert(cls):
+        # obtain Cartesian coordinate and polar coordinate
+        yv, xv = np.mgrid[-cls.radius:cls.radius, -cls.radius:cls.radius]
+        r, t = np.hypot(xv, yv), np.arctan2(yv, xv)
+
+        for i in range(cls.duration):
+            # new radius for space compression
+            newr = cls.radius * (r / cls.radius) ** (18 / (i + 18))
+
+            # calculate compressed
+            mask_compress = (r <= cls.radius)
+            compressedxv = np.where(mask_compress, (newr * np.cos(t)).astype(int), xv) + cls.radius
+            compressedyv = np.where(mask_compress, (newr * np.sin(t)).astype(int), yv) + cls.radius
+
+            # combine
+            yi, xi = np.indices((2 * cls.radius, 2 * cls.radius))
+            cls.transformedxi.append(xi[compressedyv, compressedxv])
+            cls.transformedyi.append(yi[compressedyv, compressedxv])
+
     def update(self):
         self.timer += 1
-        if self.timer > self.duration:
+        if self.timer >= self.duration:
             self.expired = True
 
     def draw(self, screen: pg.Surface):
+        area = pg.Rect(0, 0, 2 * self.radius, 2 * self.radius)
+        area.center = self.position
+        canvas = pg.Rect((0, 0), const.ARENA_SIZE)
+
+        area_inside = area.clip(canvas)
+        sub_background = pg.Surface.subsurface(screen, area_inside)
+        source_array = pg.surfarray.array3d(sub_background)
+
+        square_background = pg.Surface((2 * self.radius, 2 * self.radius))
+        position = {
+            'left': canvas.left - area.left if area.left < canvas.left else 0,
+            'top': canvas.top - area.top if area.top < canvas.top else 0,
+        }
+        sub_rect = sub_background.get_rect(**position)
+        square_background.blit(sub_background, sub_rect)
+
+        source_array = pg.surfarray.array3d(square_background)
+
+        valid_x = self.transformedxi[self.timer].clip(sub_rect.top, sub_rect.bottom-1)
+        valid_y = self.transformedyi[self.timer].clip(sub_rect.left, sub_rect.right-1)
+
+        result_array = source_array[valid_y, valid_x]
+        result_surface_square_background = pg.surfarray.make_surface(result_array)
+        result_surface = pg.Surface.subsurface(result_surface_square_background, sub_rect)
+
+        screen.blit(result_surface, area_inside)
+
+        # shockwave
         for i in range(5):
             radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - min(1, (self.duration - self.timer + i) / self.duration))
             color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
