@@ -592,7 +592,7 @@ class GSAnimation:
     
     def tick(self):
         # self.now_tick += self.tick_dist
-        self.now_tick += (self.tick_dist ** 3) // 10000
+        self.now_tick += (self.tick_dist ** 3) // 50000
         self.tick_dist += 1
         if self.now_tick >= const.GOLDEN_SNITCH_ANIMATION_LENGTH:
             return False
