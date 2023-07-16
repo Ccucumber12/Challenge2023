@@ -59,7 +59,6 @@ class GraphicalView:
 
         # scale the pictures to proper size
         self.pictures = {}
-        self.character_image = {}
         self.petrified_player_image = {}
         self.transparent_player_image = {}
         self.wearing_sortinghat_image = {}
@@ -299,14 +298,14 @@ class GraphicalView:
     def render_play(self):
         model = get_game_engine()
         if model.forced_paused:
-            source_arr = pg.surfarray.array3d(self.screen_copy)
-            hsv = cv2.cvtColor(source_arr, cv2.COLOR_RGB2HSV)
-            h, s, v = cv2.split(hsv)
-            hnew = np.mod(h + 2, 180).astype(np.uint8)
-            snew = np.mod(s + 2, 180).astype(np.uint8)
-            hsv_new = cv2.merge([hnew,snew,v])
-            bgr_new = cv2.cvtColor(hsv_new, cv2.COLOR_HSV2RGB)
-            self.screen_copy = pg.surfarray.make_surface(bgr_new)
+            # source_arr = pg.surfarray.array3d(self.screen_copy)
+            # hsv = cv2.cvtColor(source_arr, cv2.COLOR_RGB2HSV)
+            # h, s, v = cv2.split(hsv)
+            # hnew = np.mod(h + 2, 180).astype(np.uint8)
+            # snew = np.mod(s + 2, 180).astype(np.uint8)
+            # hsv_new = cv2.merge([hnew,snew,v])
+            # bgr_new = cv2.cvtColor(hsv_new, cv2.COLOR_HSV2RGB)
+            # self.screen_copy = pg.surfarray.make_surface(bgr_new)
             self.screen.blit(self.screen_copy, (0, 0))
             self.golden_snitch_animations = [x for x in self.golden_snitch_animations if x.tick()]
             if len(self.golden_snitch_animations) == 0:
@@ -579,6 +578,7 @@ class GSAnimation:
         self.tick_dist = 1
         self.screen = screen
         self.pics = pics
+        # self.prev_centers = [item_pos.copy() for _ in range(const.RAINBOW_COLOR_NUMBERS)]
 
     def get_B_curve_pos(self, tick):
         # Quadratic Bézier curves
@@ -591,10 +591,23 @@ class GSAnimation:
         return x, y
     
     def tick(self):
-        self.now_tick += self.tick_dist
+        # self.now_tick += self.tick_dist
+        self.now_tick += (self.tick_dist ** 3) // 10000
         self.tick_dist += 1
         if self.now_tick >= const.GOLDEN_SNITCH_ANIMATION_LENGTH:
             return False
+        
+        center = self.get_B_curve_pos(self.now_tick)
+
+        # width = const.GOLDEN_SNITCH_RAINBOW_CIRCLE_WIDTH
+        # nums = const.RAINBOW_COLOR_NUMBERS
+        # anm_tick = self.tick_dist % nums
+        # self.prev_centers[anm_tick] = center
+        # for i in range(nums-1, 0, -1):
+        #     pick = (anm_tick - i + nums) % nums 
+        #     radius = width * (i + 1)
+        #     pg.draw.circle(self.screen, const.RAINBOW_COLORS[pick], self.prev_centers[pick], radius, radius)
+
         index = self.tick_dist // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH % const.GOLDEN_SNITCH_PICTURE_NUMBER
-        self.screen.blit(self.pics[index], self.pics[index].get_rect(center=self.get_B_curve_pos(self.now_tick)))
+        self.screen.blit(self.pics[index], self.pics[index].get_rect(center=center))
         return True

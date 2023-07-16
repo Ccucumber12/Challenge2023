@@ -151,6 +151,24 @@ GOLDEN_SNITCH_APPEAR_TIME = 120 * FPS
 GOLDEN_SNITCH_SPEED = 210 / FPS
 GOLDEN_SNITCH_ANIMATION_LENGTH = (3 * FPS) * (3 * FPS - 1) // 2
 
+GOLDEN_SNITCH_RAINBOW_CIRCLE_WIDTH = 10
+
+RAINBOW_COLORS = [
+    pg.Color(255, 0, 0),
+    pg.Color(255, 128, 0),
+    pg.Color(255, 255, 0),
+    pg.Color(128, 255, 0),
+    pg.Color(0, 255, 0),
+    pg.Color(0, 255, 128),
+    pg.Color(0, 255, 255),
+    pg.Color(0, 128, 255),
+    pg.Color(0, 0, 255),
+    pg.Color(128, 0, 255),
+    pg.Color(255, 0, 255),
+    pg.Color(255, 0, 128)
+]
+RAINBOW_COLOR_NUMBERS = len(RAINBOW_COLORS)
+
 ITEM_HOVER_LENGTH = 10
 ITEM_HOVER_LOOP_TIME = 2 * FPS
 ITEM_RIPPLE_DISPLACEMENT = {
