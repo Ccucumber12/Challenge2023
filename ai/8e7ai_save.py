@@ -7,18 +7,32 @@ import math
 class TeamAI(AI):
 
     def __init__(self):
-        self.candidates = [(937,33), (882,48), (923,91), (985,127), (974,171), (894,176), (866,134), (807,126), (797,76), (750,36), (628,40), (582,46), (613,106), (634,140), (680,155), (612,184), (571,208), (511,217), (453,222), (430,188), (389,158), (519,155), (345,109), (283,91), (243,91), (191,126), (268,159), (122,161), (94,182), (230,200), (254,244), (299,282), (346,313), (300,361), (241,347), (175,314), (140,286), (109,273), (114,379), (177,417), (245,423), (285,400), (220,505), (294,523), (231,575), (127,528), (357,389), (385,392), (422,387), (473,365), (492,326), (436,328), (395,356), (550,401), (586,415), (622,436), (612,487), (588,530), (519,541), (538,589), (542,625), (575,664), (659,683), (735,701), (798,725), (881,706), (713,641), (807,643), (744,602), (770,553), (811,580), (880,585), (926,557), (929,519), (888,461), (759,431), (859,409), (765,391), (718,359), (683,324), (773,290), (861,293), (905,328), (869,358), (946,333), (1012,338), (1076,337), (1129,382), (1119, 338), (1060,438), (1081,490), (1135,518), (1158,548), (1155,631), (1080,660), (1041,710), (1047,216), (990,165), (1156,207), (1103, 278), (805, 100), (673, 169), (164, 135), (52, 196), (1097, 339)]
-        self.candidates = [Vector2(x) for x in self.candidates]
-        for point in self.candidates:
-            if get_ground_type(point) == GroundType.OBSTACLE:
-                print("illegal", point)
+        if get_map_name() == 'snow':
+            self.candidates = [(937,33), (882,48), (923,91), (985,127), (974,171), (894,176), (866,134), (807,126), (797,76), (750,36), (628,40), (582,46), (613,106), (634,140), (680,155), (612,184), (571,208), (511,217), (453,222), (430,188), (389,158), (519,155), (345,109), (283,91), (243,91), (191,126), (268,159), (122,161), (94,182), (230,200), (254,244), (299,282), (346,313), (300,361), (241,347), (175,314), (140,286), (109,273), (114,379), (177,417), (245,423), (285,400), (220,505), (294,523), (231,575), (127,528), (357,389), (385,392), (422,387), (473,365), (492,326), (436,328), (395,356), (550,401), (586,415), (622,436), (612,487), (588,530), (519,541), (538,589), (542,625), (575,664), (659,683), (735,701), (798,725), (881,706), (713,641), (807,643), (744,602), (770,553), (811,580), (880,585), (926,557), (929,519), (888,461), (759,431), (859,409), (765,391), (718,359), (683,324), (773,290), (861,293), (905,328), (869,358), (946,333), (1012,338), (1076,337), (1129,382), (1119, 338), (1060,438), (1081,490), (1135,518), (1158,548), (1155,631), (1080,660), (1041,710), (1047,216), (990,165), (1156,207), (1103, 278), (805, 100), (673, 169), (164, 135), (52, 196), (1097, 339)]
+            self.candidates = [Vector2(x) for x in self.candidates]
+            for point in self.candidates:
+                if get_ground_type(point) == GroundType.OBSTACLE:
+                    print("illegal", point)
+        else:
+            self.candidates = []
+            while len(self.candidates) < 100:
+                i = Vector2(random.uniform(0, 1200), random.uniform(0, 800))
+                if get_ground_type(i) != GroundType.OBSTACLE:
+                    self.candidates.append(i) 
+            self.candidates = [Vector2(x) for x in self.candidates]
+            self.candidates.extend([Vector2(portkey.position[0]+10, portkey.position[1]-10) for portkey in get_portkeys()]) 
+            #print(self.candidates)
 
         self.portkey_eval = None
+        self.close_portkey = None
         self.me = get_myself()
         self.ghosts = []
         self.directions = []
         # corners that should be avoided
-        self.corners = [Vector2(422, 729), Vector2(24, 727), Vector2(26, 182), Vector2(1143, 114), Vector2(1193, 788)]
+        if get_map_name() == 'snow':
+            self.corners = [Vector2(422, 729), Vector2(24, 727), Vector2(26, 182), Vector2(1143, 114), Vector2(1193, 788)]
+        else:
+            self.corners = [Vector2(41, 63), Vector2(292, 270), Vector2(53, 598), Vector2(1145, 113), Vector2(1163, 713)]
 
         
     def get_close_positions(self, radius, run):
@@ -58,7 +72,13 @@ class TeamAI(AI):
                     dis = distance(ghostpos, pos)
                     ret -= min(1000, dis)
               
-        ret -= sum(min(350, distance(pos, corner)) for corner in self.corners) * 2
+        if get_map_name() == 'snow':
+            ret -= sum(min(350, distance(pos, corner)) for corner in self.corners) * 2
+        else:
+            if not line:
+                ret -= sum(min(350, distance(pos, corner)) for corner in self.corners) * 2
+                ret += distance(self.close_portkey.position, pos) *3 
+
         if same_side is False:
             ret -= 10000
         if portkey:
@@ -82,6 +102,8 @@ class TeamAI(AI):
         players = get_players() 
         ghost_positions = []
         same_side = self.get_ghost_positions(ghost_positions)
+        if get_map_name() == 'azkaban':
+            self.close_portkey = get_reachable_portkeys()[0] 
         
         ghosts, ghost_positions = zip(*sorted(zip(ghosts, ghost_positions), key=lambda x: distance_to(x[1])))
         vec = ghost_positions[0] - self.me.position
@@ -130,7 +152,7 @@ class TeamAI(AI):
             #determines whether to wait before getting item
             if distance_to(item.position) > 60:
                 return False
-            if vec.length() < 100+20*minutes or (item.type == ItemType.PATRONUS and vec.length() < 150+20*minutes):
+            if vec.length() < 100+30*minutes or (item.type == ItemType.PATRONUS and vec.length() < 150+40*minutes):
                 return False
             for player in players:
                 if player.id == self.me.id:
@@ -138,7 +160,7 @@ class TeamAI(AI):
                 reach_time = distance(player.position, item.position) / player.speed
                 if player.dead:
                     reach_time = max(reach_time, player.respawn_after)
-                if reach_time < 30:
+                if reach_time < 35:
                     return False
             if item.type == ItemType.CLOAK:
                 if has_golden_snitch:
@@ -150,9 +172,12 @@ class TeamAI(AI):
             return True
 
         if has_golden_snitch and self.me.effect == EffectType.CLOAK:
-            if vec.length() < 150:
+            if vec.length() < 120:
                 return self.me.position - vec
-            return Vector2(600, 400)
+            if get_map_name() == 'snow':
+                return Vector2(min(700, max(golden_snitch_pos[0], 500)), min(500, max(golden_snitch_pos[1], 300)))
+            else:
+                return golden_snitch_pos
 
         for item in get_items(SortKey.DISTANCE):
             if impossible(item):
@@ -163,9 +188,12 @@ class TeamAI(AI):
                     if stall(item):
                         return self.me.position
                     return item.position
-
         mindis = distance_to(ghost_positions[0])
+        if self.close_portkey != None and reachable(self.close_portkey.position) and mindis < 200:
+            return self.close_portkey.position
         points = [item.position for item in items]
+        if self.close_portkey != None:
+            points.append(self.close_portkey.target)
         if mindis > 350+20*minutes:
             points = self.get_close_positions(600, False)
             ret = min(points, key=lambda x: self.evaluate_position(x, 0),default=None)
@@ -191,6 +219,12 @@ class TeamAI(AI):
         if self.me.effect == EffectType.SORTINGHAT:
             return convert_point(self.me.position + vec)
         return convert_point(self.defense())
+        """
+        if get_time() < 120 * 60:
+            return convert_point(self.defense())
+        else:
+            return convert_point(self.offense())
+        """
          
 
        
