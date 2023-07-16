@@ -1,138 +1,125 @@
-from pygame import Vector2
 from api.api import *
+import random
+
 
 class TeamAI(AI):
+    thresh_ghost = 0
+    thresh_item = 0
+    thresh_port = 0
+    thresh_chant = 0
+    def __init__(self) :
+        if get_map_name() == "azkaban" :
+            self.thresh_ghost = 180
+            self.thresh_item = 150
+            self.thresh_port = 150
+            self.thresh_chant = 160
+        elif get_map_name() == "snow" :
+            self.thresh_ghost = 200
+            self.thresh_item = 150
+            self.thresh_port = 150
+            self.thresh_chant = 180
 
-    def check_pos_accessible(self, target) -> bool:
-        dx = [1, 0, -1, 0]
-        dy = [0, 1, 0, -1]
-        score = 0
-        m = 0
-        if get_map_name() == "park":
-            m = 10
-        elif get_map_name() == "snow":
-            m = 10
-        elif get_map_name() == "azkaban":
-            m = 20
-        for i in range(1, 201, 20):
-            for j in range(4):
-                x = target.x + dx[j] * i
-                y = target.y + dy[j] * i
-                if not (0 < x < 1200 and 0 < y < 600) and get_ground_type(Vector2(x, y)) == GroundType.OBSTACLE:
-                    score += 1
-        # print(score)
-        if score > m: return False
-        else: return True
-
-    def rotate_to_point(self, my_position):
-        x = my_position.x
-        y = my_position.y
-        if get_map_name() == "river":
-            return Vector2(600, 400)
-        if get_map_name() == "snow":
-            if 0 <= x < 600 and 0 <= y < 400:
-                return Vector2(300, 200)
-            elif 600 <= x <= 1200 and 0 <= y < 400:
-                return Vector2(900, 200)
-            elif 0 <= x < 600 and 400 <= y <= 800:
-                return Vector2(230, 430)
-            else: return Vector2(900, 600)
-        elif get_map_name() == "azkaban":
-            if 0 <= x < 600:
-                return Vector2(160, 350)
-            else:
-                return Vector2(1030, 320)
-
-    def detect_ghost_teleport(self, my_position):
-        ghosts = get_ghosts()
-        nearest_ghost_port = None
-        min_distance = 10000
-        for ghost in ghosts:
-            if ghost.chanting:
-                if distance_to(ghost.teleport_destination) < min_distance:
-                    min_distance = distance_to(ghost.teleport_destination)
-                    nearest_ghost_port = ghost.teleport_destination
-        if nearest_ghost_port != None or min_distance > 200:
-            return my_position
-        else: return nearest_ghost_port
-
-    def search_for_cloak(self, my_position) -> Vector2: # 在金探子在附近時尋找斗篷
-        items = get_items()
-        if len(items) == 0:
-            return my_position
-        for item in items:
-            if item.type == ItemType.CLOAK:
-                return item.position
-        return get_nearest_item().position
-    
-    def restrict_target(self, target):
-        x = target.x
-        y = target.y
-        # if 
-
-    def escape(self, my_position) -> Vector2:
-        dist = get_nearest_ghost().position - get_myself().position
-        teleportDist = get_nearest_ghost().teleport_destination - get_myself().position
-
-        # if get_myself().dead:
-        #     if get_items() != []:
-        #         target = get_nearest_item().position
-        #     else:
-        #         target = get_myself().position - (get_nearest_ghost().position - get_myself().position)*100
-
-        target = my_position
-
-        if (distance_to(get_nearest_ghost().position) <= 250) and get_myself().effect != EffectType.SORTINGHAT: # 如果鬼在附近 or 鬼傳送到附近 往反方向走
-            ghost_position = get_nearest_ghost().position
-            direction = ghost_position - my_position
-            target = my_position - direction * 1
-            # if not self.check_pos_accessible(target):
-            #     target = self.rotate_to_point(my_position)
-            if get_items() != []:
-                if get_nearest_item().type != ItemType.PETRIFICATION and distance_to(get_nearest_item().position) <= distance_to(get_nearest_ghost().position):
-                    target = get_nearest_item().position
-
-        elif self.detect_ghost_teleport(my_position) != my_position:
-            direction = self.detect_ghost_teleport(my_position) - my_position
-            target = my_position - direction * 1
-            
-        else: # 拿道具
-            # if get_time() > get_ticks_per_second()*60:
-            #     items = get_items()
-            #     decided = False
-            #     if get_myself().effect == EffectType.CLOAK:
-            #         for item in items:
-            #             if item.type == ItemType.GOLDEN_SNITCH:
-            #                 target = item.position
-            #                 decided = True
-            #                 break
-            #     for item in items:
-            #         if item.type == ItemType.CLOAK:
-            #             target = item.position
-            #             decided = True
-            #             break
-            #     if not decided and len(items) != 0:
-            #         target = get_nearest_item().position
-
-            # else:
-            if get_items() != []:
-                item = get_nearest_item() # 最近距離的道具
-                for i in get_items():
-                    if i.type == ItemType.GOLDEN_SNITCH:
-                        if get_items()[0].type == ItemType.GOLDEN_SNITCH and get_myself().effect != EffectType.CLOAK: 
-                            target = self.search_for_cloak(my_position)
-                        elif get_items()[0].type == ItemType.GOLDEN_SNITCH and get_myself().effect == EffectType.CLOAK:
-                            target = get_items()[0].position
-                target = item.position # 移動過去
-            else:
-                target = get_myself().position - (get_nearest_ghost().position - get_myself().position)*100
-
-        if not connected_to(target):
-            if find_possible_portkeys_to(target) != []:
-                target = find_possible_portkeys_to(target)[0].position
-
-        return target
-
+    def run_away(self, ghost) :
+        my_position = get_myself().position
+        direction = ghost.position - my_position
+        return my_position - direction * 10000
+    def small_vector(self) :
+        vec = Vector2(random.random() - random.random(), random.random() - random.random())
+        return vec.normalize() * 60
+    def go_near(self, position) :
+        eps = get_myself().position - position
+        if(distance_to(position) == 0) :
+            return position
+        else :
+            to = position + eps.normalize() * 60
+            if get_ground_type(to) == GroundType.OBSTACLE :
+                return position
+            else :
+                return to
     def player_tick(self) -> Vector2:
-        my_position = get_myself().position # 自己的位置
-        return self.escape(my_position)
+        me = get_myself()
+        my_position = me.position
+        dis_to_ghost = distance(me.position, get_nearest_ghost().position)
+
+
+        ghosts = get_ghosts()
+        ghosts_near = list(filter(lambda x : connected_to(x.position), ghosts))
+        ghosts_near.sort(key=lambda x:distance_to(x.position))
+        ghosts_far = list(filter(lambda x : not connected_to(x.position), ghosts))
+        port_keys = list(filter(lambda x : connected_to(x.position), get_portkeys()))
+        port_keys.sort(key=lambda x: distance_to(x.position))
+        items = list(filter(lambda x : connected_to(x.position), get_items()))
+        items.sort(key=lambda x: distance_to(x.position))
+        # calculate dis to chanting
+        bad_ghosts = list(filter(lambda x : connected_to(x.teleport_destination), ghosts))
+        bad_ghost = None
+        dis_to_chanting = 10000000000000000000
+        if len(bad_ghosts) != 0 :
+            bad_ghost = min(bad_ghosts, key = lambda x : distance_to(x.teleport_destination))
+            dis_to_chanting = distance_to(bad_ghost.teleport_destination)
+        # sorting hat
+        if me.effect == EffectType.CLOAK:
+            for item in items:
+                if item.type == ItemType.GOLDEN_SNITCH and distance_to(item.position) <= 100:
+                    return item.position
+        if me.dead:
+            if me.respawn_after / get_ticks_per_second() >= 2: #死亡前三秒
+                for item in items:
+                    if item.type == ItemType.CLOAK or item.type == ItemType.PATRONUS \
+                            or item.type == ItemType.SORTINGHAT:
+                        if (distance_to(item.position) > 60):
+                            return item.position
+                        else:
+                            return me.position
+            else:
+                if get_nearest_item() is not None and distance_to(get_nearest_item().position) <= 60:
+                    return me.position
+                else:
+                    return 2 * me.position - get_nearest_ghost().position
+
+        if me.effect == EffectType.SORTINGHAT and 1 <= len(ghosts_near) <= 2:
+            return ghosts_near[0].position
+
+        # deal with items
+        goals = []
+        for i in items :
+            if i.type == ItemType.PETRIFICATION or i.type == ItemType.GOLDEN_SNITCH :
+                continue
+            elif len(goals) == 0:
+                goals.append(i)
+            elif abs(distance(me.position, i.position) - \
+                    distance(me.position, goals[0].position)) <= 10:
+                goals.append(i)
+
+        goal = None
+        if len(goals) != 0:
+            goal = min(goals, key=lambda x : x.id)
+
+        # states 
+        state = (goal != None and distance(me.position, goal.position) <= self.thresh_item)
+        state2 = (distance_to(get_nearest_player().position)) <= self.thresh_ghost
+        state3 = len(ghosts_near) > len(ghosts_far)
+        state4 = 0
+        if len(port_keys) >= 1 :
+            state4 = (distance_to(port_keys[0].position) <= self.thresh_port)
+        if (state == 0 and (dis_to_ghost <= self.thresh_ghost or dis_to_chanting <= self.thresh_chant)):
+            if state4 == 1 and state3 == 1 and len(port_keys) >= 1:
+                return port_keys[0].position
+            elif dis_to_ghost <= self.thresh_ghost :
+                return self.run_away(get_nearest_ghost())
+            else :
+                direction = bad_ghost.teleport_destination - my_position
+                if distance_to(bad_ghost.teleport_destination) == 0:
+                    return my_position + self.small_vector()
+                else :
+                    return my_position - direction * 10000
+        elif (state == 1 and (dis_to_ghost <= self.thresh_ghost or dis_to_chanting <= self.thresh_chant 
+            or state2 == 1)):
+            return goal.position
+        else :
+            if state3 == 1 and len(port_keys) >= 1:
+                return port_keys[0].position
+            elif goal != None:
+                return self.go_near(goal.position)
+            else :
+                return my_position + self.small_vector()

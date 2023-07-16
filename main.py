@@ -1,5 +1,6 @@
 import argparse
 import os
+import random
 import platform
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
@@ -47,9 +48,11 @@ def main():
     args = parser.parse_args()
 
     name_of_ai = [args.ai1, args.ai2, args.ai3, args.ai4]
+    random.shuffle(name_of_ai)
     player_names = const.PLAYER_NAME.copy()
     for i in range(const.NUM_OF_PLAYERS):
         player_names[i] = name_of_ai[i].replace('manual', 'Hermione') + " " + player_names[i]
+        print(f"player {i + 1} is {player_names[i]}")
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()

@@ -74,6 +74,8 @@ class TeamAI(AI):
                 item_destination = all_items[0]
                 return item_destination.position
         return myself.position
+    def ArriveTime(self, pos):
+        return 180000
     # run to ghost      
     def run_to_ghost(self):
         myPosition = get_myself().position
