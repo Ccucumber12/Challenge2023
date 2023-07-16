@@ -130,7 +130,7 @@ class snowAI(AI):
             #determines whether to wait before getting item
             if distance_to(item.position) > 60:
                 return False
-            if vec.length() < 100+20*minutes or (item.type == ItemType.PATRONUS and vec.length() < 150+20*minutes):
+            if vec.length() < 100+30*minutes or (item.type == ItemType.PATRONUS and vec.length() < 150+40*minutes):
                 return False
             for player in players:
                 if player.id == self.me.id:
@@ -150,9 +150,9 @@ class snowAI(AI):
             return True
 
         if has_golden_snitch and self.me.effect == EffectType.CLOAK:
-            if vec.length() < 150:
+            if vec.length() < 120:
                 return self.me.position - vec
-            return Vector2(600, 400)
+            return Vector2(min(700, max(golden_snitch_pos[0], 500)), min(500, max(golden_snitch_pos[1], 300)))
 
         for item in get_items(SortKey.DISTANCE):
             if impossible(item):
@@ -339,8 +339,8 @@ class azkabanAI(AI):
             # determines whether to wait before getting item
             if distance_to(item.position) > 60:
                 return False
-            if vec.length() < 100 + 20 * minutes or (
-                    item.type == ItemType.PATRONUS and vec.length() < 150 + 20 * minutes):
+            if vec.length() < 100 + 30 * minutes or (
+                    item.type == ItemType.PATRONUS and vec.length() < 150 + 40 * minutes):
                 return False
             for player in players:
                 if player.id == self.me.id:
