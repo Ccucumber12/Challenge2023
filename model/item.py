@@ -6,7 +6,7 @@ from math import sin, pi
 
 import const
 import util
-from event_manager.events import (EventCastPetrification, EventPatronusShockwave)
+from event_manager.events import *
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -90,6 +90,10 @@ class Item:
                 # Apply the effect to the player according to the type of item (item_type).
                 self.eaten = True
                 if self.type == const.ItemType.GOLDEN_SNITCH:
+                    # get golden snitch
+                    # pause
+                    get_event_manager().post(EventPauseModel())
+                    get_event_manager().post(EventGetGoldenSnitch(self.position, player.player_id))
                     player.set_golden_snitch_effect()
                 elif self.type == const.ItemType.PETRIFICATION:
                     others = [x for x in model.players if x != player and not x.dead]

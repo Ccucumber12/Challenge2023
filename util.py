@@ -59,3 +59,25 @@ def get_full_exception(exception: Exception) -> str:
         return exception_cls.__qualname__
     else:
         return exception_module + '.' + exception_cls.__qualname__
+
+
+def crop_image(picture: pg.Surface, desire_width, desire_height, large=False, bounding_rect: pg.Rect = None):
+    """
+    Will scale the image to desire size without changing the ratio of the width and height.
+
+    The size of cropped image won't be bigger than desired size if `large == False`.
+
+    The size of cropped image won't be smaller than desired size if `large == True`.
+    """
+    image = picture
+    if bounding_rect == None:
+        bounding_rect = image.get_bounding_rect()
+    cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
+    cropped_image.blit(image, (0, 0), bounding_rect)
+    width, height = [cropped_image.get_width(), cropped_image.get_height()]
+    if large:
+        ratio = max(desire_width/width, desire_height/height)
+    else:
+        ratio = min(desire_width/width, desire_height/height)
+    cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
+    return cropped_image
