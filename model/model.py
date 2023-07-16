@@ -104,9 +104,9 @@ class GameEngine:
                 ev_manager.post(EventTimesUp(places))
 
                 print("Result:")
-                result = sorted([(-self.players[player].score, self.player_names[player]) for player in range(const.NUM_OF_PLAYERS)])
-                for i, r in enumerate(result):
-                    print(f"Rank {i + 1} is {r[1]} with score {-r[0]}")
+                for i, r in enumerate(places):
+                    if len(r) > 0:
+                        print(f"Rank {i + 1} {'is' if len(r) == 1 else 'are'} {', '.join(map(lambda p: self.player_names[p.player_id], r))} with score {r[0].score}")
 
             # Check if a item is eaten
             item_deletions = []
