@@ -276,7 +276,7 @@ class Player(__ObjectBase):
                             cls.images[player][skin][face_dir] = crop_image(
                                 img, *const.DEAD_PLAYER_SIZE[face_dir], True
                             )
-            cls.image_initialized == True
+        cls.image_initialized == True
 
         # other skins that is not contained in const.PlayerSkins
         for player in const.PlayerIds:
