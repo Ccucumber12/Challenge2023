@@ -8,7 +8,7 @@ import const
 import instances_manager
 import util
 from event_manager.events import (EventGhostKill, EventGhostTeleport, EventGhostTeleportChant,
-                                  EventPetrify, EventPlayerGetItem, EventSortinghat, EventPortkey)
+                                  EventPetrify, EventPlayerGetItem, EventPortkey, EventSortinghat)
 from instances_manager import get_event_manager, get_game_engine
 
 
@@ -264,7 +264,7 @@ class Player(Character):
         elif not self.dead:
             catcher.freeze(self.position)
             self.freeze()
-            get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.effect))
+            get_event_manager().post(EventGhostKill(catcher.ghost_id, self.position, self.player_id, self.effect))
             self.dead = True
             self.remove_effect()
             self.respawn_time = model.timer + const.PLAYER_RESPAWN_TIME

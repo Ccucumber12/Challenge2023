@@ -6,8 +6,16 @@ import pygame as pg
 import api.api_impl as api_impl
 import const
 from event_manager.event_manager import *
-from event_manager.events import (EventEveryTick, EventInitialize, EventPlayerMove, EventQuit,
-                                  EventStateChange, EventTimesUp)
+from event_manager.events import (
+    EventContinueModel,
+    EventEveryTick,
+    EventInitialize,
+    EventPauseModel,
+    EventPlayerMove,
+    EventQuit,
+    EventStateChange,
+    EventTimesUp,
+)
 from instances_manager import get_event_manager
 from model.character import Ghost, Patronus, Player
 from model.item import Item, ItemGenerator
@@ -19,7 +27,7 @@ class GameEngine:
     The main game engine. The main loop of the game is in GameEngine.run()
     """
 
-    def __init__(self, map_name, ai, show_ai_target, no_error_message):
+    def __init__(self, map_name, ai, show_ai_target, no_error_message, player_names):
         """
         This function is called when the GameEngine is created.
         For more specific objects related to a game instance,
@@ -32,6 +40,7 @@ class GameEngine:
         self.ai = ai
         self.show_ai_target = show_ai_target
         self.no_error_message = no_error_message
+        self.player_names = player_names
 
     @property
     def state(self):
@@ -41,6 +50,7 @@ class GameEngine:
         """
         This method is called when a new game is instantiated.
         """
+        self.forced_paused = False
         self.clock = pg.time.Clock()
         self.user_events: dict[int, list[function]] = {}
         self._state = const.STATE_MENU
@@ -48,7 +58,8 @@ class GameEngine:
         for i in const.PlayerIds:
             self.players.append(Player(i))
         self.ghosts: list[Ghost] = [
-            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())]
+            Ghost(0, const.GHOST_INIT_TP_CD, self.map.get_ghost_spawn_point())
+        ]
         self.patronuses: list[Patronus] = []
         self.patronus_counter = 0
         self.items: set[Item] = set()
@@ -57,6 +68,9 @@ class GameEngine:
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
     def handle_every_tick(self, event):
+        if self.forced_paused:
+            return
+
         cur_state = self.state
         ev_manager = get_event_manager()
         if cur_state == const.STATE_MENU:
@@ -73,12 +87,26 @@ class GameEngine:
             if self.timer % const.FPS == 0:
                 for player in self.players:
                     if not player.dead:
-                        player.add_score(const.PLAYER_ADD_SCORE[(self.timer // const.FPS) // 60])
+                        player.add_score(
+                            const.PLAYER_ADD_SCORE[(self.timer // const.FPS) // 60]
+                        )
 
             if self.timer == const.GAME_LENGTH:
-                places = self.players.copy()
-                places.sort(key=lambda x: x.score, reverse=True)
+                players_ = self.players.copy()
+                players_.sort(key=lambda x: x.score, reverse=True)
+                places = [[players_[0]]]
+                for i in range(1, len(players_)):
+                    if places[-1][0].score == players_[i].score:
+                        places[-1].append(players_[i])
+                    else:
+                        places.append([players_[i]])
+
                 ev_manager.post(EventTimesUp(places))
+
+                print("Result:")
+                for i, r in enumerate(places):
+                    if len(r) > 0:
+                        print(f"Rank {i + 1} {'is' if len(r) == 1 else 'are'} {', '.join(map(lambda p: self.player_names[p.player_id], r))} with score {r[0].score}")
 
             # Check if a item is eaten
             item_deletions = []
@@ -96,7 +124,7 @@ class GameEngine:
                     event()
                 self.user_events.pop(self.timer)
 
-            for i in range(0, 4):
+            for i in const.PlayerIds:
                 api_impl.call_ai(i)
 
         elif cur_state == const.STATE_ENDGAME:
@@ -123,21 +151,31 @@ class GameEngine:
         self.running = False
 
     def handle_move(self, event: EventPlayerMove):
+        if self.forced_paused:
+            return
+
         player = self.players[event.player_id]
         player.move(event.direction)
 
     def handle_times_up(self, event):
         get_event_manager().post(EventStateChange(const.STATE_ENDGAME))
 
+    def handle_pause_model(self, event):
+        self.forced_paused = True
+
+    def handle_continue_model(self, event):
+        self.forced_paused = False
+
     def register_listeners(self):
         ev_manager = get_event_manager()
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
-        ev_manager.register_listener(
-            EventStateChange, self.handle_state_change)
+        ev_manager.register_listener(EventStateChange, self.handle_state_change)
         ev_manager.register_listener(EventQuit, self.handle_quit)
         ev_manager.register_listener(EventPlayerMove, self.handle_move)
         ev_manager.register_listener(EventTimesUp, self.handle_times_up)
+        ev_manager.register_listener(EventPauseModel, self.handle_pause_model)
+        ev_manager.register_listener(EventContinueModel, self.handle_continue_model)
 
     def update_menu(self):
         """
@@ -180,17 +218,29 @@ class GameEngine:
 
     def create_ghost(self):
         candidate = pg.Vector2(
-            random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
-            random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
+            random.randint(
+                const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS
+            ),
+            random.randint(
+                const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS
+            ),
+        )
         while self.map.get_type(candidate) == const.MAP_OBSTACLE:
             candidate = pg.Vector2(
-                random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS),
-                random.randint(const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS))
+                random.randint(
+                    const.GHOST_RADIUS, const.ARENA_SIZE[0] - const.GHOST_RADIUS
+                ),
+                random.randint(
+                    const.GHOST_RADIUS, const.ARENA_SIZE[1] - const.GHOST_RADIUS
+                ),
+            )
         new_ghost = Ghost(len(self.ghosts), const.GHOST_INIT_TP_CD, candidate)
         self.ghosts.append(new_ghost)
 
     def create_ghost_handler(self):
-        self.create_ghost()
+        # Do not create ghost at the end of game
+        if len(self.ghosts) < 3:
+            self.create_ghost()
         self.register_user_event(60 * const.FPS, self.create_ghost_handler)
 
     def run(self):

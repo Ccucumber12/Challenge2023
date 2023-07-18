@@ -6,47 +6,48 @@ from event_manager.event_manager import BaseEvent
 
 
 class EventInitialize(BaseEvent):
-    name = 'Initialize event'
+    name = "Initialize event"
 
 
 class EventQuit(BaseEvent):
-    name = 'Quit event'
+    name = "Quit event"
 
 
 class EventStateChange(BaseEvent):
-    name = 'StateChange event'
+    name = "StateChange event"
 
     def __init__(self, state):
         super().__init__()
         self.state = state
 
     def __str__(self):
-        return f'{self.name} => StateTo: {self.state}'
+        return f"{self.name} => StateTo: {self.state}"
+
 
 class EventHelpMenu(BaseEvent):
-    name = 'HelpMenu Event'
+    name = "HelpMenu Event"
 
     def __init__(self):
         pass
 
     def __str__(self):
-        return f'Show help menu'
+        return f"Show help menu"
 
 
 class EventEveryTick(BaseEvent):
-    name = 'Tick event'
+    name = "Tick event"
 
 
 class EventTimesUp(BaseEvent):
     name = "Time's Up event"
 
     def __init__(self, places):
-        super().__init__
+        super().__init__()
         self.places = places
 
 
 class EventPlayerMove(BaseEvent):
-    name = 'PlayerMove event'
+    name = "PlayerMove event"
 
     def __init__(self, player_id, direction: pg.Vector2, full_length: bool = False):
         super().__init__()
@@ -57,11 +58,11 @@ class EventPlayerMove(BaseEvent):
         self.direction = direction
 
     def __str__(self):
-        return f'{self.name} => player_id {self.player_id} move {self.direction}'
+        return f"{self.name} => player_id {self.player_id} move {self.direction}"
 
 
 class EventPlayerGetItem(BaseEvent):
-    name = 'PlayerGetItem event'
+    name = "PlayerGetItem event"
 
     def __init__(self, player_id, effect_type: const.EffectType):
         super().__init__()
@@ -69,19 +70,19 @@ class EventPlayerGetItem(BaseEvent):
         self.effect_type = effect_type
 
     def __str__(self):
-        return f'{self.name} => player_id {self.player_id} get {self.effect_type}'
+        return f"{self.name} => player_id {self.player_id} get {self.effect_type}"
 
 
 class EventPortkey:
-    name = 'Portkey event'
-    
+    name = "Portkey event"
+
     def __init__(self, destination):
         super().__init__()
         self.destination = destination
 
 
 class EventGhostMove(BaseEvent):
-    name = 'GhostMove event'
+    name = "GhostMove event"
 
     def __init__(self, ghost_id, direction):
         super().__init__()
@@ -89,11 +90,11 @@ class EventGhostMove(BaseEvent):
         self.direction = direction
 
     def __str__(self):
-        return f'{self.name} => ghost_id {self.ghost_id} move {self.direction}'
+        return f"{self.name} => ghost_id {self.ghost_id} move {self.direction}"
 
 
 class EventCastPetrification(BaseEvent):
-    name = 'Cast petrification event'
+    name = "Cast petrification event"
 
     def __init__(self, attacker, victim):
         super().__init__()
@@ -101,23 +102,24 @@ class EventCastPetrification(BaseEvent):
         self.victim = victim
 
     def __str__(self):
-        return f'{self.name} => {self.attacker.player_id} cast petrification against {self.victim.player_id}'
+        return f"{self.name} => {self.attacker.player_id} cast petrification against {self.victim.player_id}"
 
 
 class EventPetrify(BaseEvent):
-    name = 'Petrify event'
+    name = "Petrify event"
 
     def __init__(self, victim):
         from model.character import Player
+
         super().__init__()
         self.victim: Player = victim
 
     def __str__(self):
-        return f'{self.name} => {self.victim.player_id} is petrified'
+        return f"{self.name} => {self.victim.player_id} is petrified"
 
 
 class EventGhostTeleportChant(BaseEvent):
-    name = 'GhostTeleportChant event'
+    name = "GhostTeleportChant event"
 
     def __init__(self, ghost_id, position: pg.Vector2, destination: pg.Vector2):
         super().__init__()
@@ -126,11 +128,11 @@ class EventGhostTeleportChant(BaseEvent):
         self.destination = destination
 
     def __str__(self):
-        return f'{self.name} => ghost_id {self.ghost_id} start chatting and will teleport from {self.position} to {self.destination}'
+        return f"{self.name} => ghost_id {self.ghost_id} start chatting and will teleport from {self.position} to {self.destination}"
 
 
 class EventGhostTeleport(BaseEvent):
-    name = 'GhostTeleport event'
+    name = "GhostTeleport event"
 
     def __init__(self, ghost_id, position: pg.Vector2, destination: pg.Vector2):
         super().__init__()
@@ -139,21 +141,22 @@ class EventGhostTeleport(BaseEvent):
         self.destination = destination
 
     def __str__(self):
-        return f'{self.name} => ghost_id {self.ghost_id} teleport from {self.position} to {self.destination}'
+        return f"{self.name} => ghost_id {self.ghost_id} teleport from {self.position} to {self.destination}"
 
 
 class EventPatronusShockwave(BaseEvent):
-    name = 'Patronus shockwave event'
+    name = "Patronus shockwave event"
 
     def __init__(self, position: pg.Vector2):
         super().__init__()
         self.position = position
 
     def __str__(self):
-        return f'{self.name} => shockwave occurred at {self.position}'
+        return f"{self.name} => shockwave occurred at {self.position}"
+
 
 class EventSortinghat(BaseEvent):
-    name = 'Sortinghat event'
+    name = "Sortinghat event"
 
     def __init__(self, assailant: const.PlayerIds, victim: const.PlayerIds):
         super().__init__()
@@ -161,22 +164,51 @@ class EventSortinghat(BaseEvent):
         self.victim = victim
 
     def __str__(self):
-        return f'{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}'
+        return f"{self.name} => Sorthinghat fly from {self.assailant} to {self.victim}"
 
 
 class EventGhostKill(BaseEvent):
-    name = 'GhostKill event'
+    name = "GhostKill event"
 
-    def __init__(self, ghost_id, victim_position: pg.Vector2, victim_id = 'Patronus', victim_effect = None):
+    def __init__(
+        self,
+        ghost_id,
+        victim_position: pg.Vector2,
+        victim_id="Patronus",
+        victim_effect=None,
+    ):
         super().__init__()
         self.ghost_id = ghost_id
         self.victim_id = victim_id
         self.destination = victim_position
         self.victim_effect = victim_effect
 
+
 class EventMuteMusic(BaseEvent):
-    name = 'MuteMusic event'
+    name = "MuteMusic event"
 
     def __init__(self, type):
         super().__init__()
         self.type = type
+
+
+class EventShowCoordinate(BaseEvent):
+    name = "ShowCoordinate event"
+
+    def __init__(self, unit):
+        super().__init__()
+        self.unit = unit
+
+class EventPauseModel(BaseEvent):
+    name = 'PauseModel event'
+
+class EventContinueModel(BaseEvent):
+    name = 'ContinueModel event'
+
+class EventGetGoldenSnitch(BaseEvent):
+    name = "player get Golden snitch"
+
+    def __init__(self, item_pos, player_id):
+        super().__init__()
+        self.item_pos = item_pos
+        self.player_id = player_id

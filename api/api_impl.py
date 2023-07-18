@@ -233,10 +233,13 @@ class Timer():
             self.timer.start()
 
     def cancel_timer(self):
-        if self.system != 'Windows':
-            signal.setitimer(signal.ITIMER_REAL, 0)
-        else:
-            self.timer.cancel()
+        try:
+            if self.system != 'Windows':
+                signal.setitimer(signal.ITIMER_REAL, 0)
+            else:
+                self.timer.cancel()
+        except:
+            print("Perhaps some very slightly timeout.")
 
 
 def init(ai_file):
@@ -253,18 +256,17 @@ def init(ai_file):
             __timer.set_timer(1, i)
             m = importlib.import_module(file)
             __ai[i] = m.TeamAI()
-            __timer.cancel_timer()
         except Exception as e:
-            __timer.cancel_timer()
-            print(f"Exception in ai of player {i}.")
+            print(f"Exception in initialization of ai of {i}.")
             if model.no_error_message:
                 print(f'{util.get_full_exception(e)}: {e}')
-            else:
-                print(traceback.format_exc())
+                raise SystemExit()
             raise
+        finally:
+            __timer.cancel_timer()
 
 
-def call_ai(player_id: int):
+def call_ai(player_id):
     __last_target[player_id] = None
     model = instances_manager.get_game_engine()
     if __ai[player_id] is None:
@@ -273,17 +275,18 @@ def call_ai(player_id: int):
     try:
         __timer.set_timer(1 / (3 * const.FPS), player_id)
         destination = __ai[player_id].player_tick()
-        __timer.cancel_timer()
-        if type(destination) != Vector2:
+        if not (isinstance(destination, Vector2) or isinstance(destination, tuple)):
             raise error.WrongTypeError()
     except Exception as e:
-        __timer.cancel_timer()
-        print(f"Exception in ai of player {player_id}.")
+        print(f"Exception in ai of {player_id}.")
         if model.no_error_message:
             print(f'{util.get_full_exception(e)}: {e}')
         else:
             print(traceback.format_exc())
         return
+    finally:
+        __timer.cancel_timer()
+
     __last_target[player_id] = destination
     player = model.players[player_id]
     event_manager = instances_manager.get_event_manager()

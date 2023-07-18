@@ -1,13 +1,13 @@
 import argparse
 import os
+import random
 import platform
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
-
 import pygame as pg
-
 del os.environ['PYGAME_HIDE_SUPPORT_PROMPT']
 
+import const
 import event_manager.events
 import instances_manager
 from controller.controller import Controller
@@ -32,29 +32,43 @@ def main():
 
     # Argument parser
     parser = argparse.ArgumentParser(prog='Challenge2023')
-    parser.add_argument('map', help='The name of tmaps. It can be snow, azkaban or river(for test)')
+    parser.add_argument(
+        'map', help='The name of tmaps. It can be snow, azkaban or river(for test)')
     parser.add_argument('ai1', nargs='?', default='manual')
     parser.add_argument('ai2', nargs='?', default='manual')
     parser.add_argument('ai3', nargs='?', default='manual')
     parser.add_argument('ai4', nargs='?', default='manual')
     parser.add_argument('-m', '--mute', action='store_true', help='mute the BGM')
-    parser.add_argument('--show-ai-target', action='store_true', help='show returned positions of AIs')
-    parser.add_argument('--no-error-message', action='store_true', help='disable the traceback message')
+    parser.add_argument('-s', '--show-ai-target', action='store_true',
+                        help='show returned positions of AIs')
+    parser.add_argument('-n', '--no-error-message', action='store_true',
+                        help='disable the traceback message')
+    parser.add_argument('-r', '--r18g', action='store_true', help='add some violent taste...')
+    parser.add_argument('-c', '--coordinate', type=int, metavar='interval', help='set the interval of the coordinate and show it when playing (can be canceled using F3)')
     args = parser.parse_args()
+
+    name_of_ai = [args.ai1, args.ai2, args.ai3, args.ai4]
+    random.shuffle(name_of_ai)
+    player_names = const.PLAYER_NAME.copy()
+    for i in range(const.NUM_OF_PLAYERS):
+        player_names[i] = name_of_ai[i].replace('manual', 'Hermione') + " " + player_names[i]
+        print(f"player {i + 1} is {player_names[i]}")
 
     # EventManager listen to events and notice model, controller, view
     ev_manager = EventManager()
     instances_manager.register_event_manager(ev_manager)
-    model = GameEngine(args.map, [args.ai1, args.ai2, args.ai3, args.ai4], args.show_ai_target, args.no_error_message)
+    model = GameEngine(args.map, name_of_ai,
+                       args.show_ai_target, args.no_error_message, player_names)
     instances_manager.register_game_engine(model)
     Controller()
-    GraphicalView()
+
+    GraphicalView(args.r18g, player_names)
     if not args.mute:
         BackGroundMusic()
 
-    if args.mute:
-        ev_manager.post(event_manager.events.EventMuteMusic("BGM"))
-        ev_manager.post(event_manager.events.EventMuteMusic("effect"))
+    if args.coordinate is not None:
+        const.COORDINATE_UNIT = args.coordinate
+        ev_manager.post(event_manager.events.EventShowCoordinate(args.coordinate))
 
     # Main loop
     model.run()
