@@ -55,7 +55,8 @@ class Item(__ObjectBase):
             const.ITEM_RADIUS * 2,
             True,
         )
-        for item in const.ItemType if item != const.ItemType.GOLDEN_SNITCH
+        for item in const.ItemType
+        if item != const.ItemType.GOLDEN_SNITCH
     }
 
     @classmethod
@@ -63,7 +64,10 @@ class Item(__ObjectBase):
         super().init_convert()
         cls.images[const.ItemType.GOLDEN_SNITCH] = tuple(
             crop_image(
-                pg.image.load(const.PICTURES_PATH[const.ItemType.GOLDEN_SNITCH] / f'GoldenSnitch_{i}.png'),
+                pg.image.load(
+                    const.PICTURES_PATH[const.ItemType.GOLDEN_SNITCH]
+                    / f"GoldenSnitch_{i}.png"
+                ),
                 const.ITEM_RADIUS * 2,
                 const.ITEM_RADIUS * 2,
                 True,
@@ -102,7 +106,11 @@ class Item(__ObjectBase):
         # render item
         if self.item.type == const.ItemType.GOLDEN_SNITCH:
             model = get_game_engine()
-            img = self.images[self.item.type][model.timer // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH % const.GOLDEN_SNITCH_PICTURE_NUMBER]
+            img = self.images[self.item.type][
+                model.timer
+                // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH
+                % const.GOLDEN_SNITCH_PICTURE_NUMBER
+            ]
         else:
             img = self.images[self.item.type]
         screen.blit(img, img.get_rect(midbottom=self.item.render_position))

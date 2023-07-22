@@ -1,6 +1,6 @@
 import os
 import cv2
-
+import numpy as np
 import pygame as pg
 from pygame import Vector2
 from math import pi
@@ -15,9 +15,15 @@ from instances_manager import get_event_manager, get_game_engine
 from view.particle import CastMagicParticleEffect, GatheringParticleEffect
 
 
-class Object():
-    def __init__(self, y, object_type: const.ObjectType, position: pg.Vector2,
-                 image_index, detail: tuple):
+class Object:
+    def __init__(
+        self,
+        y,
+        object_type: const.ObjectType,
+        position: pg.Vector2,
+        image_index,
+        detail: tuple,
+    ):
         self.y = y
         self.object_type = object_type
         self.position = position
@@ -29,6 +35,7 @@ class GraphicalView:
     """
     Draws the state of GameEngine onto the screen.
     """
+
     background = pg.Surface(const.ARENA_SIZE)
 
     def __init__(self, r18g, player_names):
@@ -71,12 +78,18 @@ class GraphicalView:
         self.bleed_animation_images: list[pg.Surface] = []
         self.bleed_animations: list[GIFAnimation] = []
         self.golden_snitch_animations: list[GSAnimation] = []
-        self.coordinate_unit = 0 # it won't show the coordinate if the variable is set to zero
+        self.coordinate_unit = (
+            0  # it won't show the coordinate if the variable is set to zero
+        )
 
         self.background_images = []
         for i in model.map.images:
-            loaded_image = cv2.imread(os.path.join(model.map.map_dir, i), cv2.IMREAD_UNCHANGED)
-            loaded_image = cv2.resize(loaded_image, const.ARENA_SIZE, interpolation=cv2.INTER_AREA)
+            loaded_image = cv2.imread(
+                os.path.join(model.map.map_dir, i), cv2.IMREAD_UNCHANGED
+            )
+            loaded_image = cv2.resize(
+                loaded_image, const.ARENA_SIZE, interpolation=cv2.INTER_AREA
+            )
             x, y, w, h = cv2.boundingRect(loaded_image[..., 3])
             picture = pg.image.load(os.path.join(model.map.map_dir, i)).convert_alpha()
             picture = pg.transform.scale(picture, const.ARENA_SIZE)
@@ -85,32 +98,43 @@ class GraphicalView:
 
         picture = pg.image.load(const.PICTURES_PATH[const.Scene.TITLE]).convert_alpha()
         self.pictures[const.Scene.TITLE] = util.crop_image(
-            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+            picture, 2 * const.ARENA_SIZE[0], const.ARENA_SIZE[1]
+        )
         picture = pg.image.load(const.PICTURES_PATH[const.Scene.FOG]).convert_alpha()
         picture.set_alpha(const.FOG_TRANSPARENCY)
         self.pictures[const.Scene.FOG] = util.crop_image(
-            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
-        picture = pg.image.load(const.PICTURES_PATH[const.Scene.ENDGAME]).convert_alpha()
+            picture, 2 * const.ARENA_SIZE[0], const.ARENA_SIZE[1]
+        )
+        picture = pg.image.load(
+            const.PICTURES_PATH[const.Scene.ENDGAME]
+        ).convert_alpha()
         self.pictures[const.Scene.ENDGAME] = util.crop_image(
-            picture, 2*const.ARENA_SIZE[0], const.ARENA_SIZE[1])
+            picture, 2 * const.ARENA_SIZE[0], const.ARENA_SIZE[1]
+        )
         self.fog = Fog(self.screen, self.pictures[const.Scene.FOG], const.FOG_SPEED)
         # print(self.pictures[const.SCENE.FOG].get_width())
         # print(self.pictures[const.SCENE.FOG].get_height())
 
         picture = pg.image.load(
-            const.PICTURES_PATH[const.OtherPictures.MAGIC_CIRCLE]).convert_alpha()
+            const.PICTURES_PATH[const.OtherPictures.MAGIC_CIRCLE]
+        ).convert_alpha()
         self.magic_circle = util.crop_image(
-            picture, const.MAGIC_CIRCLE_RADIUS*2, const.MAGIC_CIRCLE_RADIUS*2, True)
+            picture, const.MAGIC_CIRCLE_RADIUS * 2, const.MAGIC_CIRCLE_RADIUS * 2, True
+        )
         self.magic_circle.set_alpha(127)
-        picture = pg.image.load(const.PICTURES_PATH[const.ItemType.SORTINGHAT]).convert_alpha()
+        picture = pg.image.load(
+            const.PICTURES_PATH[const.ItemType.SORTINGHAT]
+        ).convert_alpha()
         self.sortinghat_animation_picture.append(
-            util.crop_image(picture, const.ITEM_RADIUS, const.ITEM_RADIUS))
+            util.crop_image(picture, const.ITEM_RADIUS, const.ITEM_RADIUS)
+        )
 
         angle = 0
         while angle < 360:
             angle += const.SORTINGHAT_ANIMATION_ROTATE_SPEED / const.FPS
             self.sortinghat_animation_picture.append(
-                pg.transform.rotate(self.sortinghat_animation_picture[0], angle))
+                pg.transform.rotate(self.sortinghat_animation_picture[0], angle)
+            )
 
         # port key
         picture = pg.image.load("pictures/other/portal_animation.png").convert_alpha()
@@ -119,24 +143,29 @@ class GraphicalView:
             self.portkey_animation_image.append(subpicture)
 
         # bleed animation
-        picture = pg.transform.smoothscale(pg.image.load("pictures/other/bleed_animation.png").convert_alpha(), (128*3, 160*2))
+        picture = pg.transform.smoothscale(
+            pg.image.load("pictures/other/bleed_animation.png").convert_alpha(),
+            (128 * 3, 160 * 2),
+        )
         for y in range(2):
             for x in range(3):
                 subpicture = picture.subsurface(pg.Rect(128 * x, 160 * y, 128, 160))
                 self.bleed_animation_images.append(subpicture)
-
 
     def initialize(self, event):
         """
         This method is called when a new game is instantiated.
         """
         model = get_game_engine()
-        model.register_user_event(const.GOLDEN_SNITCH_APPEAR_TIME, self.last_stage_handler)
+        model.register_user_event(
+            const.GOLDEN_SNITCH_APPEAR_TIME, self.last_stage_handler
+        )
 
         # Objects and animations should be initialized after pygame is initialized.
         # Therefore, they should be created in initialize() instead of __init__().
         self.scoreboard = view_objects.ScoreBoard()
         self.players = [view_objects.Player(player) for player in model.players]
+        AnimationPatronousShockwave.init_convert()
 
     def last_stage_handler(self):
         self.fog.start = True
@@ -168,12 +197,22 @@ class GraphicalView:
         player.update_face_dir()
 
     def handle_ghost_kill(self, event: EventGhostKill):
-        self.ghost_kill_animations[event.ghost_id] = (event.destination, event.victim_id, event.victim_effect,
-                                           get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME)
+        self.ghost_kill_animations[event.ghost_id] = (
+            event.destination,
+            event.victim_id,
+            event.victim_effect,
+            get_game_engine().timer + const.GHOST_KILL_ANIMATION_TIME,
+        )
 
     def handle_portkey(self, event: EventPortkey):
-        self.portkey_animation.append(GIFAnimation(self.screen, event.destination,
-                                             self.portkey_animation_image, int(const.FPS / 3)))
+        self.portkey_animation.append(
+            GIFAnimation(
+                self.screen,
+                event.destination,
+                self.portkey_animation_image,
+                int(const.FPS / 3),
+            )
+        )
 
     def handle_get_golden_snitch(self, event: EventGetGoldenSnitch):
         self.screen_copy = self.screen.copy()
@@ -191,10 +230,15 @@ class GraphicalView:
         ev_manager.register_listener(EventInitialize, self.initialize)
         ev_manager.register_listener(EventEveryTick, self.handle_every_tick)
         ev_manager.register_listener(EventHelpMenu, self.handle_show_helper)
-        ev_manager.register_listener(EventGhostTeleportChant,
-                                     self.add_ghost_teleport_chanting_animation)
-        ev_manager.register_listener(EventCastPetrification, self.add_cast_petrification_animation)
-        ev_manager.register_listener(EventPatronusShockwave, self.add_patronus_shockwave_animation)
+        ev_manager.register_listener(
+            EventGhostTeleportChant, self.add_ghost_teleport_chanting_animation
+        )
+        ev_manager.register_listener(
+            EventCastPetrification, self.add_cast_petrification_animation
+        )
+        ev_manager.register_listener(
+            EventPatronusShockwave, self.add_patronus_shockwave_animation
+        )
         ev_manager.register_listener(EventSortinghat, self.add_sortinghat_animation)
         ev_manager.register_listener(EventTimesUp, self.register_places)
         ev_manager.register_listener(EventPlayerMove, self.handle_player_move)
@@ -202,31 +246,50 @@ class GraphicalView:
         ev_manager.register_listener(EventGhostKill, self.add_player_killed_animation)
         ev_manager.register_listener(EventPortkey, self.handle_portkey)
         ev_manager.register_listener(EventShowCoordinate, self.handle_show_coordinate)
-        ev_manager.register_listener(EventGetGoldenSnitch, self.handle_get_golden_snitch)
+        ev_manager.register_listener(
+            EventGetGoldenSnitch, self.handle_get_golden_snitch
+        )
 
     def display_fps(self):
         """
         Display the current fps on the window caption.
         """
         model = get_game_engine()
-        pg.display.set_caption(f'{const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}')
+        pg.display.set_caption(
+            f"{const.WINDOW_CAPTION} - FPS: {model.clock.get_fps():.2f}"
+        )
 
     def add_ghost_teleport_chanting_animation(self, event):
         model = get_game_engine()
-        self.ghost_teleport_chanting_animations.append((
-            GatheringParticleEffect(event.position, const.GHOST_CHANTING_TIME + model.timer,
-                                    const.GHOST_CHANTING_COLOR), event.destination))
+        self.ghost_teleport_chanting_animations.append(
+            (
+                GatheringParticleEffect(
+                    event.position,
+                    const.GHOST_CHANTING_TIME + model.timer,
+                    const.GHOST_CHANTING_COLOR,
+                ),
+                event.destination,
+            )
+        )
 
     def add_cast_petrification_animation(self, event):
-        self.petrification_animation.append((
-            CastMagicParticleEffect(event.attacker, event.victim, const.PETRIFICATION_ANIMATION_SPEED,
-                                    const.PETRIFICATION_ANIMATION_COLOR,
-                                    const.PETRIFICATION_ANIMATION_THICKNESS), event.victim))
+        self.petrification_animation.append(
+            (
+                CastMagicParticleEffect(
+                    event.attacker,
+                    event.victim,
+                    const.PETRIFICATION_ANIMATION_SPEED,
+                    const.PETRIFICATION_ANIMATION_COLOR,
+                    const.PETRIFICATION_ANIMATION_THICKNESS,
+                ),
+                event.victim,
+            )
+        )
 
     def add_patronus_shockwave_animation(self, event):
-        model = get_game_engine()
-        duration = const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION
-        self.patronus_shockwave_animations.append((event.position, model.timer + duration, duration))
+        self.patronus_shockwave_animations.append(
+            AnimationPatronousShockwave(event.position)
+        )
 
     def add_sortinghat_animation(self, event):
         model = get_game_engine()
@@ -236,8 +299,15 @@ class GraphicalView:
 
     def add_player_killed_animation(self, event: EventGhostKill):
         if self.r18g:
-            self.bleed_animations.append(GIFAnimation(self.screen, event.destination + pg.Vector2(0, -50),
-                                        self.bleed_animation_images, int(const.FPS / 10), const.GHOST_KILL_ANIMATION_TIME))
+            self.bleed_animations.append(
+                GIFAnimation(
+                    self.screen,
+                    event.destination + pg.Vector2(0, -50),
+                    self.bleed_animation_images,
+                    int(const.FPS / 10),
+                    const.GHOST_KILL_ANIMATION_TIME,
+                )
+            )
 
     def register_places(self, event: EventTimesUp):
         self.places = event.places
@@ -252,45 +322,81 @@ class GraphicalView:
         # draw background
         # self.screen.fill(Const.BACKGROUND_COLOR)
         self.screen.fill(const.BACKGROUND_COLOR)
-        self.screen.blit(self.pictures[const.Scene.TITLE],
-                         ((const.WINDOW_SIZE[0]-const.TITLE_SIZE[0])/2, 0))
+        self.screen.blit(
+            self.pictures[const.Scene.TITLE],
+            ((const.WINDOW_SIZE[0] - const.TITLE_SIZE[0]) / 2, 0),
+        )
 
         # draw text
         if not self.show_helper:
             font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-            text_surface = font.render("Press [space] to start ...", 1, pg.Color('gray88'))
+            text_surface = font.render(
+                "Press [space] to start ...", 1, pg.Color("gray88")
+            )
             text_center = (const.WINDOW_SIZE[0] / 2, 40)
             self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
-            text_surface = font.render("Press [ESC] to see helper.", 1, pg.Color('gray88'))
+            text_surface = font.render(
+                "Press [ESC] to see helper.", 1, pg.Color("gray88")
+            )
             text_center = (const.WINDOW_SIZE[0] / 2, 80)
             self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
         else:
-            background = pg.Surface((const.HELPER_SIZE[0], const.HELPER_SIZE[1]), pg.SRCALPHA)
+            background = pg.Surface(
+                (const.HELPER_SIZE[0], const.HELPER_SIZE[1]), pg.SRCALPHA
+            )
             background.fill((255, 255, 255, 200))
-            self.screen.blit(background, tuple((x - y)/2 for x, y in zip (const.WINDOW_SIZE, const.HELPER_SIZE)))
+            self.screen.blit(
+                background,
+                tuple(
+                    (x - y) / 2 for x, y in zip(const.WINDOW_SIZE, const.HELPER_SIZE)
+                ),
+            )
             # keyboard
             image = pg.image.load("pictures/other/keyboard.png").convert_alpha()
             bounding_rect = image.get_bounding_rect()
             cropped_image = pg.Surface(bounding_rect.size, pg.SRCALPHA)
             cropped_image.blit(image, (0, 0), bounding_rect)
             width, height = [cropped_image.get_width(), cropped_image.get_height()]
-            ratio = min((const.HELPER_SIZE[0] * 2 / 3) / width, (const.HELPER_SIZE[1] * 2 / 3) / height)
-            cropped_image = pg.transform.scale(cropped_image, (width*ratio, height*ratio))
-            self.screen.blit(cropped_image, ((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 160))
+            ratio = min(
+                (const.HELPER_SIZE[0] * 2 / 3) / width,
+                (const.HELPER_SIZE[1] * 2 / 3) / height,
+            )
+            cropped_image = pg.transform.scale(
+                cropped_image, (width * ratio, height * ratio)
+            )
+            self.screen.blit(
+                cropped_image,
+                ((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 160),
+            )
             # text
-            text_position = pg.Vector2((const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 520)
+            text_position = pg.Vector2(
+                (const.WINDOW_SIZE[0] - const.HELPER_SIZE[0] * 2 / 3) / 2, 520
+            )
             font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 60)
-            text_surface = font.render("Manual", 1, pg.Color('black'))
-            self.screen.blit(text_surface, text_surface.get_rect(
-                center=(const.WINDOW_SIZE[0]/2, (const.WINDOW_SIZE[1] - const.HELPER_SIZE[1])/2 + 60)))
+            text_surface = font.render("Manual", 1, pg.Color("black"))
+            self.screen.blit(
+                text_surface,
+                text_surface.get_rect(
+                    center=(
+                        const.WINDOW_SIZE[0] / 2,
+                        (const.WINDOW_SIZE[1] - const.HELPER_SIZE[1]) / 2 + 60,
+                    )
+                ),
+            )
             font = pg.font.Font(None, 32)
-            text_surface = font.render("F1: Mute/unmute the BGM", 1, pg.Color('black'))
+            text_surface = font.render("F1: Mute/unmute the BGM", 1, pg.Color("black"))
             self.screen.blit(text_surface, text_position)
             text_position.y += 40
-            text_surface = font.render("F2: Mute/unmute effect sounds", 1, pg.Color('black'))
+            text_surface = font.render(
+                "F2: Mute/unmute effect sounds", 1, pg.Color("black")
+            )
             self.screen.blit(text_surface, text_position)
             text_position.y += 40
-            text_surface = font.render("F3: Show/hide the coordinate (default interval: 25)", 1, pg.Color('black'))
+            text_surface = font.render(
+                "F3: Show/hide the coordinate (default interval: 25)",
+                1,
+                pg.Color("black"),
+            )
             self.screen.blit(text_surface, text_position)
 
         pg.display.flip()
@@ -307,7 +413,9 @@ class GraphicalView:
             # bgr_new = cv2.cvtColor(hsv_new, cv2.COLOR_HSV2RGB)
             # self.screen_copy = pg.surfarray.make_surface(bgr_new)
             self.screen.blit(self.screen_copy, (0, 0))
-            self.golden_snitch_animations = [x for x in self.golden_snitch_animations if x.tick()]
+            self.golden_snitch_animations = [
+                x for x in self.golden_snitch_animations if x.tick()
+            ]
             if len(self.golden_snitch_animations) == 0:
                 get_event_manager().post(EventContinueModel())
             pg.display.flip()
@@ -324,11 +432,15 @@ class GraphicalView:
 
         for portal in self.portkey_animation:
             coord = game_map.convert_coordinate(portal.position)
-            detail = (portal, )
-            objects.append(Object(coord[1], const.ObjectType.PORTAL, portal.position, None, detail))
+            detail = (portal,)
+            objects.append(
+                Object(coord[1], const.ObjectType.PORTAL, portal.position, None, detail)
+            )
 
         for row, image, position in self.background_images:
-            objects.append(Object(row, const.ObjectType.MAP, pg.Vector2(position), None, (image,)))
+            objects.append(
+                Object(row, const.ObjectType.MAP, pg.Vector2(position), None, (image,))
+            )
 
         objects.sort(key=lambda x: x.y)
         for obj in objects:
@@ -355,10 +467,16 @@ class GraphicalView:
                 self.ghost_teleport_chanting_animations.remove(animation)
                 continue
             for particle in effect.particles:
-                pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
+                pg.draw.circle(
+                    self.screen, particle.color, particle.position, particle.radius
+                )
             effect.tick()
-            ul = [x - y for x, y in zip(destination,
-                                        [const.MAGIC_CIRCLE_RADIUS, const.MAGIC_CIRCLE_RADIUS])]
+            ul = [
+                x - y
+                for x, y in zip(
+                    destination, [const.MAGIC_CIRCLE_RADIUS, const.MAGIC_CIRCLE_RADIUS]
+                )
+            ]
             self.screen.blit(self.magic_circle, ul)
 
         # Cast petrification animation
@@ -371,23 +489,17 @@ class GraphicalView:
                 get_event_manager().post(EventPetrify(victim))
                 continue
             for particle in effect.particles:
-                pg.draw.circle(self.screen, particle.color, particle.position, particle.radius)
+                pg.draw.circle(
+                    self.screen, particle.color, particle.position, particle.radius
+                )
 
         # Patronus shockwave animation
-        animations = self.patronus_shockwave_animations.copy()
-        for animation in animations:
-            position = animation[0]
-            disappear_time = animation[1]
-            duration = animation[2]
-            if model.timer > disappear_time:
-                self.patronus_shockwave_animations.remove(animation)
-                continue
-            for i in range(5):
-                radius = const.PATRONUS_SHOCKWAVE_RADIUS * (1 - min(1, (disappear_time - model.timer + i) / duration))
-                color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
-                color.a = int(255 * (1 - radius / const.PATRONUS_SHOCKWAVE_RADIUS))
-                pg.draw.circle(self.screen, color, position, radius=radius, width=1+i)
-
+        for animation in self.patronus_shockwave_animations:
+            animation.draw(self.screen)
+            animation.update()
+        self.patronus_shockwave_animations = [
+            ani for ani in self.patronus_shockwave_animations if not ani.expired
+        ]
 
         # Sortinghat animation
         animations = self.sortinghat_animations.copy()
@@ -397,15 +509,21 @@ class GraphicalView:
             destination = model.players[victim.value].position
             index = animation[2]
             self.sortinghat_animations.remove(animation)
-            if (destination-position).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
+            if (
+                destination - position
+            ).length() < 2 * const.SORTINGHAT_ANIMATION_SPEED / const.FPS:
                 # maybe here can add some special effect
                 continue
             self.screen.blit(self.sortinghat_animation_picture[index], position)
             index += 1
             if index == len(self.sortinghat_animation_picture):
                 index = 0
-            position = position + \
-                (destination-position).normalize() * const.SORTINGHAT_ANIMATION_SPEED / const.FPS
+            position = (
+                position
+                + (destination - position).normalize()
+                * const.SORTINGHAT_ANIMATION_SPEED
+                / const.FPS
+            )
             self.sortinghat_animations.append((position, victim, index))
 
         # Ghost Killing Animation
@@ -425,11 +543,14 @@ class GraphicalView:
 
         def print_text(text, position, font="magic-school.one.ttf", size=36):
             font = pg.font.Font(os.path.join(const.FONT_PATH, font), size)
-            text_surface = font.render(str(text), True, pg.Color('black'))
+            text_surface = font.render(str(text), True, pg.Color("black"))
             self.screen.blit(text_surface, text_surface.get_rect(center=position))
+
         # Name
         for i in range(const.NUM_OF_PLAYERS):
-            print_text(self.player_names[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20)
+            print_text(
+                self.player_names[i], const.NAME_POSITION[i], "VinerHandITC.ttf", 20
+            )
         # Time
         count_down = (const.GAME_LENGTH - model.timer) // const.FPS
         print_text(count_down // 60 // 10, const.TIME_POSITION[0])
@@ -462,20 +583,32 @@ class GraphicalView:
             z = 0
             while z < const.ARENA_SIZE[0]:
                 if z % 400 == 0:
-                    pg.draw.line(self.screen, "white", (z, 0), (z, const.ARENA_SIZE[1]-1), 1)
+                    pg.draw.line(
+                        self.screen, "white", (z, 0), (z, const.ARENA_SIZE[1] - 1), 1
+                    )
                 elif z % 100 == 0:
-                    pg.draw.line(self.screen, "black", (z, 0), (z, const.ARENA_SIZE[1]-1), 1)
+                    pg.draw.line(
+                        self.screen, "black", (z, 0), (z, const.ARENA_SIZE[1] - 1), 1
+                    )
                 else:
-                    pg.draw.line(self.screen, "gold", (z, 0), (z, const.ARENA_SIZE[1]-1), 1)
+                    pg.draw.line(
+                        self.screen, "gold", (z, 0), (z, const.ARENA_SIZE[1] - 1), 1
+                    )
                 z += self.coordinate_unit
             z = 0
             while z < const.ARENA_SIZE[1]:
                 if z % 400 == 0:
-                    pg.draw.line(self.screen, "white", (0, z), (const.ARENA_SIZE[0]-1, z), 1)
+                    pg.draw.line(
+                        self.screen, "white", (0, z), (const.ARENA_SIZE[0] - 1, z), 1
+                    )
                 elif z % 100 == 0:
-                    pg.draw.line(self.screen, "black", (0, z), (const.ARENA_SIZE[0]-1, z), 1)
+                    pg.draw.line(
+                        self.screen, "black", (0, z), (const.ARENA_SIZE[0] - 1, z), 1
+                    )
                 else:
-                    pg.draw.line(self.screen, "gold", (0, z), (const.ARENA_SIZE[0]-1, z), 1)
+                    pg.draw.line(
+                        self.screen, "gold", (0, z), (const.ARENA_SIZE[0] - 1, z), 1
+                    )
                 z += self.coordinate_unit
 
         pg.display.flip()
@@ -485,12 +618,14 @@ class GraphicalView:
 
     def render_endgame(self):
         # draw background
-        self.screen.blit(self.pictures[const.Scene.ENDGAME],
-                         ((const.WINDOW_SIZE[0] - const.ENDGAME_SIZE[0]) / 2, 0))
+        self.screen.blit(
+            self.pictures[const.Scene.ENDGAME],
+            ((const.WINDOW_SIZE[0] - const.ENDGAME_SIZE[0]) / 2, 0),
+        )
 
         # draw text
         font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
-        text_surface = font.render("Game Over", 1, pg.Color('black'))
+        text_surface = font.render("Game Over", 1, pg.Color("black"))
         text_center = (const.WINDOW_SIZE[0] / 2, 40)
         self.screen.blit(text_surface, text_surface.get_rect(center=text_center))
         for i in range(len(self.places)):
@@ -501,13 +636,13 @@ class GraphicalView:
             )
             for player in self.places[i]:
                 if i == 3:
-                    surface = view_objects.Player.images[player.player_id][const.PlayerSkins.NORMAL][
-                        const.CharacterDirection.UP
-                    ]
+                    surface = view_objects.Player.images[player.player_id][
+                        const.PlayerSkins.NORMAL
+                    ][const.CharacterDirection.UP]
                 else:
-                    surface = view_objects.Player.images[player.player_id][const.PlayerSkins.NORMAL][
-                        const.CharacterDirection.DOWN
-                    ]
+                    surface = view_objects.Player.images[player.player_id][
+                        const.PlayerSkins.NORMAL
+                    ][const.CharacterDirection.DOWN]
                 self.screen.blit(surface, surface.get_rect(center=player_pos))
                 player_pos = (player_pos[0] + const.PODIUM_DIST, player_pos[1])
             font = pg.font.Font(os.path.join(const.FONT_PATH, "VinerHandITC.ttf"), 36)
@@ -521,7 +656,14 @@ class GraphicalView:
 
 
 class GIFAnimation:
-    def __init__(self, screen, position: pg.Vector2, animation_image: list[pg.Surface], image_duration, delay: int = 0):
+    def __init__(
+        self,
+        screen,
+        position: pg.Vector2,
+        animation_image: list[pg.Surface],
+        image_duration,
+        delay: int = 0,
+    ):
         self.screen = screen
         self.animation_image = animation_image
         self.animation_length = len(animation_image)
@@ -573,7 +715,10 @@ class GSAnimation:
     def __init__(self, screen, item_pos, player_id, pics):
         self.start_pos = item_pos
         self.end_pos = const.SCORE_POSITION[player_id][2]
-        self.middle_pos = (int(self.start_pos[0] - 0.2*(self.end_pos[0]-self.start_pos[0])), int((self.start_pos[0]+self.end_pos[0])/2)+20)
+        self.middle_pos = (
+            int(self.start_pos[0] - 0.2 * (self.end_pos[0] - self.start_pos[0])),
+            int((self.start_pos[0] + self.end_pos[0]) / 2) + 20,
+        )
         self.now_tick = 0
         self.tick_dist = 1
         self.screen = screen
@@ -586,17 +731,21 @@ class GSAnimation:
         length = const.GOLDEN_SNITCH_ANIMATION_LENGTH
         P = (self.start_pos, self.middle_pos, self.end_pos)
         t = tick / length
-        x = (1-t)*((1-t)*P[0][0] + t*P[1][0]) + t*((1-t)*P[1][0] + t*P[2][0])
-        y = (1-t)*((1-t)*P[0][1] + t*P[1][1]) + t*((1-t)*P[1][1] + t*P[2][1])
+        x = (1 - t) * ((1 - t) * P[0][0] + t * P[1][0]) + t * (
+            (1 - t) * P[1][0] + t * P[2][0]
+        )
+        y = (1 - t) * ((1 - t) * P[0][1] + t * P[1][1]) + t * (
+            (1 - t) * P[1][1] + t * P[2][1]
+        )
         return x, y
-    
+
     def tick(self):
         # self.now_tick += self.tick_dist
-        self.now_tick += (self.tick_dist ** 3) // 50000
+        self.now_tick += (self.tick_dist**3) // 50000
         self.tick_dist += 1
         if self.now_tick >= const.GOLDEN_SNITCH_ANIMATION_LENGTH:
             return False
-        
+
         center = self.get_B_curve_pos(self.now_tick)
 
         # width = const.GOLDEN_SNITCH_RAINBOW_CIRCLE_WIDTH
@@ -604,10 +753,94 @@ class GSAnimation:
         # anm_tick = self.tick_dist % nums
         # self.prev_centers[anm_tick] = center
         # for i in range(nums-1, 0, -1):
-        #     pick = (anm_tick - i + nums) % nums 
+        #     pick = (anm_tick - i + nums) % nums
         #     radius = width * (i + 1)
         #     pg.draw.circle(self.screen, const.RAINBOW_COLORS[pick], self.prev_centers[pick], radius, radius)
 
-        index = self.tick_dist // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH % const.GOLDEN_SNITCH_PICTURE_NUMBER
+        index = (
+            self.tick_dist
+            // const.GOLDEN_SNITCH_ANIMATION_PICTURE_LENGTH
+            % const.GOLDEN_SNITCH_PICTURE_NUMBER
+        )
         self.screen.blit(self.pics[index], self.pics[index].get_rect(center=center))
         return True
+
+
+class AnimationPatronousShockwave:
+    radius = int(const.PATRONUS_SHOCKWAVE_RADIUS * 0.7)
+    duration = int(const.PATRONUS_SHOCKWAVE_ANIMATION_DURATION)
+    transformedxi = []
+    transformedyi = []
+
+    def __init__(self, position):
+        self.timer = 0
+        self.expired = False
+        self.position = position
+
+    @classmethod
+    def init_convert(cls):
+        # obtain Cartesian coordinate and polar coordinate
+        yv, xv = np.mgrid[-cls.radius : cls.radius, -cls.radius : cls.radius]
+        r, t = np.hypot(xv, yv), np.arctan2(yv, xv)
+
+        for i in range(cls.duration):
+            # new radius for space compression
+            newr = cls.radius * (r / cls.radius) ** (18 / (i + 18))
+
+            # calculate compressed
+            mask_compress = r <= cls.radius
+            compressedxv = (
+                np.where(mask_compress, (newr * np.cos(t)).astype(int), xv) + cls.radius
+            )
+            compressedyv = (
+                np.where(mask_compress, (newr * np.sin(t)).astype(int), yv) + cls.radius
+            )
+
+            # combine
+            yi, xi = np.indices((2 * cls.radius, 2 * cls.radius))
+            cls.transformedxi.append(xi[compressedyv, compressedxv])
+            cls.transformedyi.append(yi[compressedyv, compressedxv])
+
+    def update(self):
+        self.timer += 1
+        if self.timer >= self.duration:
+            self.expired = True
+
+    def draw(self, screen: pg.Surface):
+        area = pg.Rect(0, 0, 2 * self.radius, 2 * self.radius)
+        area.center = self.position
+        canvas = pg.Rect((0, 0), const.ARENA_SIZE)
+
+        area_inside = area.clip(canvas)
+        sub_background = pg.Surface.subsurface(screen, area_inside)
+        source_array = pg.surfarray.array3d(sub_background)
+
+        square_background = pg.Surface((2 * self.radius, 2 * self.radius))
+        position = {
+            "left": canvas.left - area.left if area.left < canvas.left else 0,
+            "top": canvas.top - area.top if area.top < canvas.top else 0,
+        }
+        sub_rect = sub_background.get_rect(**position)
+        square_background.blit(sub_background, sub_rect)
+
+        source_array = pg.surfarray.array3d(square_background)
+
+        valid_x = self.transformedxi[self.timer].clip(sub_rect.top, sub_rect.bottom - 1)
+        valid_y = self.transformedyi[self.timer].clip(sub_rect.left, sub_rect.right - 1)
+
+        result_array = source_array[valid_y, valid_x]
+        result_surface_square_background = pg.surfarray.make_surface(result_array)
+        result_surface = pg.Surface.subsurface(
+            result_surface_square_background, sub_rect
+        )
+
+        screen.blit(result_surface, area_inside)
+
+        # shockwave
+        for i in range(5):
+            radius = const.PATRONUS_SHOCKWAVE_RADIUS * (
+                1 - min(1, (self.duration - self.timer + i) / self.duration)
+            )
+            color = pg.Color(const.PATRONUS_SHOCKWAVE_COLOR)
+            color.a = int(255 * (1 - radius / const.PATRONUS_SHOCKWAVE_RADIUS))
+            pg.draw.circle(screen, color, self.position, radius=radius, width=1 + i)
